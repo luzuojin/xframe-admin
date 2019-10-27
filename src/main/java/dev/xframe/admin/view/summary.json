@@ -1,0 +1,60 @@
+[{
+	"name": "系统管理",
+	"path": "system",
+	"segments": [{
+		"name": "管理员",
+		"path": "user",
+		"options": [{
+			"name": "查询",
+			"path": "query",
+			"opType": 1,
+			"inputs": [{
+				"key": "name",
+				"hint": "姓名",
+				"type": 0,
+				"require": false
+			}]
+		}, {
+			"name": "新增",
+			"path": "add",
+			"opType": 2
+		}, {
+			"name": "修改",
+			"path": "edit",
+			"opType": 3
+		}, {
+			"name": "删除",
+			"path": "delete",
+			"opType": 4
+		}],
+		"columns": [
+			{"key": "name", "hint": "姓名","show": true,"edit": false},
+			{"key": "phone", "hint": "电话","show": true,"edit": true},
+			{"key": "email", "hint": "邮箱","show": true,"edit": true},
+			{"key": "passw", "hint": "密码","show": false,"edit": true}
+		]
+	}, {
+		"name": "角色列表",
+		"path": "role"
+	}]
+}, {
+	"name": "服务器管理",
+	"path": "server",
+	"segments": [{
+		"name": "节点管理",
+		"path": "cell"
+	}, {
+		"name": "服务器列表",
+		"path": "server"
+	}]
+}, {
+	"name": "玩家管理",
+	"path": "player",
+	"segments": [{
+		"name": "基础信息",
+		"path": "baisinfo"
+	}, {
+		"name": "充值管理",
+		"path": "payment"
+	}]
+}]
