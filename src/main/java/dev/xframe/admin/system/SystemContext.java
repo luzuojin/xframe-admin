@@ -1,6 +1,7 @@
 package dev.xframe.admin.system;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,13 +25,12 @@ public class SystemContext implements Loadable {
     
     private List<Role> roles;
     
-    private List<Privilege> privileges;
+    private List<Privilege> privileges = new ArrayList<>();
     
-    private Map<String, String> privilegeDesc;
+    private Map<String, String> privilegeDesc = new HashMap<>();
     
     @Override
     public void load() {
-        privileges = new ArrayList<>();
         addPrivilege(new Privilege("全部", "_"));
         basicCtx.getSummary().getChapters().forEach(c->{
             addPrivilege(new Privilege(c.getName(), c.getPath()));
