@@ -31,7 +31,7 @@ public class StoreConfigurator implements Loadable {
 		String dbpath = dbPath(key);
 		String script = dbExists(key) ? "" : String.format("INIT=RUNSCRIPT FROM 'classpath:%s';", key.script);;
 		String driver = "org.h2.Driver";
-		String dburl = String.format("jdbc:h2:%s;%sDB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE;", dbpath, script);
+		String dburl = String.format("jdbc:h2:%s;%sDB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;AUTO_SERVER=TRUE;", dbpath, script);
 		String user = "embed";
 		String pass = "embed";
 		return new DBSource(user, pass, driver, dburl, 1, 1);

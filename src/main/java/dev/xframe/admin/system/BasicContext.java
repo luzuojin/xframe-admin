@@ -1,4 +1,4 @@
-package dev.xframe.admin.basic;
+package dev.xframe.admin.system;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -6,16 +6,15 @@ import java.lang.reflect.Parameter;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import dev.xframe.admin.system.privilege.Privilege;
+import dev.xframe.admin.system.privilege.Privileges;
 import dev.xframe.admin.view.Chapter;
 import dev.xframe.admin.view.Column;
 import dev.xframe.admin.view.Option;
@@ -28,22 +27,19 @@ import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Service;
 import dev.xframe.http.service.rest.ArgParsers;
 import dev.xframe.injection.Bean;
-import dev.xframe.injection.Eventual;
 import dev.xframe.injection.Loadable;
 import dev.xframe.injection.code.Codes;
 import dev.xframe.utils.XStrings;
 
 
 @Bean
-public class BasicContext implements Loadable, Eventual {
-	
+public class BasicContext implements Loadable {
+    
 	private Summary summary;
 
-	private List<Privilege> privileges = new ArrayList<>();
-	
-	private Map<String, String> privilegeDesc = new HashMap<>();
-	
 	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	
+	private Map<String, Supplier<List<VEnum>>> enumValues = new HashMap<>();
 	
 	@Override
 	public void load() {
@@ -52,52 +48,28 @@ public class BasicContext implements Loadable, Eventual {
 		summary.setIcon("");
 		
 		ArgParsers.offer(Timestamp.class, s->XStrings.isEmpty(s) ? null : Timestamp.valueOf(LocalDate.parse(s, formatter).atTime(0, 0)));
+		
+		Map<String, Chapter> chapters = new LinkedHashMap<>();
+        for (Class<?> clazz : Codes.getDeclaredClasses()) {
+            if(clazz.isAnnotationPresent(XChapter.class)) {
+                XChapter chapter = clazz.getAnnotation(XChapter.class);
+                chapters.put(chapter.path(), new Chapter(chapter.name(), chapter.path()));
+            }
+        }
+        for (Class<?> clazz : Codes.getDeclaredClasses()) {
+            if(clazz.isAnnotationPresent(XSegment.class)) {
+                XSegment xseg = clazz.getAnnotation(XSegment.class);
+                String[] pathes = Service.findPath(clazz).split("/");
+                Chapter chapter = chapters.get(pathes[0]);
+                Segment segment = new Segment(xseg.name(), pathes[1]);
+                parseColumns(segment.getColumns(), xseg.model());
+                parseOptions(segment.getOptions(), clazz);
+                chapter.getSegments().add(segment);
+            }
+        }
+        summary.setChapters(chapters.values().stream().collect(Collectors.toList()));
 	}
 
-	@Override
-	public void eventuate() {
-		Map<String, Chapter> chapters = new LinkedHashMap<>();
-		for (Class<?> clazz : Codes.getDeclaredClasses()) {
-			if(clazz.isAnnotationPresent(XChapter.class)) {
-				XChapter chapter = clazz.getAnnotation(XChapter.class);
-				chapters.put(chapter.path(), new Chapter(chapter.name(), chapter.path()));
-			}
-		}
-		for (Class<?> clazz : Codes.getDeclaredClasses()) {
-			if(clazz.isAnnotationPresent(XSegment.class)) {
-				XSegment xseg = clazz.getAnnotation(XSegment.class);
-				String[] pathes = Service.findPath(clazz).split("/");
-				Chapter chapter = chapters.get(pathes[0]);
-				Segment segment = new Segment(xseg.name(), pathes[1]);
-				parseColumns(segment.getColumns(), xseg.model());
-				parseOptions(segment.getOptions(), clazz);
-				chapter.getSegments().add(segment);
-			}
-		}
-		summary.setChapters(chapters.values().stream().collect(Collectors.toList()));
-		
-		summary.getEnums().put("testenum", Arrays.asList(
-				new VEnum("luzj"),
-				new VEnum("xframe"),
-				new VEnum("admin")
-				));
-		
-		privileges = new ArrayList<>();
-		summary.getChapters().forEach(c->{
-			addPrivilege(new Privilege(c.getName(), c.getPath()));
-			for (Segment seg : c.getSegments()) {
-				addPrivilege(new Privilege(seg.getName(), c.getPath() + "/" + seg.getPath()));
-			}
-		});
-		
-		summary.getEnums().put("privileges", privileges.stream().map(p->new VEnum(p.getPath(), p.getName())).collect(Collectors.toList()));
-	}
-	
-	void addPrivilege(Privilege p) {
-		privileges.add(p);
-		privilegeDesc.put(p.getPath(), p.getName());
-	}
-	
 	String orElse(String src, String val) {
 		return XStrings.isEmpty(src) ? val : src;
 	}
@@ -132,34 +104,34 @@ public class BasicContext implements Loadable, Eventual {
 			XColumn xf = field.getAnnotation(XColumn.class);
 			String name = field.getName();
 			if(xf == null) {
-				columns.add(new Column(name, name, XColumn.type_text, "", XColumn.full));
+				columns.add(new Column(name, name, XColumn.type_text, "", XColumn.full, false));
 			} else if(xf.show() > 0) {
 				int xtype = xf.type();
 				if(xtype == 0 && (field.getType() == boolean.class || field.getType() == Boolean.class))
 					xtype = XColumn.type_bool;
-				columns.add(new Column(name, orElse(xf.value(), name), xtype, xf.enumKey(), xf.show()));
+				columns.add(new Column(name, orElse(xf.value(), name), xtype, xf.enumKey(), xf.show(), xf.primary()));
 			}
 		}
 	}
 	
-	public void setEnums(String key, List<VEnum> data) {
-		summary.getEnums().put(key, data);
-	}
-
-	public List<Privilege> getPrivileges() {
-		return privileges;
-	}
-
-	public Map<String, String> getPrivilegeDesc() {
-		return privilegeDesc;
-	}
-
 	public List<Chapter> getChapters() {
 		return summary.getChapters();
 	}
 
 	public Summary getSummary() {
-		return summary;
+	    return summary;
+	}
+	
+	public Summary getSummary(Privileges privileges) {
+		return summary.copyBy(privileges);
+	}
+	
+	public List<VEnum> getEnumValue(String key) {
+	    return enumValues.get(key).get();
+	}
+	
+	public void registEnumValue(String key, Supplier<List<VEnum>> supplier) {
+	    enumValues.put(key, supplier);
 	}
 
 }

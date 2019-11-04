@@ -3,14 +3,18 @@ package dev.xframe.admin.system.role;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.xframe.admin.system.EnumKeys;
 import dev.xframe.admin.view.XColumn;
 
 public class Role {
-	
-	@XColumn(value="角色", show=XColumn.xor_edit)
+
+    @XColumn(value="#", show=XColumn.list_edel, primary=true)
+    private int id;
+    
+	@XColumn(value="角色")
 	private String name;
 	
-	@XColumn(value="权限", show=XColumn.xor_list, enumKey="privileges", type=XColumn.type_mult)
+	@XColumn(value="权限", show=XColumn.xor_list, enumKey=EnumKeys.PRIVILEGES, type=XColumn.type_mult)
 	private List<String> authorities = new ArrayList<>();
 	
 	@XColumn(value="权限", show=XColumn.list)
@@ -19,7 +23,13 @@ public class Role {
 	@XColumn(value="只读")
 	private boolean readOnly;
 	
-	public String getName() {
+	public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public String getName() {
 		return name;
 	}
 	public void setName(String name) {

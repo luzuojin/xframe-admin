@@ -1,10 +1,10 @@
 package dev.xframe.admin.conf;
 
-public class AdminException extends RuntimeException {
+public class LogicException extends RuntimeException {
 
 	private static final long serialVersionUID = 2882785444709484441L;
 	
-	public AdminException(String message) {
+	public LogicException(String message) {
 		super(message);
 	}
 

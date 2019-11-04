@@ -29,3 +29,5 @@ build/
 bin/
 ### VS Code ###
 .vscode/
+
+/src/main/webapp

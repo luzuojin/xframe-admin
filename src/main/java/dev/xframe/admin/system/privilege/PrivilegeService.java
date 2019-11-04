@@ -3,7 +3,7 @@ package dev.xframe.admin.system.privilege;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.xframe.admin.basic.BasicContext;
+import dev.xframe.admin.system.BasicContext;
 import dev.xframe.admin.view.Segment;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;

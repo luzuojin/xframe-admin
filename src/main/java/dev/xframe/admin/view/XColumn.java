@@ -17,6 +17,8 @@ public @interface XColumn {
 	
 	String enumKey() default "";
 	
+	boolean primary() default false;
+	
 	
 	public static final int type_text = 0;
 	public static final int type_bool = 1;
@@ -29,10 +31,14 @@ public @interface XColumn {
 	public static final int list = 1 << 0;
 	public static final int edit = 1 << 1;
 	public static final int add  = 1 << 2;
-	public static final int full = (1 << 3) - 1;
+	public static final int edel = 1 << 3;//disable edit and delete column display
+	public static final int full = (1 << 4) - 1;
+	
+	public static final int list_edel = list | edel;
 	
 	public static final int xor_list = (full ^ list);
 	public static final int xor_edit = (full ^ edit);
 	public static final int xor_add  = (full ^ add);
+	public static final int xor_edel = (full ^ edel);
 	
 }

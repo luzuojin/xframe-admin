@@ -10,17 +10,19 @@ public class Column {
 	private String enumKey;
 	
 	private int show;
+	private boolean primary;
 	
 	public Column(String key, String hint, int type, String enumKey) {
-		this(key, hint, type, enumKey, XColumn.full);
+		this(key, hint, type, enumKey, XColumn.full, false);
 	}
 	
-	public Column(String key, String hint, int type, String enumKey, int show) {
+	public Column(String key, String hint, int type, String enumKey, int show, boolean primary) {
 		this.key = key;
 		this.hint = hint;
 		this.type = type;
 		this.enumKey = enumKey;
 		this.show = show;
+		this.primary = primary;
 		
 		if(!XStrings.isEmpty(enumKey) && this.type == 0)
 			this.type = XColumn.type_enum;
@@ -65,5 +67,13 @@ public class Column {
 	public void setEnumKey(String enumKey) {
 		this.enumKey = enumKey;
 	}
+
+    public boolean getPrimary() {
+        return primary;
+    }
+
+    public void setPrimary(boolean primary) {
+        this.primary = primary;
+    }
 
 }

@@ -9,19 +9,25 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+import dev.xframe.admin.system.AuthContext;
 import dev.xframe.admin.view.VResp;
 import dev.xframe.http.service.Request;
 import dev.xframe.http.service.Response;
 import dev.xframe.http.service.config.BodyDecoder;
 import dev.xframe.http.service.config.ErrorHandler;
 import dev.xframe.http.service.config.FileHandler;
+import dev.xframe.http.service.config.RequestInteceptor;
 import dev.xframe.http.service.config.RespEncoder;
 import dev.xframe.http.service.config.ServiceConfigSetter;
 import dev.xframe.injection.Configurator;
+import dev.xframe.injection.Inject;
 
 @Configurator
 public class RestConfigurator extends ServiceConfigSetter {
 	
+    @Inject
+    private AuthContext authCtx;
+    
 	static final Logger logger = LoggerFactory.getLogger(RestConfigurator.class);
 	
 	final SerializerFeature[] features = new SerializerFeature[] {
@@ -35,7 +41,9 @@ public class RestConfigurator extends ServiceConfigSetter {
     }
     
     private Response throwableResp(Request request, Throwable ex) {
-    	logger.error("Rest service throws:", ex);
+        if(!(ex instanceof LogicException)) {
+            logger.error("Rest service throws:", ex);
+        }
     	return new Response(JSON.toJSONString(VResp.fail(ex.getMessage()), features));
     }
     
@@ -61,11 +69,21 @@ public class RestConfigurator extends ServiceConfigSetter {
     }
 
 	@Override
+    public void setIncepetor(Consumer<RequestInteceptor> setter) {
+        setter.accept(req->{
+            if(authCtx.isReqIllegal(req)) {
+                return new Response(JSON.toJSONString(VResp.fail("Permission deny!")));
+            }
+            return null;
+        });
+    }
+
+    @Override
 	public void setFileHandler(Consumer<FileHandler> setter) {
 		setter.accept(new FileHandler() {
 			@Override
 			public String getPath(String path) {
-				return new File("/Users/luzj/git/xframe-admin", path).getPath();
+				return new File(System.getProperty("user.dir") + "/src/main/webapp", path).getPath();
 			}
 		});
 	}

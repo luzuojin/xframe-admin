@@ -1,16 +1,15 @@
 package dev.xframe.admin.view;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import dev.xframe.admin.system.privilege.Privileges;
 
 public class Summary {
 	
 	private String name;
 	private String icon;
 	
-	private Map<String, List<VEnum>> enums = new HashMap<>();
 	private List<Chapter> chapters = new ArrayList<>();
 	
 	public String getName() {
@@ -36,13 +35,17 @@ public class Summary {
 	public void setChapters(List<Chapter> chapters) {
 		this.chapters = chapters;
 	}
-
-	public Map<String, List<VEnum>> getEnums() {
-		return enums;
-	}
-
-	public void setEnums(Map<String, List<VEnum>> enums) {
-		this.enums = enums;
+	
+	public Summary copyBy(Privileges privileges) {
+	    Summary s = new Summary();
+	    s.name = this.name;
+	    s.icon = this.icon;
+	    for (Chapter chapter : this.chapters) {
+	        if(privileges.contains(chapter.getPath())) {
+	            s.chapters.add(chapter.copyBy(chapter.getPath(), privileges));
+	        }
+        }
+	    return s;
 	}
 	
 }

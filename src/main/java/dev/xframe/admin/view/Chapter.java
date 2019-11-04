@@ -3,6 +3,8 @@ package dev.xframe.admin.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.xframe.admin.system.privilege.Privileges;
+
 public class Chapter {
 	
 	private String name;
@@ -41,5 +43,17 @@ public class Chapter {
 	public void setSegments(List<Segment> segments) {
 		this.segments = segments;
 	}
+
+    public Chapter copyBy(String path, Privileges privileges) {
+        Chapter c = new Chapter();
+        c.name = this.name;
+        c.path = this.path;
+        for (Segment seg : segments) {
+            if(privileges.contains(path + "/" + seg.getPath())) {
+                c.segments.add(seg);
+            }
+        }
+        return c;
+    }
 
 }

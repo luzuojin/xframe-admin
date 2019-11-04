@@ -2,10 +2,10 @@ package dev.xframe.admin.system;
 
 import java.util.List;
 
-import org.h2.engine.User;
 
 import dev.xframe.admin.store.StoreKey;
 import dev.xframe.admin.system.role.Role;
+import dev.xframe.admin.system.user.User;
 import dev.xframe.injection.Repository;
 import dev.xframe.jdbc.TypeQuery;
 
@@ -13,10 +13,10 @@ import dev.xframe.jdbc.TypeQuery;
 public class SystemRepo {
 	
 	private TypeQuery<User> userQuery = 
-			TypeQuery.newBuilder(User.class).setTable(StoreKey.DAT, "t_user").build();
+			TypeQuery.newBuilder(User.class).setTable(StoreKey.DAT, "T_USER").build();
 	
 	private TypeQuery<Role> roleQuery =
-			TypeQuery.newBuilder(Role.class).setTable(StoreKey.DAT, "t_role").build();
+			TypeQuery.newBuilder(Role.class).setTable(StoreKey.DAT, "T_ROLE").build();
 	
 	
 	public List<User> fetchUsers() {
@@ -35,6 +35,10 @@ public class SystemRepo {
 		userQuery.update(user);
 	}
 	
+	public void deleteUser(User user) {
+        userQuery.delete(user);
+    }
+	
 	
 	public List<Role> fetchRoles() {
 		return roleQuery.fetchAll();
@@ -51,5 +55,9 @@ public class SystemRepo {
 	public void saveRole(Role role) {
 		roleQuery.update(role);
 	}
-	
+
+    public void deleteRole(Role role) {
+        roleQuery.delete(role);
+    }
+
 }

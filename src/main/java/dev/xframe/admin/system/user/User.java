@@ -1,21 +1,24 @@
 package dev.xframe.admin.system.user;
 
 import java.sql.Timestamp;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
+import dev.xframe.admin.system.EnumKeys;
 import dev.xframe.admin.view.XColumn;
 
 public class User {
 
-	@XColumn(value="姓名", show=XColumn.xor_edit)
+	@XColumn(value="用户名", show=XColumn.xor_edit, primary=true)
 	private String name;
 	@XColumn("手机")
 	private String phone;
 	@XColumn("邮箱")
 	private String email;
-	@XColumn(value="密码", show=XColumn.xor_list, type=XColumn.type_pass)
+	@XColumn(value="密码", show=XColumn.add, type=XColumn.type_pass)
 	private String passw;
+	@XColumn(value="角色", show=XColumn.xor_list, enumKey=EnumKeys.ROLE_LIST, type=XColumn.type_mult)
+	private int[] roles;
+	@XColumn(value="角色", show=XColumn.list)
+	private Object[] rolesDesc;
 	@XColumn(value="创建时间", show=XColumn.xor_add, type=XColumn.type_time)
 	private Timestamp ctime;
 	
@@ -31,7 +34,7 @@ public class User {
 	}
 
 	public void newCTime() {
-		this.ctime = new Timestamp(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(5) + new Random().nextInt((int) TimeUnit.DAYS.toMillis(10)));
+		this.ctime = new Timestamp(System.currentTimeMillis());
 	}
 	
 	public String getName() {
@@ -64,8 +67,20 @@ public class User {
 	public void setCtime(Timestamp ctime) {
 		this.ctime = ctime;
 	}
+    public int[] getRoles() {
+        return roles;
+    }
+    public void setRoles(int[] roles) {
+        this.roles = roles;
+    }
+    public Object[] getRolesDesc() {
+        return rolesDesc;
+    }
+    public void setRolesDesc(Object[] rolesDesc) {
+        this.rolesDesc = rolesDesc;
+    }
 
-	@Override
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
