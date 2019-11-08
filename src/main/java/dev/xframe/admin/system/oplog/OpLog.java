@@ -9,6 +9,16 @@ public class OpLog {
 	private String params;
 	private Timestamp opTime;
 	
+	public OpLog() {
+    }
+	
+    public OpLog(String name, String path, String params) {
+        this.name = name;
+        this.path = path;
+        this.params = params;
+        this.opTime = new Timestamp(System.currentTimeMillis());
+    }
+    
     public String getName() {
         return name;
     }

@@ -5,9 +5,9 @@ import static dev.xframe.admin.store.StoreKey.LOG;
 
 import java.io.File;
 
-import dev.xframe.injection.ApplicationContext;
-import dev.xframe.injection.Configurator;
-import dev.xframe.injection.Loadable;
+import dev.xframe.inject.ApplicationContext;
+import dev.xframe.inject.Configurator;
+import dev.xframe.inject.Loadable;
 import dev.xframe.jdbc.JdbcEnviron;
 import dev.xframe.jdbc.JdbcTemplate;
 import dev.xframe.jdbc.datasource.DBSource;

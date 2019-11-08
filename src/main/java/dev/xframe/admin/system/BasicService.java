@@ -8,7 +8,7 @@ import dev.xframe.http.service.Request;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
-import dev.xframe.injection.Inject;
+import dev.xframe.inject.Inject;
 
 @Rest("basic")
 public class BasicService {
@@ -51,7 +51,7 @@ public class BasicService {
 	    if(!user.getPassw().equals(data.getPassw()))
 	        throw new LogicException("密码错误");
 	    
-	    return new VUser(user.getName(), authCtx.regist(sysCtx.getPrivileges(user.getRoles())));
+	    return new VUser(user.getName(), authCtx.regist(sysCtx.getPrivileges(user)));
 	}
 	
 	@HttpMethods.GET("enum")

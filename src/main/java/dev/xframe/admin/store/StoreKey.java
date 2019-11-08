@@ -1,6 +1,8 @@
 package dev.xframe.admin.store;
 
-public enum StoreKey {
+import dev.xframe.jdbc.datasource.DBIdent;
+
+public enum StoreKey implements DBIdent {
 	
 	DAT("dat_init.sql"),
 	

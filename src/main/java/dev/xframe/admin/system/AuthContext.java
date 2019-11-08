@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import dev.xframe.admin.system.privilege.Privileges;
 import dev.xframe.http.service.Request;
-import dev.xframe.injection.Configurator;
+import dev.xframe.inject.Configurator;
 import io.netty.handler.codec.http.HttpMethod;
 
 @Configurator
@@ -15,6 +15,7 @@ public class AuthContext {
     private Map<String, Privileges> tokenPrivileges = new HashMap<>();
 
     public String regist(Privileges privileges) {
+        OpUser.set(privileges.getUsername());
         String token = UUID.randomUUID().toString();
         tokenPrivileges.put(token, privileges);
         return token;
@@ -29,6 +30,7 @@ public class AuthContext {
         String token = req.getHeader("x-token");
         Privileges p = tokenPrivileges.get(token);
         if(p != null) {
+            OpUser.set(p.getUsername());
             if(req.method().equals(HttpMethod.GET)) {
                 if(p.contains(path)) return false;
             } else {

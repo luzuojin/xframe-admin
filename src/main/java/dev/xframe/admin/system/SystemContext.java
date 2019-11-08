@@ -9,11 +9,12 @@ import java.util.stream.Collectors;
 import dev.xframe.admin.system.privilege.Privilege;
 import dev.xframe.admin.system.privilege.Privileges;
 import dev.xframe.admin.system.role.Role;
+import dev.xframe.admin.system.user.User;
 import dev.xframe.admin.view.Segment;
 import dev.xframe.admin.view.VEnum;
-import dev.xframe.injection.Bean;
-import dev.xframe.injection.Inject;
-import dev.xframe.injection.Loadable;
+import dev.xframe.inject.Bean;
+import dev.xframe.inject.Inject;
+import dev.xframe.inject.Loadable;
 
 @Bean
 public class SystemContext implements Loadable {
@@ -48,6 +49,10 @@ public class SystemContext implements Loadable {
         basicCtx.registEnumValue(EnumKeys.ROLE_LIST, ()->{
             return roles.stream().map(role->new VEnum(String.valueOf(role.getId()), role.getName())).collect(Collectors.toList());
         });
+        
+        basicCtx.registEnumValue(EnumKeys.USER_LIST, ()->{
+            return sysRepo.fetchUsers().stream().map(user->new VEnum(user.getName())).collect(Collectors.toList());
+        });
     }
     
     void addPrivilege(Privilege p) {
@@ -67,9 +72,9 @@ public class SystemContext implements Loadable {
         return privilegeDesc;
     }
     
-    public Privileges getPrivileges(int[] roles) {
-        Privileges p = new Privileges();
-        for (int role : roles) {
+    public Privileges getPrivileges(User user) {
+        Privileges p = new Privileges(user.getName());
+        for (int role : user.getRoles()) {
             Role x = this.roles.stream().filter(r->r.getId() == role).findAny().orElse(null);
             if(x != null) {
                 x.getAuthorities().forEach(a->p.add(getPrivilege(a), x.getReadOnly()));

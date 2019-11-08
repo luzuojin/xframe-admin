@@ -7,7 +7,7 @@ import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
-import dev.xframe.injection.Inject;
+import dev.xframe.inject.Inject;
 
 @Rest("system/role")
 @XSegment(name="角色列表", model=Role.class)

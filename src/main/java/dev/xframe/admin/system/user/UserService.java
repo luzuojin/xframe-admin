@@ -11,7 +11,7 @@ import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
-import dev.xframe.injection.Inject;
+import dev.xframe.inject.Inject;
 import dev.xframe.utils.XStrings;
 
 @Rest("system/user")

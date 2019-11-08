@@ -6,7 +6,7 @@ import java.util.List;
 import dev.xframe.admin.store.StoreKey;
 import dev.xframe.admin.system.role.Role;
 import dev.xframe.admin.system.user.User;
-import dev.xframe.injection.Repository;
+import dev.xframe.inject.Repository;
 import dev.xframe.jdbc.TypeQuery;
 
 @Repository

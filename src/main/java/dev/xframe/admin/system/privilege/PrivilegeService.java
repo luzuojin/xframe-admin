@@ -8,7 +8,7 @@ import dev.xframe.admin.view.Segment;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpMethods;
-import dev.xframe.injection.Inject;
+import dev.xframe.inject.Inject;
 
 @Rest("system/privilege")
 @XSegment(name="权限列表", model=Privilege.class)

@@ -5,10 +5,20 @@ import java.util.Set;
 
 public class Privileges {
     
+    private String username;
+    
     private Set<Privilege> wholePrivileges = new HashSet<>();
     
     private Set<Privilege> privileges = new HashSet<>();
     
+    public Privileges(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
     public Privileges add(Privilege privilege, boolean readOnly) {
         if(privilege != null) {
             privileges.add(privilege);

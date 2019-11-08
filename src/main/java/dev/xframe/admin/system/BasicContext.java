@@ -26,9 +26,9 @@ import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Service;
 import dev.xframe.http.service.rest.ArgParsers;
-import dev.xframe.injection.Bean;
-import dev.xframe.injection.Loadable;
-import dev.xframe.injection.code.Codes;
+import dev.xframe.inject.Bean;
+import dev.xframe.inject.Loadable;
+import dev.xframe.inject.code.Codes;
 import dev.xframe.utils.XStrings;
 
 

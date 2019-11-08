@@ -1,4 +1,6 @@
-CREATE TABLE `t_op_log` (
-  `Id` int(11) NOT NULL,
-  PRIMARY KEY (`Id`)
+CREATE TABLE `T_OP_LOG` (
+  `Name` varchar(64) NOT NULL,
+  `Path` varchar(64) NOT NULL,
+  `Params` varchar(1024) NOT NULL,
+  `OpTime` timestamp NOT NULL
 ) DEFAULT CHARSET=utf8;
