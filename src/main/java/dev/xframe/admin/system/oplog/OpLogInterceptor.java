@@ -25,7 +25,7 @@ public class OpLogInterceptor implements HttpInterceptor {
                 String path = req.trimmedPath();
                 String host = req.remoteHost();
                 
-                XLogger.info("User[{}] req[{}] with[{}]...", user, path, params);
+                XLogger.info("[{}] [{}] [{}] [{}] [{}]", user, host, method.name(), path, params);
                 
                 logRepo.add(new OpLog(user, path, params, host, method.name()));
             }
