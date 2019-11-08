@@ -1,7 +1,6 @@
 package dev.xframe.admin.system.oplog;
 
 import java.sql.Timestamp;
-import java.util.Collections;
 
 import dev.xframe.admin.conf.LogicException;
 import dev.xframe.admin.system.EnumKeys;
@@ -21,11 +20,6 @@ public class OpLogService {
     private OpLogRepo logRepo;
 	
 	@HttpMethods.GET
-	public Object get() {
-		return Collections.EMPTY_LIST;
-	}
-	
-	@HttpMethods.GET("query")
 	public Object query(
 			@HttpArgs.Param @XColumn(value="操作用户", enumKey=EnumKeys.USER_LIST) String opUser,
 	        @HttpArgs.Param @XColumn("操作路径") String opPath,

@@ -5,27 +5,21 @@ import java.util.List;
 
 public class Option implements Comparable<Option> {
 	
-	public static final int type_query = 1;
-	public static final int type_add = 2;
-	public static final int type_edit = 3;
-	public static final int type_delete = 4;
+	public static final Option edt = new Option("修改", XOption.type_edt);   //HttpMethods.PUT
+	public static final Option add = new Option("新增", XOption.type_add);   //HttpMethods.POST
+	public static final Option del = new Option("删除", XOption.type_del);   //HttpMethods.DELETE
 	
-	public static final Option edit = new Option("修改", "edit", type_edit);
-	public static final Option add = new Option("新增", "add", type_add);
-	public static final Option del = new Option("删除", "delete", type_delete);
-	
-	public static final Option qur() {
-		return new Option("查询", "query", type_query);
+	//HttpMethods.GET
+	public static final Option qry() {
+		return new Option("查询", XOption.type_qry);
 	}
 	
 	private String name;
-	private String path;
 	private List<Column> inputs = new ArrayList<>();
 	private int opType; //1(增), 2(查)
 	
-	public Option(String name, String path, int opType) {
+	public Option(String name, int opType) {
 		this.name = name;
-		this.path = path;
 		this.opType = opType;
 	}
 	
@@ -34,12 +28,6 @@ public class Option implements Comparable<Option> {
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public String getPath() {
-		return path;
-	}
-	public void setPath(String path) {
-		this.path = path;
 	}
 	public List<Column> getInputs() {
 		return inputs;

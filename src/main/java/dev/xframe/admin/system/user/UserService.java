@@ -26,14 +26,14 @@ public class UserService {
 	/**
 	 * 点击侧边栏时调用该方法 可以返回空数组
 	 */
-	@HttpMethods.GET
+	@HttpMethods.GET("list")
 	public Object get() {
 		List<User> datas = sysRepo.fetchUsers();
 		setRoleDesc(datas);
         return datas;
 	}
 	
-	@HttpMethods.POST("add")
+	@HttpMethods.POST
 	public Object add(@HttpArgs.Body User user) {
 	    validateUser(user);
 		user.newCTime();
@@ -54,7 +54,7 @@ public class UserService {
 	    user.setRolesDesc(Arrays.stream(user.getRoles()).mapToObj(r->sysCtx.getRole(r).getName()).toArray());
 	}
 
-    @HttpMethods.POST("edit")
+    @HttpMethods.PUT
 	public Object edit(@HttpArgs.Body User user) {
 		User ex = sysRepo.fetchUser(user.getName());
 		ex.setEmail(user.getEmail());
@@ -65,13 +65,13 @@ public class UserService {
 		return ex;
 	}
 	
-	@HttpMethods.POST("delete")
+	@HttpMethods.DELETE
 	public Object delete(@HttpArgs.Body User user) {
 		sysRepo.deleteUser(user);
 		return user;
 	}
 
-	@HttpMethods.GET("query")
+	@HttpMethods.GET
 	public Object query(
 			@HttpArgs.Param @XColumn("姓名") String name,
 			@HttpArgs.Param @XColumn("手机") String phone,

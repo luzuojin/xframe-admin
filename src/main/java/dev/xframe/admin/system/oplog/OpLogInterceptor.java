@@ -19,14 +19,15 @@ public class OpLogInterceptor implements HttpInterceptor {
     public void after(Request req, Response resp) {//succ ops
         String user = OpLogUser.clear();
         if(user != null) {
-            if(!req.method().equals(HttpMethod.GET)) {
+            HttpMethod method = req.method();
+            if(!method.equals(HttpMethod.GET)) {
                 String params = XStrings.newStringUtf8(req.content());
                 String path = req.trimmedPath();
                 String host = req.remoteHost();
                 
                 XLogger.info("User[{}] req[{}] with[{}]...", user, path, params);
                 
-                logRepo.add(new OpLog(user, path, params, host));
+                logRepo.add(new OpLog(user, path, params, host, method.name()));
             }
         }
     }

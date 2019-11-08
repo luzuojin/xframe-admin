@@ -17,7 +17,7 @@ public class PrivilegeService {
 	@Inject
 	private BasicContext viewCtx;
 	
-	@HttpMethods.GET
+	@HttpMethods.GET("list")
 	public Object get() {
 		List<Privilege> privileges = new ArrayList<>();
 		viewCtx.getChapters().forEach(c->{

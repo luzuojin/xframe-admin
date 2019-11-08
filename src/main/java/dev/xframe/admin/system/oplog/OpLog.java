@@ -8,16 +8,18 @@ public class OpLog {
 	private String path;
 	private String params;
 	private String opHost;
+	private String opMethod;
 	private Timestamp opTime;
 	
 	public OpLog() {
     }
 	
-    public OpLog(String name, String path, String params, String host) {
+    public OpLog(String name, String path, String params, String host, String method) {
         this.name = name;
         this.path = path;
         this.params = params;
         this.opHost = host;
+        this.opMethod = method;
         this.opTime = new Timestamp(System.currentTimeMillis());
     }
     
@@ -44,6 +46,12 @@ public class OpLog {
     }
     public void setOpHost(String opHost) {
         this.opHost = opHost;
+    }
+    public String getOpMethod() {
+        return opMethod;
+    }
+    public void setOpMethod(String opMethod) {
+        this.opMethod = opMethod;
     }
     public Timestamp getOpTime() {
         return opTime;

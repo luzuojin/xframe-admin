@@ -27,36 +27,33 @@ public class BasicService {
 		return basicCtx.getSummary(authCtx.getPrivileges(req));
 	}
 	
-	@HttpMethods.GET("logout")
-	public Object logout() {
-		return "{}";
-	}
-	
-	@HttpMethods.POST("profile")
-	public Object profile(@HttpArgs.Body VLogin data) {
-	    User user = sysRepo.fetchUser(data.getName());
-	    user.setPassw(data.getPassw());
-	    sysRepo.saveUser(user);
-		return "{}";
-	}
-	
-	/**
-	 * @see BasicUser
-	 */
-	@HttpMethods.POST("login")
-	public Object login(@HttpArgs.Body VLogin data) {
-	    User user = sysRepo.fetchUser(data.getName());
-	    if(user == null)
-	        throw new LogicException("用户不存在");
-	    if(!user.getPassw().equals(data.getPassw()))
-	        throw new LogicException("密码错误");
-	    
-	    return new VUser(user.getName(), authCtx.regist(sysCtx.getPrivileges(user)));
-	}
-	
 	@HttpMethods.GET("enum")
 	public Object getEnum(@HttpArgs.Param String key) {
 		return basicCtx.getEnumValue(key);
 	}
+    
+    @HttpMethods.POST("profile")
+    public Object login(@HttpArgs.Body VLogin data) {
+        User user = sysRepo.fetchUser(data.getName());
+        if(user == null)
+            throw new LogicException("用户不存在");
+        if(!user.getPassw().equals(data.getPassw()))
+            throw new LogicException("密码错误");
+
+        return new VUser(user.getName(), authCtx.regist(sysCtx.getPrivileges(user)));
+    }
+
+    @HttpMethods.DELETE("profile")
+    public Object logout(@HttpArgs.Body VLogin data) {
+        return "{}";
+    }
+
+    @HttpMethods.PUT("profile")
+    public Object profile(@HttpArgs.Body VLogin data) {
+        User user = sysRepo.fetchUser(data.getName());
+        user.setPassw(data.getPassw());
+        sysRepo.saveUser(user);
+        return "{}";
+    }
 
 }

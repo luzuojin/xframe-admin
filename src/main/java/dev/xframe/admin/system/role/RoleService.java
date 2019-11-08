@@ -18,19 +18,19 @@ public class RoleService {
 	@Inject
 	private SystemRepo sysRepo;
 	
-	@HttpMethods.GET
+	@HttpMethods.GET("list")
 	public Object get() {
 		return sysCtx.getRoles();
 	}
 	
-	@HttpMethods.POST("add")
+	@HttpMethods.POST
 	public Object add(@HttpArgs.Body Role role) {
 	    //check auth
 		sysCtx.addRole(role);
 		return role;
 	}
 	
-	@HttpMethods.POST("delete")
+	@HttpMethods.DELETE
 	public Object delete(@HttpArgs.Body Role role) {
 		if(sysCtx.getRoles().remove(role)) {
 		    sysRepo.deleteRole(role);
@@ -39,7 +39,7 @@ public class RoleService {
 		throw new LogicException("角色不存在");
 	}
 	
-	@HttpMethods.POST("edit")
+	@HttpMethods.PUT
 	public Object edit(@HttpArgs.Body Role role) {
 		Role ex = sysCtx.getRoles().stream().filter(r->r.getId()==role.getId()).findAny().orElse(null);
 		if(ex != null) {

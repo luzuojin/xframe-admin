@@ -10,7 +10,7 @@ import dev.xframe.http.service.rest.HttpMethods;
 @XSegment(name="节点列表", model=Cell.class)
 public class CellService {
 	
-	@HttpMethods.GET
+	@HttpMethods.GET("list")
 	public Object get() {
 		return Collections.EMPTY_LIST;
 	}

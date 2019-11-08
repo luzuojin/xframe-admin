@@ -25,8 +25,11 @@ import dev.xframe.admin.view.XChapter;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Service;
+import dev.xframe.http.service.ServiceContext;
 import dev.xframe.http.service.rest.ArgParsers;
+import dev.xframe.http.service.rest.HttpMethods;
 import dev.xframe.inject.Bean;
+import dev.xframe.inject.Inject;
 import dev.xframe.inject.Loadable;
 import dev.xframe.inject.code.Codes;
 import dev.xframe.utils.XStrings;
@@ -34,6 +37,9 @@ import dev.xframe.utils.XStrings;
 
 @Bean
 public class BasicContext implements Loadable {
+    
+    @Inject
+    private ServiceContext serviceCtx;
     
 	private Summary summary;
 
@@ -62,8 +68,8 @@ public class BasicContext implements Loadable {
                 String[] pathes = Service.findPath(clazz).split("/");
                 Chapter chapter = chapters.get(pathes[0]);
                 Segment segment = new Segment(xseg.name(), pathes[1]);
-                parseColumns(segment.getColumns(), xseg.model());
-                parseOptions(segment.getOptions(), clazz);
+                parseColumns(segment, xseg.model());
+                parseOptions(segment, clazz);
                 chapter.getSegments().add(segment);
             }
         }
@@ -74,42 +80,48 @@ public class BasicContext implements Loadable {
 		return XStrings.isEmpty(src) ? val : src;
 	}
 	
-	void parseOptions(List<Option> options, Class<?> declaring) {
+	void parseOptions(Segment seg, Class<?> declaring) {
+	    boolean listable = false;
 		Method[] methods = declaring.getDeclaredMethods();
 		for (Method method : methods) {
-			if("edit".equals(method.getName())) {
-				options.add(Option.edit);
-			} else if("delete".equals(method.getName())) {
-				options.add(Option.del);
-			} else if("add".equals(method.getName())) {
-				options.add(Option.add);
-			} else if("query".equals(method.getName())) {
-				Option qur = Option.qur();
-				Parameter[] params = method.getParameters();
-				for (Parameter p : params) {
-					XColumn xi = p.getAnnotation(XColumn.class);
-					if(xi != null) {
-						qur.getInputs().add(new Column(p.getName(), orElse(xi.value(), p.getName()), xi.type(), xi.enumKey()));
-					}
-				}
-				options.add(qur);
-			}
+		    if(method.isAnnotationPresent(HttpMethods.POST.class)) {
+		        seg.getOptions().add(Option.add);
+		    } else if(method.isAnnotationPresent(HttpMethods.PUT.class)) {
+		        seg.getOptions().add(Option.edt);
+    		} else if(method.isAnnotationPresent(HttpMethods.DELETE.class)) {
+    		    seg.getOptions().add(Option.del);
+    		} else if(method.isAnnotationPresent(HttpMethods.GET.class)) {
+    		    if(("list").equals(method.getAnnotation(HttpMethods.GET.class).value())) {
+    		        listable = true;
+    		        continue;
+    		    }
+    		    Option qur = Option.qry();
+    		    Parameter[] params = method.getParameters();
+    		    for (Parameter p : params) {
+    		        XColumn xi = p.getAnnotation(XColumn.class);
+    		        if(xi != null) {
+    		            qur.getInputs().add(new Column(p.getName(), orElse(xi.value(), p.getName()), xi.type(), xi.enumKey()));
+    		        }
+    		    }
+    		    seg.getOptions().add(qur);
+    		}
 		}
-		Collections.sort(options);
+		seg.setListable(listable);
+		Collections.sort(seg.getOptions());
 	}
 
-	void parseColumns(List<Column> columns, Class<?> model) {
+	void parseColumns(Segment seg, Class<?> model) {
 		Field[] fields = model.getDeclaredFields();
 		for (Field field : fields) {
 			XColumn xf = field.getAnnotation(XColumn.class);
 			String name = field.getName();
 			if(xf == null) {
-				columns.add(new Column(name, name, XColumn.type_text, "", XColumn.full, false));
+				seg.getColumns().add(new Column(name, name, XColumn.type_text, "", XColumn.full, false));
 			} else if(xf.show() > 0) {
 				int xtype = xf.type();
 				if(xtype == 0 && (field.getType() == boolean.class || field.getType() == Boolean.class))
 					xtype = XColumn.type_bool;
-				columns.add(new Column(name, orElse(xf.value(), name), xtype, xf.enumKey(), xf.show(), xf.primary()));
+				seg.getColumns().add(new Column(name, orElse(xf.value(), name), xtype, xf.enumKey(), xf.show(), xf.primary()));
 			}
 		}
 	}

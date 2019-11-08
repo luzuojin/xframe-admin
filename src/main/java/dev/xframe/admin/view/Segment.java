@@ -10,6 +10,8 @@ public class Segment {
 	private List<Column> columns = new ArrayList<>();
 	private List<Option> options = new ArrayList<>();
 	
+	private boolean listable;
+	
 	public Segment(String name, String path) {
 		this.name = name;
 		this.path = path;
@@ -39,5 +41,11 @@ public class Segment {
 	public void setOptions(List<Option> options) {
 		this.options = options;
 	}
+	public boolean getListable() {
+	    return listable;
+	}
+    public void setListable(boolean listable) {
+        this.listable = listable;
+    }
 	
 }
