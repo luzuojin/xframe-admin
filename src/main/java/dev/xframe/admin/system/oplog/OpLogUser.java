@@ -1,6 +1,6 @@
-package dev.xframe.admin.system;
+package dev.xframe.admin.system.oplog;
 
-public class OpUser {
+public class OpLogUser {
     
     private static ThreadLocal<String> opuser = new ThreadLocal<>();
     

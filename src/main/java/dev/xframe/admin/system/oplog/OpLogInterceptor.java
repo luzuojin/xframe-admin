@@ -1,6 +1,5 @@
 package dev.xframe.admin.system.oplog;
 
-import dev.xframe.admin.system.OpUser;
 import dev.xframe.http.service.Request;
 import dev.xframe.http.service.Response;
 import dev.xframe.http.service.config.HttpInterceptor;
@@ -18,15 +17,16 @@ public class OpLogInterceptor implements HttpInterceptor {
     
     @Override
     public void after(Request req, Response resp) {//succ ops
-        String user = OpUser.clear();
+        String user = OpLogUser.clear();
         if(user != null) {
             if(!req.method().equals(HttpMethod.GET)) {
                 String params = XStrings.newStringUtf8(req.content());
                 String path = req.trimmedPath();
+                String host = req.remoteHost();
                 
                 XLogger.info("User[{}] req[{}] with[{}]...", user, path, params);
                 
-                logRepo.add(new OpLog(user, path, params));
+                logRepo.add(new OpLog(user, path, params, host));
             }
         }
     }

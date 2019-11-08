@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import dev.xframe.admin.system.oplog.OpLogUser;
 import dev.xframe.admin.system.privilege.Privileges;
 import dev.xframe.http.service.Request;
 import dev.xframe.inject.Configurator;
@@ -15,7 +16,7 @@ public class AuthContext {
     private Map<String, Privileges> tokenPrivileges = new HashMap<>();
 
     public String regist(Privileges privileges) {
-        OpUser.set(privileges.getUsername());
+        OpLogUser.set(privileges.getUsername());
         String token = UUID.randomUUID().toString();
         tokenPrivileges.put(token, privileges);
         return token;
@@ -30,7 +31,7 @@ public class AuthContext {
         String token = req.getHeader("x-token");
         Privileges p = tokenPrivileges.get(token);
         if(p != null) {
-            OpUser.set(p.getUsername());
+            OpLogUser.set(p.getUsername());
             if(req.method().equals(HttpMethod.GET)) {
                 if(p.contains(path)) return false;
             } else {
