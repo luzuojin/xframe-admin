@@ -26,7 +26,7 @@ public class StoreConfigurator implements Loadable {
 		
 		ApplicationContext.registBean(JdbcTemplate.class, JdbcEnviron.getJdbcTemplate(StoreKey.DAT));
 	}
-
+	
 	private DBSource getDBSource(StoreKey key) {
 		String dbpath = dbPath(key);
 		String script = dbExists(key) ? "" : String.format("INIT=RUNSCRIPT FROM 'classpath:%s';", key.script);
@@ -47,6 +47,11 @@ public class StoreConfigurator implements Loadable {
 
 	private String getDbDir() {
 		return System.getProperty("store.dir", System.getProperty("user.dir"));
+	}
+	
+	
+	public void update(StoreKey key, StoreVersion version) {
+	    
 	}
 	
 }

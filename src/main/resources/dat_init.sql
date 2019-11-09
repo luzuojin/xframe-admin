@@ -1,3 +1,10 @@
+CREATE TABLE `T_VERSION` (
+  `Version` int(11) NOT NULL,
+  `UpTime` timestamp NOT NULL
+) DEFAULT CHARSET=utf8;
+
+INSERT INTO `T_VERSION` VALUES ('0', now());
+
 CREATE TABLE `T_ROLE` (
   `Id` int(11) NOT NULL PRIMARY KEY,
   `Name` varchar(64) NOT NULL,

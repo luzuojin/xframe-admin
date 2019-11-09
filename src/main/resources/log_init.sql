@@ -1,3 +1,11 @@
+CREATE TABLE `T_VERSION` (
+  `Version` int(11) NOT NULL,
+  `UpTime` timestamp NOT NULL
+) DEFAULT CHARSET=utf8;
+
+INSERT INTO `T_VERSION` VALUES ('0', now());
+
+
 CREATE TABLE `T_OP_LOG` (
   `Name` varchar(64) NOT NULL,
   `Path` varchar(64) NOT NULL,
