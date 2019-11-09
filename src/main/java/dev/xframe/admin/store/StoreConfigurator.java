@@ -5,11 +5,9 @@ import static dev.xframe.admin.store.StoreKey.LOG;
 
 import java.io.File;
 
-import dev.xframe.inject.ApplicationContext;
 import dev.xframe.inject.Configurator;
 import dev.xframe.inject.Loadable;
 import dev.xframe.jdbc.JdbcEnviron;
-import dev.xframe.jdbc.JdbcTemplate;
 import dev.xframe.jdbc.datasource.DBSource;
 import dev.xframe.jdbc.datasource.DataSources;
 
@@ -23,8 +21,6 @@ public class StoreConfigurator implements Loadable {
 			.setInstupUsage(false, false)
 			.setDatasource(DAT, DataSources.tomcatJdbc(getDBSource(DAT)))
 			.setDatasource(LOG, DataSources.tomcatJdbc(getDBSource(LOG)));
-		
-		ApplicationContext.registBean(JdbcTemplate.class, JdbcEnviron.getJdbcTemplate(StoreKey.DAT));
 	}
 	
 	private DBSource getDBSource(StoreKey key) {
@@ -47,11 +43,6 @@ public class StoreConfigurator implements Loadable {
 
 	private String getDbDir() {
 		return System.getProperty("store.dir", System.getProperty("user.dir"));
-	}
-	
-	
-	public void update(StoreKey key, StoreVersion version) {
-	    
 	}
 	
 }
