@@ -21,6 +21,8 @@ public class VersionRepo implements Loadable {
 	@Override
 	public void load() {
 		queries = new EnumMap<>(StoreKey.class);
+		jdbcs = new EnumMap<>(StoreKey.class);
+		
 		Arrays.stream(StoreKey.values()).forEach(key->{
 			queries.put(key,
 					TypeQuery.newBuilder(Version.class).setTable(key, "T_VERSION").build());
