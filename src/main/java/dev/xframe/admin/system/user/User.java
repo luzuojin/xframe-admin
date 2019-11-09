@@ -2,7 +2,7 @@ package dev.xframe.admin.system.user;
 
 import java.sql.Timestamp;
 
-import dev.xframe.admin.system.EnumKeys;
+import dev.xframe.admin.system.XEnumKeys;
 import dev.xframe.admin.view.XColumn;
 
 public class User {
@@ -15,7 +15,7 @@ public class User {
 	private String email;
 	@XColumn(value="密码", show=XColumn.add, type=XColumn.type_pass)
 	private String passw;
-	@XColumn(value="角色", show=XColumn.xor_list, enumKey=EnumKeys.ROLE_LIST, type=XColumn.type_mult)
+	@XColumn(value="角色", show=XColumn.xor_list, enumKey=XEnumKeys.ROLE_LIST, type=XColumn.type_mult)
 	private int[] roles;
 	@XColumn(value="角色", show=XColumn.list)
 	private Object[] rolesDesc;

@@ -1,6 +1,6 @@
 package dev.xframe.admin.system;
 
-public class EnumKeys {
+public class XEnumKeys {
     
     public static final String ROLE_LIST  = "rolelist";
     

@@ -41,16 +41,16 @@ public class SystemContext implements Loadable {
         });
         
         List<VEnum> privilegesEnum = privileges.stream().map(p->new VEnum(p.getPath(), p.getName())).collect(Collectors.toList());
-        basicCtx.registEnumValue(EnumKeys.PRIVILEGES, ()->privilegesEnum);
+        basicCtx.registEnumValue(XEnumKeys.PRIVILEGES, ()->privilegesEnum);
         
         roles = sysRepo.fetchRoles();
         roles.forEach(this::setRoleDesc);
         
-        basicCtx.registEnumValue(EnumKeys.ROLE_LIST, ()->{
+        basicCtx.registEnumValue(XEnumKeys.ROLE_LIST, ()->{
             return roles.stream().map(role->new VEnum(String.valueOf(role.getId()), role.getName())).collect(Collectors.toList());
         });
         
-        basicCtx.registEnumValue(EnumKeys.USER_LIST, ()->{
+        basicCtx.registEnumValue(XEnumKeys.USER_LIST, ()->{
             return sysRepo.fetchUsers().stream().map(user->new VEnum(user.getName())).collect(Collectors.toList());
         });
     }
