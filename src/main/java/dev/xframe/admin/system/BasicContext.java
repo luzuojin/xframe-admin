@@ -23,6 +23,7 @@ import dev.xframe.admin.view.Summary;
 import dev.xframe.admin.view.VEnum;
 import dev.xframe.admin.view.XChapter;
 import dev.xframe.admin.view.XColumn;
+import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Service;
 import dev.xframe.http.service.ServiceContext;
@@ -85,25 +86,25 @@ public class BasicContext implements Loadable {
 		Method[] methods = declaring.getDeclaredMethods();
 		for (Method method : methods) {
 		    if(method.isAnnotationPresent(HttpMethods.POST.class)) {
-		        seg.getOptions().add(Option.add);
+		        seg.getOptions().add(Option.add.copy(method.getAnnotation(XOption.class)));
 		    } else if(method.isAnnotationPresent(HttpMethods.PUT.class)) {
-		        seg.getOptions().add(Option.edt);
+		        seg.getOptions().add(Option.edt.copy(method.getAnnotation(XOption.class)));
     		} else if(method.isAnnotationPresent(HttpMethods.DELETE.class)) {
-    		    seg.getOptions().add(Option.del);
+    		    seg.getOptions().add(Option.del.copy(method.getAnnotation(XOption.class)));
     		} else if(method.isAnnotationPresent(HttpMethods.GET.class)) {
     		    if(("list").equals(method.getAnnotation(HttpMethods.GET.class).value())) {
     		        listable = true;
     		        continue;
     		    }
-    		    Option qur = Option.qry();
+    		    Option qry = Option.qry.copy(method.getAnnotation(XOption.class));
     		    Parameter[] params = method.getParameters();
     		    for (Parameter p : params) {
     		        XColumn xi = p.getAnnotation(XColumn.class);
     		        if(xi != null) {
-    		            qur.getInputs().add(new Column(p.getName(), orElse(xi.value(), p.getName()), xi.type(), xi.enumKey()));
+    		            qry.getInputs().add(new Column(p.getName(), orElse(xi.value(), p.getName()), xi.type(), xi.enumKey()));
     		        }
     		    }
-    		    seg.getOptions().add(qur);
+    		    seg.getOptions().add(qry);
     		}
 		}
 		seg.setListable(listable);

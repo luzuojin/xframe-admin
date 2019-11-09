@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface XOption {
 
-	public int type();
+	public String value();
 	
 	public static final int type_qry = 1;
 	public static final int type_add = 2;
