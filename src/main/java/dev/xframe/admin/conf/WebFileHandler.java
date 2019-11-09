@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -26,6 +28,8 @@ public class WebFileHandler implements Eventual, Service {
     
     @Inject
     private ServiceContext serviceCtx;
+    
+    private Map<String, Response> caches = new HashMap<>();
     
     private Function<Request, Response> func;
     
@@ -61,10 +65,17 @@ public class WebFileHandler implements Eventual, Service {
     
     private Response makeRespFromClassPath(Request req) {
         try {
-            InputStream in = WebFileHandler.class.getClassLoader().getResourceAsStream(getReqFilePath(req));
-            byte[] bytes = new byte[in.available()];
-            in.read(bytes);
-            return new Response(ContentType.BINARY, bytes);
+            String path = getReqFilePath(req);
+            Response resp = caches.get(path);
+            if(resp == null) {
+            	InputStream in = WebFileHandler.class.getClassLoader().getResourceAsStream(path);
+            	byte[] bytes = new byte[in.available()];
+            	in.read(bytes);
+            	resp = new Response(ContentType.BINARY, bytes);
+            	caches.put(path, resp);
+            	return resp;
+            }
+            return resp.retain();
         } catch (IOException e) {
             return Response.NOT_FOUND.retain();
         }
