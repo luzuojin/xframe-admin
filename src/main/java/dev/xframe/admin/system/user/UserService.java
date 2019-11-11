@@ -60,7 +60,7 @@ public class UserService {
 		ex.setEmail(user.getEmail());
 		ex.setPhone(user.getPhone());
 		ex.setRoles(user.getRoles());
-		sysRepo.saveUser(user);
+		sysRepo.saveUser(ex);
 		setRoleDesc(ex);
 		return ex;
 	}
