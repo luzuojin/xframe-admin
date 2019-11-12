@@ -22,7 +22,7 @@ public class OpLogInterceptor implements HttpInterceptor {
             HttpMethod method = req.method();
             if(!method.equals(HttpMethod.GET)) {
                 String params = XStrings.newStringUtf8(req.content());
-                String path = req.trimmedPath();
+                String path = req.xpath();
                 String host = req.remoteHost();
                 
                 XLogger.info("[{}] [{}] [{}] [{}] [{}]", user, host, method.name(), path, params);

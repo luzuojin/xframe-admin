@@ -23,7 +23,7 @@ public class AuthContext {
     }
 
     public boolean isReqIllegal(Request req) {
-        String path = req.trimmedPath();
+        String path = req.xpath();
         if(path.startsWith("basic/")) {
             return false;
         }
