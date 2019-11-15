@@ -1,5 +1,6 @@
 package dev.xframe.admin.conf;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,7 @@ import dev.xframe.http.service.ServiceContext;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Eventual;
 import dev.xframe.inject.Inject;
+import dev.xframe.utils.Mimetypes;
 import dev.xframe.utils.XPaths;
 
 
@@ -29,7 +31,7 @@ public class WebFileHandler implements Eventual, Service {
     @Inject
     private ServiceContext serviceCtx;
     
-    private Map<String, Response> caches = new HashMap<>();
+    private Map<String, byte[]> caches = new HashMap<>();
     
     private Function<Request, Response> func;
     
@@ -63,22 +65,37 @@ public class WebFileHandler implements Eventual, Service {
         return new File(root, req.path()).getPath();
     }
     
+    
+    private String getFileName(String path) {
+        return new File(path).getName();
+    }
+    
     private Response makeRespFromClassPath(Request req) {
         try {
             String path = getReqFilePath(req);
-            Response resp = caches.get(path);
-            if(resp == null) {
-            	InputStream in = WebFileHandler.class.getClassLoader().getResourceAsStream(path);
-            	byte[] bytes = new byte[in.available()];
-            	in.read(bytes);
-            	resp = new Response(ContentType.BINARY, bytes);
-            	caches.put(path, resp);
-            	return resp;
+            byte[] bytes = caches.get(path);
+            if(bytes == null) {
+                synchronized (this) {
+                    if((bytes = caches.get(path)) == null) {
+                        InputStream input = this.getClass().getClassLoader().getResourceAsStream(path);
+                        bytes = readBytes(input);
+                        caches.put(path, bytes);
+                    }
+                }
             }
-            return resp.retain();
+            return new Response(()->Mimetypes.get(getFileName(path)), bytes);
         } catch (IOException e) {
             return Response.NOT_FOUND.retain();
         }
+    }
+
+    private byte[] readBytes(InputStream input) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int b;
+        while((b = input.read()) != -1) {
+            out.write(b);
+        }
+        return out.toByteArray();
     }
 
     private List<String> listRelativizeJarFiles(String path, String xdir) {
