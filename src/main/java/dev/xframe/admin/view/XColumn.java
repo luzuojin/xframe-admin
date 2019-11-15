@@ -34,7 +34,7 @@ public @interface XColumn {
 	public static final int edel = 1 << 3;//disable edit and delete column display
 	public static final int full = (1 << 4) - 1;
 	
-	public static final int list_edel = list | edel;
+	public static final int list_edel = (list | edel);
 	
 	public static final int xor_list = (full ^ list);
 	public static final int xor_edit = (full ^ edit);
