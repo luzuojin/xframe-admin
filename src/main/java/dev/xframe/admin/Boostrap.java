@@ -9,7 +9,7 @@ public class Boostrap {
 			.withName("xframe-admin")
 			.include("dev.xframe.*")
 			.exclude("dev.xframe.test.*;dev.xframe.jdbc.*")
-			.withHttp(8001)
+			.withHttp(Integer.parseInt(System.getProperty("port", "8001")))
 			.startup();
 	}
 
