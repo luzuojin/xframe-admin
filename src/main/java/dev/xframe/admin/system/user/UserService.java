@@ -15,7 +15,7 @@ import dev.xframe.inject.Inject;
 import dev.xframe.utils.XStrings;
 
 @Rest("system/user")
-@XSegment(name="用户列表", model=User.class, padding=true)//path use @http.path
+@XSegment(name="用户列表", model=User.class)//path use @http.path
 public class UserService {
 	
     @Inject
