@@ -68,7 +68,7 @@ public class BasicContext implements Loadable {
                 XSegment xseg = clazz.getAnnotation(XSegment.class);
                 String[] pathes = Service.findPath(clazz).split("/");
                 Chapter chapter = chapters.get(pathes[0]);
-                Segment segment = new Segment(xseg.name(), pathes[1]);
+                Segment segment = new Segment(xseg.name(), pathes[1], xseg.padding());
                 parseColumns(segment, xseg.model());
                 parseOptions(segment, clazz);
                 chapter.getSegments().add(segment);

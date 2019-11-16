@@ -10,11 +10,13 @@ public class Segment {
 	private List<Column> columns = new ArrayList<>();
 	private List<Option> options = new ArrayList<>();
 	
+	private boolean padding;
 	private boolean listable;
 	
-	public Segment(String name, String path) {
+	public Segment(String name, String path, boolean padding) {
 		this.name = name;
 		this.path = path;
+		this.padding = padding;
 	}
 	
 	public String getName() {
@@ -47,5 +49,11 @@ public class Segment {
     public void setListable(boolean listable) {
         this.listable = listable;
     }
+	public boolean getPadding() {
+		return padding;
+	}
+	public void setPadding(boolean padding) {
+		this.padding = padding;
+	}
 	
 }

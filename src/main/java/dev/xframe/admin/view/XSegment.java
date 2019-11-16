@@ -15,5 +15,6 @@ public @interface XSegment {
 	
 	String name();
 	Class<?> model();
+	boolean padding() default false;//Option.add时是否把qry表单中的字段用来填充
 
 }

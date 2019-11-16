@@ -226,6 +226,14 @@ function dialogTitle(segment, op) {
     return '{0}&nbsp;/&nbsp;{1}'.format(segment.name, op.name)
 }
 
+function dialogInputVal(seg, model, key) {
+    if(model) return model[key];
+    if(seg.padding && x.qryInputDom(key).length > 0) {
+        return x.qryInputDom(key).val();
+    }
+    return '';
+}
+
 function showDialog(segment, op, model, func) {
     $('#xdialog_title').empty();
     $('#xdialog_form').empty();
@@ -234,7 +242,7 @@ function showDialog(segment, op, model, func) {
     for(let column of segment.columns){
         if(op.opType == opTypes.add && !xcolumn.add(column)) continue;
         if(op.opType >= opTypes.edt && !xcolumn.edel(column)) continue;
-        let val = model ? model[column.key] : '';
+        let val = dialogInputVal(segment, model, column.key);
         x.addDlgInput($('#xdialog_form'), column, segment.path, val);
         if (op.opType == opTypes.del || (model && !xcolumn.edit(column))) {
             x.dlgInputDom(segment.path, column.key).attr("disabled", true);
