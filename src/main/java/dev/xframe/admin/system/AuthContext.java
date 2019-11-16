@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import dev.xframe.admin.system.oplog.OpLogUser;
 import dev.xframe.admin.system.privilege.Privileges;
-import dev.xframe.http.service.Request;
+import dev.xframe.http.Request;
 import dev.xframe.inject.Configurator;
 import io.netty.handler.codec.http.HttpMethod;
 

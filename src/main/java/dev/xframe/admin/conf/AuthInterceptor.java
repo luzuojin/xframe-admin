@@ -1,8 +1,8 @@
 package dev.xframe.admin.conf;
 
 import dev.xframe.admin.system.AuthContext;
-import dev.xframe.http.service.Request;
-import dev.xframe.http.service.Response;
+import dev.xframe.http.Request;
+import dev.xframe.http.Response;
 import dev.xframe.http.service.config.HttpInterceptor;
 import dev.xframe.inject.Configurator;
 import dev.xframe.inject.Inject;

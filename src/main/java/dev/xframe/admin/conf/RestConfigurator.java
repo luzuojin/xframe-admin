@@ -10,8 +10,9 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import dev.xframe.admin.system.AuthContext;
 import dev.xframe.admin.view.VResp;
-import dev.xframe.http.service.Request;
-import dev.xframe.http.service.Response;
+import dev.xframe.http.Request;
+import dev.xframe.http.Response;
+import dev.xframe.http.response.Responses;
 import dev.xframe.http.service.config.BodyDecoder;
 import dev.xframe.http.service.config.ErrorHandler;
 import dev.xframe.http.service.config.HttpInterceptor;
@@ -44,7 +45,7 @@ public class RestConfigurator extends ServiceConfigSetter {
         if(!(ex instanceof LogicException)) {
             logger.error("Rest service throws:", ex);
         }
-    	return new Response(JSON.toJSONString(VResp.fail(ex.getMessage()), features));
+    	return Responses.of(JSON.toJSONString(VResp.fail(ex.getMessage()), features));
     }
     
     @Override
@@ -62,9 +63,9 @@ public class RestConfigurator extends ServiceConfigSetter {
             if (obj instanceof Response)
             	return (Response) obj;
             if (obj instanceof VResp)
-            	return new Response(JSON.toJSONString(obj, features));
+            	return Responses.of(JSON.toJSONString(obj, features));
             
-            return new Response(JSON.toJSONString(VResp.succ(obj), features));
+            return Responses.of(JSON.toJSONString(VResp.succ(obj), features));
         });
     }
 

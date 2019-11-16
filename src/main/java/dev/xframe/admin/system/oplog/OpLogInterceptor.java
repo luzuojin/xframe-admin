@@ -1,7 +1,7 @@
 package dev.xframe.admin.system.oplog;
 
-import dev.xframe.http.service.Request;
-import dev.xframe.http.service.Response;
+import dev.xframe.http.Request;
+import dev.xframe.http.Response;
 import dev.xframe.http.service.config.HttpInterceptor;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;

@@ -7,7 +7,7 @@ String.prototype.format = function() {
     return str;
 }
 
-var xurl = 'http://127.0.0.1:8001'
+var xurl = window.location.origin.startsWith("http") ? window.location.origin : "http://127.0.0.1:8001";
 var xpaths = {
     summary: "basic/summary",
     xenum  : "basic/enum",
@@ -289,7 +289,6 @@ function doPost(path, opType, data, func) {
 }
 
 function doGet(path, func) {
-    console.log(xtoken());
     $.ajax({
         type: 'get',
         url: '{0}/{1}'.format(xurl, path),
