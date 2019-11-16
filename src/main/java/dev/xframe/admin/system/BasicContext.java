@@ -60,7 +60,7 @@ public class BasicContext implements Loadable {
         for (Class<?> clazz : Codes.getDeclaredClasses()) {
             if(clazz.isAnnotationPresent(XChapter.class)) {
                 XChapter chapter = clazz.getAnnotation(XChapter.class);
-                chapters.put(chapter.path(), new Chapter(chapter.name(), chapter.path()));
+                chapters.put(chapter.path(), new Chapter(chapter));
             }
         }
         for (Class<?> clazz : Codes.getDeclaredClasses()) {
@@ -74,7 +74,7 @@ public class BasicContext implements Loadable {
                 chapter.getSegments().add(segment);
             }
         }
-        summary.setChapters(chapters.values().stream().collect(Collectors.toList()));
+        summary.setChapters(chapters.values().stream().sorted().collect(Collectors.toList()));
 	}
 
 	String orElse(String src, String val) {

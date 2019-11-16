@@ -11,5 +11,7 @@ public @interface XChapter {
 	
 	String path();
 	String name();
+	
+	int order() default 10;
 
 }

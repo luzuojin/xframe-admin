@@ -5,19 +5,22 @@ import java.util.List;
 
 import dev.xframe.admin.system.privilege.Privileges;
 
-public class Chapter {
+public class Chapter implements Comparable<Chapter> {
 	
 	private String name;
 	private String path;
+	
+	private int order;
 	
 	private List<Segment> segments = new ArrayList<>();
 	
 	public Chapter() {
 	}
 
-	public Chapter(String name, String path) {
-		this.name = name;
-		this.path = path;
+	public Chapter(XChapter xc) {
+		this.name = xc.name();
+		this.path = xc.path();
+		this.order= xc.order();
 	}
 
 	public String getName() {
@@ -48,6 +51,7 @@ public class Chapter {
         Chapter c = new Chapter();
         c.name = this.name;
         c.path = this.path;
+        c.order = this.order;
         for (Segment seg : segments) {
             if(privileges.contains(path + "/" + seg.getPath())) {
                 c.segments.add(seg);
@@ -55,5 +59,10 @@ public class Chapter {
         }
         return c;
     }
+
+	@Override
+	public int compareTo(Chapter o) {
+		return Integer.compare(o.order, this.order);
+	}
 
 }
