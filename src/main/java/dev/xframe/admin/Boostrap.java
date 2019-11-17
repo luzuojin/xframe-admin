@@ -1,5 +1,6 @@
 package dev.xframe.admin;
 
+import dev.xframe.admin.conf.SysProperties;
 import dev.xframe.boot.Bootstrap;
 
 public class Boostrap {
@@ -9,7 +10,7 @@ public class Boostrap {
 			.withName("xframe-admin")
 			.include("dev.xframe.*")
 			.exclude("dev.xframe.test.*;dev.xframe.jdbc.*")
-			.withHttp(Integer.parseInt(System.getProperty("port", "8001")))
+			.withHttp(SysProperties.get("port", 8001))
 			.startup();
 	}
 
