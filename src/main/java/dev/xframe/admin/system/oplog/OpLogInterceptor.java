@@ -17,7 +17,7 @@ public class OpLogInterceptor implements HttpInterceptor {
     
     @Override
     public void after(Request req, Response resp) {//succ ops
-        String user = OpLogUser.clear();
+        String user = OpLogUser.get();
         if(user != null) {
             HttpMethod method = req.method();
             if(!method.equals(HttpMethod.GET)) {

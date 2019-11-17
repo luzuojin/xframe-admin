@@ -10,10 +10,8 @@ public class OpLogUser {
         opuser.set(username);
     }
     
-    public static String clear() {
-        String u = opuser.get();
-        opuser.remove();
-        return u;
+    public static String get() {
+        return opuser.get();
     }
 
 }
