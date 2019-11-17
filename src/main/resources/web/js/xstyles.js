@@ -117,6 +117,8 @@ select2: function(e, xinput) {
     let d = xenum(xinput.enumKey);
     e.select2({
         theme: 'bootstrap4',
+        dropdownAutoWidth : true,
+        width: 'auto',
         data: d,
         multiple: xinput.type==xTypes._mult,
         minimumResultsForSearch: 10
