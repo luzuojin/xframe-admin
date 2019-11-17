@@ -1,8 +1,10 @@
 package dev.xframe.admin.system.oplog;
 
+import dev.xframe.utils.XThreadLocal;
+
 public class OpLogUser {
     
-    private static ThreadLocal<String> opuser = new ThreadLocal<>();
+    private static XThreadLocal<String> opuser = new XThreadLocal<>();
     
     public static void set(String username) {
         opuser.set(username);
