@@ -19,18 +19,11 @@ public class SysProperties {
 
 	static Map<String, String> properties = new TreeMap<>();
 	static {
-		String val = System.getProperty("conf.file", 
-						System.getProperty("conf.dir", 
-						System.getProperty("apphome", 
-						System.getProperty("user.dir"))));
-		File file = new File(val);
-		if(file.isDirectory()) {
-			file = new File(file, "conf.properties");
-		}
-		if(file.exists()) {
+		File conf = new File(getConfFile());
+		if(conf.exists()) {
 			try {
 				Properties _properties = new Properties();
-				_properties.load(new FileInputStream(file));
+				_properties.load(new FileInputStream(conf));
 				_properties.stringPropertyNames().forEach(k->{
 					properties.put(k, _properties.getProperty(k));
 				});
@@ -40,16 +33,27 @@ public class SysProperties {
 		}
 	}
 
+	public static String get(String key) {
+		return System.getProperty(key, properties.get(key));
+	}
 	public static String get(String key, String def) {
 		return System.getProperty(key, properties.getOrDefault(key, def));
 	}
-	
 	public static int get(String key, int def) {
 		return Integer.parseInt(get(key, String.valueOf(def)));
 	}
-	
 	public static long get(String key, long def) {
 		return Long.parseLong(get(key, String.valueOf(def)));
+	}
+	
+	public static String getConfFile() {
+		return get("conf.file", new File(getConfDir(), "conf.properties").getPath());
+	}
+	public static String getConfDir() {
+		return get("conf.dir", get("apphome", get("user.dir")));
+	}
+	public static String getStoreDir() {
+		return get("store.dir", get("user.dir"));
 	}
 	
 }

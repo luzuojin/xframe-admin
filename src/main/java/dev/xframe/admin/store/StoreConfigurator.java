@@ -5,6 +5,7 @@ import static dev.xframe.admin.store.StoreKey.LOG;
 
 import java.io.File;
 
+import dev.xframe.admin.conf.SysProperties;
 import dev.xframe.inject.Configurator;
 import dev.xframe.inject.Loadable;
 import dev.xframe.jdbc.JdbcEnviron;
@@ -30,7 +31,7 @@ public class StoreConfigurator implements Loadable {
 		String dburl = String.format("jdbc:h2:%s;%sDB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;AUTO_SERVER=TRUE;", dbpath, script);
 		String user = "embed";
 		String pass = "embed";
-		return new DBSource(user, pass, driver, dburl, 1, 1);
+		return new DBSource(user, pass, driver, dburl, 2, 4);
 	}
 
 	private String dbPath(StoreKey key) {
@@ -42,7 +43,7 @@ public class StoreConfigurator implements Loadable {
 	}
 
 	private String getDbDir() {
-		return System.getProperty("store.dir", System.getProperty("user.dir"));
+		return SysProperties.getStoreDir();
 	}
 	
 }
