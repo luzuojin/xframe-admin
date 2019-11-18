@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-import dev.xframe.admin.system.AuthContext;
+import dev.xframe.admin.system.auth.AuthContext;
 import dev.xframe.admin.view.VResp;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;

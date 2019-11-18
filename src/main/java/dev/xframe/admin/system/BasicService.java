@@ -1,6 +1,7 @@
 package dev.xframe.admin.system;
 
 import dev.xframe.admin.conf.LogicException;
+import dev.xframe.admin.system.auth.AuthContext;
 import dev.xframe.admin.system.user.User;
 import dev.xframe.admin.view.VLogin;
 import dev.xframe.admin.view.VUser;

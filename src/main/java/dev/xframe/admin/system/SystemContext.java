@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import dev.xframe.admin.system.auth.UserPrivileges;
 import dev.xframe.admin.system.privilege.Privilege;
-import dev.xframe.admin.system.privilege.Privileges;
 import dev.xframe.admin.system.role.Role;
 import dev.xframe.admin.system.user.User;
 import dev.xframe.admin.view.Segment;
@@ -72,8 +72,8 @@ public class SystemContext implements Loadable {
         return privilegeDesc;
     }
     
-    public Privileges getPrivileges(User user) {
-        Privileges p = new Privileges(user.getName());
+    public UserPrivileges getPrivileges(User user) {
+        UserPrivileges p = new UserPrivileges(user.getName());
         for (int role : user.getRoles()) {
             Role x = this.roles.stream().filter(r->r.getId() == role).findAny().orElse(null);
             if(x != null) {

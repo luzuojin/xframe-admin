@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import dev.xframe.admin.system.auth.AuthContext;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;
 import dev.xframe.http.response.FileResponse;
@@ -27,6 +28,8 @@ public class WebFileHandler implements Eventual, Service {
     
     @Inject
     private ServiceContext serviceCtx;
+    @Inject
+    private AuthContext authCtx;
     
     private Map<String, Response> caches = new HashMap<>();
     
@@ -45,13 +48,18 @@ public class WebFileHandler implements Eventual, Service {
         String xdir = "web/";
         if(path.endsWith(".jar")) {
             this.root = xdir;
-            listRelativizeJarFiles(path, xdir).forEach(p->serviceCtx.registService(p, this));
+            listRelativizeJarFiles(path, xdir).forEach(this::makeHandler);
             this.func = this::makeRespFromClassPath;
         } else {
             this.root = new File(path, xdir).getPath();
-            XPaths.listRelativizeFiles(root).forEach(p->serviceCtx.registService(p, this));
+            XPaths.listRelativizeFiles(root).forEach(this::makeHandler);
             this.func = this::makeRespFromDirectory;
         }
+    }
+
+    private void makeHandler(String p) {
+        serviceCtx.registService(p, this);
+        authCtx.addUnblockedPath(p);
     }
     
     private Response makeRespFromDirectory(Request req) {

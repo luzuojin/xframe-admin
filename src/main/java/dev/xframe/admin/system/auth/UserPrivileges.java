@@ -1,9 +1,11 @@
-package dev.xframe.admin.system.privilege;
+package dev.xframe.admin.system.auth;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class Privileges {
+import dev.xframe.admin.system.privilege.Privilege;
+
+public class UserPrivileges {
     
     private String username;
     
@@ -11,15 +13,18 @@ public class Privileges {
     
     private Set<Privilege> privileges = new HashSet<>();
     
-    public Privileges(String username) {
+    private long lastActiveTime;
+    
+    public UserPrivileges(String username) {
         this.username = username;
+        this.lastActiveTime = System.currentTimeMillis();
     }
 
     public String getUsername() {
         return username;
     }
 
-    public Privileges add(Privilege privilege, boolean readOnly) {
+    public UserPrivileges add(Privilege privilege, boolean readOnly) {
         if(privilege != null) {
             privileges.add(privilege);
             if(!readOnly) {
@@ -39,6 +44,10 @@ public class Privileges {
 
     private boolean match(Privilege p, String path) {
         return p.getPath().equals("_") || p.getPath().equals(path) || p.getPath().startsWith(path + "/") || path.startsWith(p.getPath() + "/");
+    }
+
+    public long getLastActiveTime() {
+        return lastActiveTime;
     }
 
 }

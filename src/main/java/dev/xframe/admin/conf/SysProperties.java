@@ -50,10 +50,10 @@ public class SysProperties {
 		return get("conf.file", new File(getConfDir(), "conf.properties").getPath());
 	}
 	public static String getConfDir() {
-		return get("conf.dir", get("apphome", get("user.dir")));
+		return get("conf.dir", get("work.dir", get("user.dir")));
 	}
 	public static String getStoreDir() {
-		return get("store.dir", get("user.dir"));
+		return get("store.dir", get("work.dir", get("user.dir")));
 	}
 	
 }

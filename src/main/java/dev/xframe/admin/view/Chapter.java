@@ -3,7 +3,7 @@ package dev.xframe.admin.view;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.xframe.admin.system.privilege.Privileges;
+import dev.xframe.admin.system.auth.UserPrivileges;
 
 public class Chapter implements Comparable<Chapter> {
 	
@@ -47,7 +47,7 @@ public class Chapter implements Comparable<Chapter> {
 		this.segments = segments;
 	}
 
-    public Chapter copyBy(String path, Privileges privileges) {
+    public Chapter copyBy(String path, UserPrivileges privileges) {
         Chapter c = new Chapter();
         c.name = this.name;
         c.path = this.path;

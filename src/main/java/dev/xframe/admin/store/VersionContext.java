@@ -1,5 +1,6 @@
 package dev.xframe.admin.store;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -7,7 +8,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import dev.xframe.admin.conf.WebFileHandler;
 import dev.xframe.inject.Configurator;
 import dev.xframe.inject.Inject;
 import dev.xframe.inject.Loadable;
@@ -58,11 +58,13 @@ public class VersionContext implements Loadable  {
 	}
 
 	List<String> readScripts(String path) {
-		try {
-            InputStream in = WebFileHandler.class.getClassLoader().getResourceAsStream(path);
-            byte[] bytes = new byte[in.available()];
-            in.read(bytes);
-            return SQLScript.parse(XStrings.newStringUtf8(bytes));
+		try (InputStream input = getClass().getClassLoader().getResourceAsStream(path)) {
+		    ByteArrayOutputStream out = new ByteArrayOutputStream();
+		    int b;
+		    while((b = input.read()) != -1) {
+		        out.write(b);
+		    }
+            return SQLScript.parse(XStrings.newStringUtf8(out.toByteArray()));
         } catch (IOException e) {
         	throw new IllegalArgumentException(e);
         }

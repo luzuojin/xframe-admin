@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import dev.xframe.admin.system.privilege.Privileges;
+import dev.xframe.admin.system.auth.UserPrivileges;
 import dev.xframe.admin.view.Chapter;
 import dev.xframe.admin.view.Column;
 import dev.xframe.admin.view.Option;
@@ -26,11 +26,9 @@ import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Service;
-import dev.xframe.http.service.ServiceContext;
 import dev.xframe.http.service.rest.ArgParsers;
 import dev.xframe.http.service.rest.HttpMethods;
 import dev.xframe.inject.Bean;
-import dev.xframe.inject.Inject;
 import dev.xframe.inject.Loadable;
 import dev.xframe.inject.code.Codes;
 import dev.xframe.utils.XStrings;
@@ -38,9 +36,6 @@ import dev.xframe.utils.XStrings;
 
 @Bean
 public class BasicContext implements Loadable {
-    
-    @Inject
-    private ServiceContext serviceCtx;
     
 	private Summary summary;
 
@@ -135,7 +130,7 @@ public class BasicContext implements Loadable {
 	    return summary;
 	}
 	
-	public Summary getSummary(Privileges privileges) {
+	public Summary getSummary(UserPrivileges privileges) {
 		return summary.copyBy(privileges);
 	}
 	

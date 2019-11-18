@@ -3,7 +3,7 @@ package dev.xframe.admin.view;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.xframe.admin.system.privilege.Privileges;
+import dev.xframe.admin.system.auth.UserPrivileges;
 
 public class Summary {
 	
@@ -36,7 +36,7 @@ public class Summary {
 		this.chapters = chapters;
 	}
 	
-	public Summary copyBy(Privileges privileges) {
+	public Summary copyBy(UserPrivileges privileges) {
 	    Summary s = new Summary();
 	    s.name = this.name;
 	    s.icon = this.icon;
