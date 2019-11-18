@@ -108,6 +108,7 @@ datepicker: function(e) {
     e.datepicker({
         format: "yyyy-mm-dd",
         autoclose: true,
+        todayHighlight: true,
         isRTL: false,
         language: "zh-CN"
     });
