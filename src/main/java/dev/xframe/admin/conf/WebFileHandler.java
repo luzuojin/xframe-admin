@@ -38,7 +38,7 @@ public class WebFileHandler implements Eventual, Service {
     private String root;
     
     @Override
-    public Response exec(Request req) throws Throwable {
+    public Response exec(Request req) {
         return func.apply(req);
     }
     
