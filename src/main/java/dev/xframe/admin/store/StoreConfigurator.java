@@ -1,36 +1,46 @@
 package dev.xframe.admin.store;
 
-import static dev.xframe.admin.store.StoreKey.DAT;
-import static dev.xframe.admin.store.StoreKey.LOG;
-
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.util.List;
 
 import dev.xframe.admin.conf.SysProperties;
 import dev.xframe.inject.Configurator;
 import dev.xframe.inject.Loadable;
 import dev.xframe.jdbc.JdbcEnviron;
+import dev.xframe.jdbc.JdbcTemplate;
 import dev.xframe.jdbc.datasource.DBSource;
 import dev.xframe.jdbc.datasource.DataSources;
+import dev.xframe.jdbc.tools.SQLScript;
+import dev.xframe.utils.XStrings;
 
 @Configurator
 public class StoreConfigurator implements Loadable {
 	
 	@Override
 	public void load() {
-		JdbcEnviron
-			.getConfigurator()
-			.setInstupUsage(false, false)
-			.setDatasource(DAT, DataSources.tomcatJdbc(getDBSource(DAT)))
-			.setDatasource(LOG, DataSources.tomcatJdbc(getDBSource(LOG)));
+		JdbcEnviron.getConfigurator().setInstupUsage(false, false);
+		
+		for (StoreKey storeKey : StoreKey.values()) {
+            JdbcEnviron.getConfigurator().setDatasource(storeKey, DataSources.tomcatJdbc(getDBSource(storeKey)));
+            
+		    if(!dbExists(storeKey)) {
+		        JdbcTemplate jdbc = JdbcEnviron.getJdbcTemplate(storeKey);
+		        List<String> scrtips = SQLScript.parse(XStrings.newStringUtf8(readBytes(storeKey.script)));
+		        for (String script : scrtips) {
+                    jdbc.execute(script);
+                }
+		    }
+        }
 	}
 	
 	private DBSource getDBSource(StoreKey key) {
 		String dbpath = dbPath(key);
-		String script = dbExists(key) ? "" : String.format("INIT=RUNSCRIPT FROM 'classpath:%s';", key.script);
 		String driver = "org.h2.Driver";
-		String dburl = String.format("jdbc:h2:%s;%sDB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;AUTO_SERVER=TRUE;", dbpath, script);
-		String user = "embed";
-		String pass = "embed";
+		String dburl = String.format("jdbc:h2:%s;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;AUTO_SERVER=TRUE;", dbpath);
+		String user = SysProperties.get("db.user", "embed");
+		String pass = SysProperties.get("db.password", "embed");
 		return new DBSource(user, pass, driver, dburl, 2, 4);
 	}
 
@@ -45,5 +55,18 @@ public class StoreConfigurator implements Loadable {
 	private String getDbDir() {
 		return SysProperties.getStoreDir();
 	}
+	
+    private byte[] readBytes(String file) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream(file)) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            int b;
+            while((b = input.read()) != -1) {
+                out.write(b);
+            }
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 	
 }

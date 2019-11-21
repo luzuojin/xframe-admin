@@ -62,6 +62,10 @@ public class AuthContext implements Loadable {
         }
         
         String token = req.getHeader("x-token");
+        if(token == null) {
+            return true;
+        }
+        
         UserPrivileges p = tokenMap.get(token);
         if(p != null) {
             OpLogUser.set(p.getUsername());
