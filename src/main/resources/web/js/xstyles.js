@@ -12,10 +12,10 @@ var xTypes = {
 var x = {
 user: `<i class="fas fa-user"></i> {0}`,
 userhtm: function(name){return this.user.format(name);},
-
+// style="background-color:rgba(255,255,255,.05) !important;"
 chapter: `
         <li class="nav-item has-treeview">
-            <a class="nav-link" style="background-color:rgba(255,255,255,.05) !important;" href="javascript:void(0);">
+            <a class="nav-link" href="javascript:void(0);">
               <i class="nav-icon fab fa-gg"/>
               <p>
                 {0}
