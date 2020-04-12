@@ -16,7 +16,7 @@ public class OpLogInterceptor implements HttpInterceptor {
     private OpLogRepo logRepo;
     
     @Override
-    public void after(Request req, Response resp) {//succ ops
+    public Response intercept(Request req) {//succ ops
         String user = OpLogUser.get();
         if(user != null) {
             HttpMethod method = req.method();
@@ -30,6 +30,7 @@ public class OpLogInterceptor implements HttpInterceptor {
                 logRepo.add(new OpLog(user, path, params, host, method.name()));
             }
         }
+        return null;
     }
     
 }

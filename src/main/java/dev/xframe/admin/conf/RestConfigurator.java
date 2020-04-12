@@ -12,7 +12,6 @@ import dev.xframe.admin.system.auth.AuthContext;
 import dev.xframe.admin.view.VResp;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;
-import dev.xframe.http.response.Responses;
 import dev.xframe.http.service.config.BodyDecoder;
 import dev.xframe.http.service.config.ErrorHandler;
 import dev.xframe.http.service.config.HttpInterceptor;
@@ -45,7 +44,7 @@ public class RestConfigurator extends ServiceConfigSetter {
         if(!(ex instanceof LogicException)) {
             logger.error("Rest service throws:", ex);
         }
-    	return Responses.of(JSON.toJSONString(VResp.fail(ex.getMessage()), features));
+    	return Response.of(JSON.toJSONString(VResp.fail(ex.getMessage()), features));
     }
     
     @Override
@@ -63,9 +62,9 @@ public class RestConfigurator extends ServiceConfigSetter {
             if (obj instanceof Response)
             	return (Response) obj;
             if (obj instanceof VResp)
-            	return Responses.of(JSON.toJSONString(obj, features));
+            	return Response.of(JSON.toJSONString(obj, features));
             
-            return Responses.of(JSON.toJSONString(VResp.succ(obj), features));
+            return Response.of(JSON.toJSONString(VResp.succ(obj), features));
         });
     }
 

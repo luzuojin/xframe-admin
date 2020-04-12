@@ -6,14 +6,16 @@ import dev.xframe.http.Response;
 import dev.xframe.http.service.config.HttpInterceptor;
 import dev.xframe.inject.Configurator;
 import dev.xframe.inject.Inject;
+import dev.xframe.inject.Ordered;
 
 @Configurator
+@Ordered(Integer.MAX_VALUE)
 public class AuthInterceptor implements HttpInterceptor {
     
     @Inject
     private AuthContext authCtx;
     
-    public Response before(Request req) {
+    public Response intercept(Request req) {
         if(authCtx.isReqIllegal(req)) {
             throw new LogicException("Permission deny!");
         }
