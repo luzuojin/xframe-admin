@@ -20,7 +20,7 @@ public class StoreConfigurator implements Loadable {
 	
 	@Override
 	public void load() {
-		JdbcEnviron.getConfigurator().setInstupUsage(false, false);
+		JdbcEnviron.getConfigurator().setUpsertUsage(false, false);
 		
 		for (StoreKey storeKey : StoreKey.values()) {
             JdbcEnviron.getConfigurator().setDatasource(storeKey, DataSources.tomcatJdbc(getDBSource(storeKey)));
