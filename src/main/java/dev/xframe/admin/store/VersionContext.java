@@ -35,6 +35,8 @@ public class VersionContext implements Loadable  {
 			
 			jdbcs.put(key, JdbcEnviron.getJdbcTemplate(key));
 		});
+//		有新表添加可以采用下面方式
+//		update(StoreKey.DAT, new Version("1.0.0", "dat_init.sql"));
 	}
 	
 	List<Version> fetch(StoreKey key) {
