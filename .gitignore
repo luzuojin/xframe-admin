@@ -31,3 +31,7 @@ bin/
 .vscode/
 
 /src/main/webapp
+/xadmin_dat.lock.db
+/xadmin_dat.mv.db
+/xadmin_log.lock.db
+/xadmin_log.mv.db
