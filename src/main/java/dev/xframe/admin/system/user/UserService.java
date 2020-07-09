@@ -51,8 +51,8 @@ public class UserService {
 	    users.forEach(this::setRoleDesc);
 	}
 	private void setRoleDesc(User user) {
-	    user.setPassw("");
-	    user.setRolesDesc(Arrays.stream(user.getRoles()).mapToObj(r->sysCtx.getRole(r).getName()).toArray());
+		user.setPassw("");
+		user.setRolesDesc(Arrays.stream(user.getRoles()).mapToObj(r -> sysCtx.getRole(r).getName()).toArray());
 	}
 
 	@HttpMethods.DELETE

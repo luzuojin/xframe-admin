@@ -52,7 +52,7 @@ public class ProtocolTestService {
 	}
 
 	@HttpMethods.PUT
-	public Object edit(@HttpArgs.Body ProtocolInfo protocolInfo) {
+	public Object queryToServer(@HttpArgs.Body ProtocolInfo protocolInfo) {
 		int serverId = protocolInfo.getServerId();
 		Server server = sysCtx.getServer(serverId);
 		if (server == null ) {
@@ -108,6 +108,9 @@ public class ProtocolTestService {
 	 * @return
 	 */
 	private List<ProtocolInfo> buildProtocolInfoList(String json, int serverId,String serverName) {
+		if (StringUtil.isNullOrEmpty(json)) {
+			throw new LogicException("server not open or no avaliable protocoltesthandler");
+		}
 		List<ProtocolInfo> lists = new ArrayList<ProtocolInfo>();
 		String[] codeArray = json.split(";");
 		for (String codeString : codeArray) {
