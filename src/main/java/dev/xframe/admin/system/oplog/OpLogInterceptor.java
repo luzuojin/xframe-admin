@@ -20,7 +20,7 @@ public class OpLogInterceptor implements HttpInterceptor {
         String user = OpLogUser.get();
         if(user != null) {
             HttpMethod method = req.method();
-            if(!method.equals(HttpMethod.GET)) {
+            if(!method.equals(HttpMethod.GET) && !method.equals(HttpMethod.OPTIONS)) {
                 String params = XStrings.newStringUtf8(req.content());
                 String path = req.xpath();
                 String host = XStrings.orElse(req.getHeader("x-host"), req.remoteHost());

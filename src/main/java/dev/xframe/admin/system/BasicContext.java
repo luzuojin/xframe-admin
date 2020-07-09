@@ -96,7 +96,7 @@ public class BasicContext implements Loadable {
     		    for (Parameter p : params) {
     		        XColumn xi = p.getAnnotation(XColumn.class);
     		        if(xi != null) {
-    		            qry.getInputs().add(new Column(p.getName(), orElse(xi.value(), p.getName()), xi.type(), xi.enumKey()));
+    		            qry.getInputs().add(new Column(p.getName(), orElse(xi.value(), p.getName()), xi.type(), xi.enumKey(), xi.indep()));
     		        }
     		    }
     		    seg.getOptions().add(qry);

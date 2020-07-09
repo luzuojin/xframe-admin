@@ -115,15 +115,22 @@ datepicker: function(e) {
 },
 
 select2: function(e, xinput) {
-    let d = xenum(xinput.enumKey);
-    e.select2({
-        theme: 'bootstrap4',
-        dropdownAutoWidth : true,
-        width: 'auto',
-        data: d,
-        multiple: xinput.type==xTypes._mult,
-        minimumResultsForSearch: 10
+    let k = xinput.enumKey;
+    let d = xenum(k);
+    let s = e.select2({
+                theme: 'bootstrap4',
+                dropdownAutoWidth : true,
+                width: 'auto',
+                data: d,
+                multiple: xinput.type==xTypes._mult,
+                minimumResultsForSearch: 10
+            });
+    if(xinput.indep) return;
+    //设置cache值
+    if(eCaches[k]) s.val(eCaches[k]).trigger('change');
+    //设值完成之后添加值变化监听
+    s.on('change', function(evt){
+        eCaches[k] = this.value;
     });
-},
-
-};
+}};
+var eCaches = {};

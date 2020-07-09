@@ -11,9 +11,11 @@ public class Column {
 	
 	private int show;
 	private boolean primary;
+	private boolean indep = false;//enumkey时是否独立选择值, 非独立时如果有会取之前选择过的值作为默认值
 	
-	public Column(String key, String hint, int type, String enumKey) {
+	public Column(String key, String hint, int type, String enumKey, boolean indep) {
 		this(key, hint, type, enumKey, XColumn.full, false);
+		this.indep = indep;
 	}
 	
 	public Column(String key, String hint, int type, String enumKey, int show, boolean primary) {
@@ -74,6 +76,14 @@ public class Column {
 
     public void setPrimary(boolean primary) {
         this.primary = primary;
+    }
+
+    public boolean getIndep() {
+        return indep;
+    }
+
+    public void setIndep(boolean indep) {
+        this.indep = indep;
     }
 
 }
