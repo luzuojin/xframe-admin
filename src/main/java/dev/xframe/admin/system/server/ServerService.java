@@ -23,25 +23,23 @@ public class ServerService {
 	 */
 	@HttpMethods.GET("list")
 	public Object get() {
-		List<Server> servers = sysRepo.fetchServers();
+		List<Server> servers = sysCtx.getServers();
         return servers;
 	}
 	
 	@HttpMethods.POST
 	public Object add(@HttpArgs.Body Server server) {
-		sysRepo.addServer(server);
+		sysCtx.addServer(server);
 		return server;
 	}
 
-	@HttpMethods.PUT
-	public Object edit(@HttpArgs.Body Server server) {
-		Server ex = sysRepo.fetchServer(server.getId());
-		if(ex != null) {
-			ex.setName(server.getName());
-			ex.setUrl(server.getUrl());
-			sysRepo.saveServer(server);
-			return ex;
+	@HttpMethods.DELETE
+	public Server del(@HttpArgs.Body Server server) {
+		if (sysCtx.getServers().remove(server)) {
+			sysRepo.delServer(server);
+			return server;
 		}
-		throw new LogicException("服务器不存在	");
+		
+		throw new LogicException("服务器不存在");
 	}
 }

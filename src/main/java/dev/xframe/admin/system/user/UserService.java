@@ -54,17 +54,6 @@ public class UserService {
 	    user.setRolesDesc(Arrays.stream(user.getRoles()).mapToObj(r->sysCtx.getRole(r).getName()).toArray());
 	}
 
-    @HttpMethods.PUT
-	public Object edit(@HttpArgs.Body User user) {
-		User ex = sysRepo.fetchUser(user.getName());
-		ex.setEmail(user.getEmail());
-		ex.setPhone(user.getPhone());
-		ex.setRoles(user.getRoles());
-		sysRepo.saveUser(ex);
-		setRoleDesc(ex);
-		return ex;
-	}
-	
 	@HttpMethods.DELETE
 	public Object delete(@HttpArgs.Body User user) {
 		sysRepo.deleteUser(user);

@@ -69,6 +69,7 @@ public class BasicContext implements Loadable {
                 chapter.getSegments().add(segment);
             }
         }
+        
         summary.setChapters(chapters.values().stream().sorted().collect(Collectors.toList()));
 	}
 
