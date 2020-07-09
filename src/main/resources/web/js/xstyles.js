@@ -74,7 +74,7 @@ dlgColumn: `
           <div class="col-sm-10">{3}</div>
         </div>
         `,
-dlgText:`<input id="dinput_{0}_{1}" class="form-control" placeholder="{2}" value="{3}" type="{4}">`,
+dlgText:`<input id="dinput_{0}_{1}" class="form-control" placeholder="{2}" type="{3}">`,
 dlgEnum:`<select id="dinput_{0}_{1}" class="form-control select2" data-placeholder="{2}" style="width:100%"></select>`,
 dlgBool:`
         <div class="form-control custom-control custom-switch custom-switch-on-primary">
@@ -98,9 +98,11 @@ addDlgInput: function(parent, xinput, idkey, value) {
         if(value) ckbox.attr('checked', value);
     } else {
         let _type = (xinput.type==xTypes._pass) ? 'password' : 'text';
-        let _col = this.dlgText.format(idkey, xinput.key, xinput.hint, value, _type);
+        let _col = this.dlgText.format(idkey, xinput.key, xinput.hint, _type);
         parent.append(this.dlgColumn.format(idkey, xinput.key, xinput.hint, _col));
-        if(xinput.type==xTypes._time) this.datepicker(this.dlgInputDom(idkey, xinput.key));
+        let _text = this.dlgInputDom(idkey, xinput.key);
+        if(value) _text.val(value).trigger('change');
+        if(xinput.type==xTypes._time) this.datepicker(_text);
     }
 },
 
