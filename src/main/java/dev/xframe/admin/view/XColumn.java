@@ -19,6 +19,7 @@ public @interface XColumn {
 	
 	boolean primary() default false;
 	
+	boolean indep() default false;
 	
 	public static final int type_text = 0;
 	public static final int type_bool = 1;
@@ -29,7 +30,7 @@ public @interface XColumn {
 	public static final int type_mult = 20;
 	
 	public static final int list = 1 << 0;
-	public static final int edit = 1 << 1;
+	public static final int edit = 1 << 1;//是否可编辑,显示由edel决定
 	public static final int add  = 1 << 2;
 	public static final int edel = 1 << 3;//disable edit and delete column display
 	public static final int full = (1 << 4) - 1;

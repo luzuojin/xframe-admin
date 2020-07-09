@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import dev.xframe.admin.system.SystemContext;
 import dev.xframe.admin.system.SystemRepo;
 import dev.xframe.admin.view.XColumn;
+import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
@@ -26,7 +27,7 @@ public class UserService {
 	/**
 	 * 点击侧边栏时调用该方法 可以返回空数组
 	 */
-	@HttpMethods.GET("list")
+	@HttpMethods.GET(XOption.listing)
 	public Object get() {
 		List<User> datas = sysRepo.fetchUsers();
 		setRoleDesc(datas);

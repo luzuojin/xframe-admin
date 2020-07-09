@@ -59,7 +59,7 @@ public class WebFileHandler implements Eventual, Service {
 
     private void makeHandler(String p) {
         String path = p.replace("\\", "/");//windows path to url
-        authCtx.addUnblockedPath(p);	        serviceCtx.registService(path, this);
+        serviceCtx.registService(path, this);
         authCtx.addUnblockedPath(path);
     }
     

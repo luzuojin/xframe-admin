@@ -12,7 +12,6 @@ public class Option implements Comparable<Option> {
 	public static final Option add = new Option("新增", XOption.type_add);   //HttpMethods.POST
 	public static final Option del = new Option("删除", XOption.type_del);   //HttpMethods.DELETE
 	
-	
 	private String name;
 	private List<Column> inputs = new ArrayList<>();
 	private int opType; //1(增), 2(查)
@@ -45,7 +44,10 @@ public class Option implements Comparable<Option> {
 		String xname = op == null ? null : op.value();
 		return new Option(XStrings.orElse(xname, this.name), opType);
 	}
-
+	public Option with(List<Column> columns) {
+	    this.inputs = columns;
+	    return this;
+	}
 	@Override
 	public int compareTo(Option o) {
 		return Integer.compare(opType, o.opType);

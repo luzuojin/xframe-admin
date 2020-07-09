@@ -239,7 +239,7 @@ function showDialog(segment, op, model, func) {
     $('#xdialog_form').empty();
 
     $('#xdialog_title').append(dialogTitle(segment, op))
-    for(let column of segment.columns){
+    for(let column of opColumns(segment, op)){
         if(op.opType == opTypes.add && !xcolumn.add(column)) continue;
         if(op.opType >= opTypes.edt && !xcolumn.edel(column)) continue;
         let val = dialogInputVal(segment, model, column.key);
@@ -252,9 +252,13 @@ function showDialog(segment, op, model, func) {
     modalShow();
 }
 
+function opColumns(seg, op) {
+    return (op.inputs && op.inputs.length > 0) ? op.inputs : seg.columns;
+}
+
 function submitDialog(segment, op, func) {
     var model = {};
-    for(let column of segment.columns) {
+    for(let column of opColumns(segment, op)) {
         let key = column.key;
         model[key] = x.dlgInputDom(segment.path, key).val();
         if(column.type==xTypes._pass) model[key]=$.md5(model[key]);

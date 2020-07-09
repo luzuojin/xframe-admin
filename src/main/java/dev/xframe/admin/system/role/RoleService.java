@@ -3,6 +3,7 @@ package dev.xframe.admin.system.role;
 import dev.xframe.admin.conf.LogicException;
 import dev.xframe.admin.system.SystemContext;
 import dev.xframe.admin.system.SystemRepo;
+import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
@@ -18,7 +19,7 @@ public class RoleService {
 	@Inject
 	private SystemRepo sysRepo;
 	
-	@HttpMethods.GET("list")
+	@HttpMethods.GET(XOption.listing)
 	public Object get() {
 		return sysCtx.getRoles();
 	}
