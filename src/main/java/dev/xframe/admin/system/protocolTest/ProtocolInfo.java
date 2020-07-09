@@ -13,14 +13,8 @@ public class ProtocolInfo {
 	private int playerId;
 	@XColumn(value="参数",show = XColumn.xor_list)
 	private String params;
-	
-	public ProtocolInfo(int code, String params,int serverId,String serverName) {
-		this.code = code;
-		this.params = params;
-		this.serverId  = serverId;
-		this.serverName = serverName;
-		this.playerId = 0;
-	}
+	@XColumn(value="status",show = XColumn.xor_edit)
+	private String status = new String();
 	
 	public ProtocolInfo() {
 	}
@@ -62,6 +56,14 @@ public class ProtocolInfo {
 		this.serverName = serverName;
 	}
 
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
 	@Override
     public int hashCode() {
         final int prime = 31;
@@ -86,4 +88,14 @@ public class ProtocolInfo {
             return false;
         return true;
     }
+	
+	public void copy() {
+		ProtocolInfo info = new ProtocolInfo();
+		info.setCode(this.code);
+		info.setParams(this.params);
+		info.setPlayerId(this.playerId);
+		info.setServerName(this.serverName);
+		info.setStatus("");
+		info.setServerId(this.serverId);
+	}
 }

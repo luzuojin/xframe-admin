@@ -39,17 +39,4 @@ public class RoleService {
 		throw new LogicException("角色不存在");
 	}
 	
-	@HttpMethods.PUT
-	public Object edit(@HttpArgs.Body Role role) {
-		Role ex = sysCtx.getRoles().stream().filter(r->r.getId()==role.getId()).findAny().orElse(null);
-		if(ex != null) {
-			ex.setAuthorities(role.getAuthorities());
-			ex.setReadOnly(role.getReadOnly());
-			sysCtx.setRoleDesc(ex);
-			sysRepo.saveRole(ex);
-			return ex;
-		}
-		throw new LogicException("角色不存在");
-	}
-	
 }
