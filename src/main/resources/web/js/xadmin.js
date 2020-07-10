@@ -200,11 +200,7 @@ function showDetailFunc(seg) {
         xlatestSeg = seg;
         segmentdom(seg).addClass('active');
 
-        if(seg.detail.listable) {
-            doGet('{0}/list'.format(xsegpath(seg)), function(data){showDetail(seg.detail, data);});
-        } else {
-            showDetail(seg.detail, []);
-        }
+        showDetail(seg.detail);
     };
 }
 

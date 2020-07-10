@@ -71,14 +71,29 @@ function queryDatasFunc(detail, op) {
     }
 }
 
-var xlatestOp;
-var _op;
-function showDetail(detail, data) {
-    $('#xthead').empty();
+function showDetail(detail) {
+    if(detail.listable) {//loading data
+        doGet('{0}/list'.format(detail.segpath), function(data){
+            showDetailInternal(detail, data);
+        });
+    } else {
+        showDetailInternal(detail, []);
+    }
+}
+
+function showDetailInternal(detail, data) {
     $('#xboxhead').empty();
+    $('#xboxbody').empty();
 
-    _op = false;
+    let tablehtm = `
+                <table id="xtable" class="table table-bordered table-hover">
+                    <thead id="xthead"></thead>
+                    <tbody id="xtbody"></tbody>
+                </table>
+                `;
+    $('#xboxbody').append($(tablehtm));
 
+    let _ops = false;
     let _tr = 0;
     //box head
     for(let op of detail.options) {
@@ -94,11 +109,10 @@ function showDetail(detail, data) {
             $('#xboxhead').append(x.addBtn.format(detail.path, _tr, op.name));
             xclick(x.addBtnDom(detail.path, _tr), showDialogFunc(detail, op, queryInputsToModel));
         }
-        if(op.opType == opTypes.edt) _op = true;
-        if(op.opType == opTypes.del) _op = true;
+        if(op.opType == opTypes.edt) _ops = true;
+        if(op.opType == opTypes.del) _ops = true;
     }
-
-    //box body --> table
+    
     //table head
     $('#xthead').append($(x.tabletr.format(_tr)))
     for(let column of detail.columns){
@@ -106,7 +120,7 @@ function showDetail(detail, data) {
             x.tabletrDom(_tr).append($(x.tabletd.format(_tr, 0, column.hint)));
         }
     }
-    if(_op) {//options td head
+    if(_ops) {//options td head
         x.tabletrDom(_tr).append($(x.tabletd.format(_tr, 0, "Options")));    
     }
 
