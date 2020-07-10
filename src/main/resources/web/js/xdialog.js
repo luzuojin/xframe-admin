@@ -60,11 +60,11 @@ function showDialog(dlg, op, model, func) {
 
     $('#xdialog_title').append(dialogTitle(dlg, op))
     for(let column of dlg.opColumns(op)){
-        if(op.opType == opTypes.add && !xcolumn.add(column)) continue;
-        if(op.opType >= opTypes.edt && !xcolumn.edel(column)) continue;
+        if(op.type == opTypes.add && !xcolumn.add(column)) continue;
+        if(op.type >= opTypes.edt && !xcolumn.edel(column)) continue;
         let val = dialogInputVal(model, column.key);
         addDlgInput($('#xdialog_form'), column, dlg.ident, val);
-        if (op.opType == opTypes.del || (model && !xcolumn.edit(column))) {
+        if (op.type == opTypes.del || (model && !xcolumn.edit(column))) {
             dlgInputDom(dlg.ident, column.key).attr("disabled", true);
         }
     }

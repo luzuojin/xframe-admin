@@ -7,6 +7,7 @@ import dev.xframe.utils.XStrings;
 
 public class Option implements Comparable<Option> {
 	
+	public static final Option ini = new Option("加载", XOption.type_ini);	//HttpMethods.GET(url)
 	public static final Option qry = new Option("查询", XOption.type_qry);   //HttpMethods.GET
 	public static final Option edt = new Option("修改", XOption.type_edt);   //HttpMethods.PUT
 	public static final Option add = new Option("新增", XOption.type_add);   //HttpMethods.POST
@@ -15,14 +16,14 @@ public class Option implements Comparable<Option> {
 	private String name;
 	private String path;
 	private List<Column> inputs = new ArrayList<>();
-	private int opType; //1(增), 2(查)
+	private int type; //1(增), 2(查)
 	
-	public Option(String name, int opType) {
-	    this(name, opType, "");
+	public Option(String name, int type) {
+	    this(name, type, "");
 	}
-	public Option(String name, int opType, String path) {
+	public Option(String name, int type, String path) {
 	    this.name = name;
-	    this.opType = opType;
+	    this.type = type;
 	    this.path = path;
 	}
 	
@@ -38,11 +39,11 @@ public class Option implements Comparable<Option> {
 	public void setInputs(List<Column> inputs) {
 		this.inputs = inputs;
 	}
-	public int getOpType() {
-		return opType;
+	public int getType() {
+		return type;
 	}
-	public void setOpType(int opType) {
-		this.opType = opType;
+	public void setType(int type) {
+		this.type = type;
 	}
 	public String getPath() {
         return path;
@@ -52,7 +53,7 @@ public class Option implements Comparable<Option> {
     }
     public Option copy(XOption op, String path) {
 		String xname = op == null ? null : op.value();
-		return new Option(XStrings.orElse(xname, this.name), opType, path);
+		return new Option(XStrings.orElse(xname, this.name), type, path);
 	}
 	public Option with(List<Column> columns) {
 	    this.inputs = columns;
@@ -60,7 +61,7 @@ public class Option implements Comparable<Option> {
 	}
 	@Override
 	public int compareTo(Option o) {
-		return Integer.compare(opType, o.opType);
+		return Integer.compare(type, o.type);
 	}
 	
 }

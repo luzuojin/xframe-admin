@@ -23,6 +23,7 @@ var xpaths = {
 
 //option types
 var opTypes = {
+    ini: -1,
     qry: 1,
     add: 2,
     edt: 3,
@@ -79,7 +80,7 @@ var httpTypes = ['_', 'get', 'post', 'put', 'delete']
 function doPost(path, op, data, func) {
     xlatestOp = op;
     $.ajax({
-        type: httpTypes[op.opType],
+        type: httpTypes[op.type],
         url: '{0}/{1}'.format(xurl, path),
         data: JSON.stringify(data),
         headers: {"x-token": xtoken()},

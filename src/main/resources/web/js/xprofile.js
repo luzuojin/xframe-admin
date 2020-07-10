@@ -26,7 +26,7 @@ var xuserdlg = {
 function doLogin(func) {
     let op = {
         name: "登录",
-        opType: opTypes.add
+        type: opTypes.add
     };
     showDialog(xuserdlg, op, undefined, function(data){
         onLogin(data);
@@ -48,7 +48,7 @@ function showUser(user) {
     xclick($('#xuser_logout'), function(){
         let op = {
             // name: "登出",
-            opType: opTypes.del
+            type: opTypes.del
         };
         doPost(xuserdlg.segpath, op, {name: xuser.name, passw: ''}, function(resp){
             xuser = undefined;
@@ -59,7 +59,7 @@ function showUser(user) {
     xclick($('#xuser_profile'), function(){
         let op = {
             name: "修改密码",
-            opType: opTypes.edt
+            type: opTypes.edt
         };
         let model = {
             name: xuser.name,

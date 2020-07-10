@@ -16,6 +16,9 @@ import dev.xframe.utils.XStrings;
 
 public interface Detail {
     
+	int type_table = 1;//表格类详情页
+	int type_panel = 2;//单对象详情页
+	
     public Detail parseFrom(XSegment xseg, Class<?> declaring);
     
     static List<Option> parseOptions(Class<?> declaring, Class<?> model) {
@@ -23,7 +26,8 @@ public interface Detail {
         Method[] methods = declaring.getDeclaredMethods();
         for (Method method : methods) {
             if(method.isAnnotationPresent(GET.class)) {
-                options.add(parseOption(Option.qry, model, method, method.getAnnotation(GET.class).value()));
+            	Option opt = (method.getParameters().length==0) ? Option.ini : Option.qry;
+				options.add(parseOption(opt, model, method, method.getAnnotation(GET.class).value()));
             } else if(method.isAnnotationPresent(PUT.class)) {
                 options.add(parseOption(Option.edt, model, method, method.getAnnotation(PUT.class).value()));
             } else if(method.isAnnotationPresent(DELETE.class)) {

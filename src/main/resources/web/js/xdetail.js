@@ -71,9 +71,19 @@ function queryDatasFunc(detail, op) {
     }
 }
 
+function getIniOption(detail) {
+    for(let op of detail.options) {
+        console.log(JSON.stringify(op));
+        if(op.type ===  opTypes.ini) {
+            return op;
+        }
+    }
+}
+
 function showDetail(detail) {
-    if(detail.listable) {//loading data
-        doGet('{0}/list'.format(detail.segpath), function(data){
+    let ini = getIniOption(detail);
+    if(ini) {//loading ini data
+        doGet(detail.segpath.urljoin(ini.path), function(data){
             showDetailInternal(detail, data);
         });
     } else {
@@ -103,7 +113,7 @@ function showDetailInternal(detail, data) {
     //box head
     for(let op of detail.options) {
         let ident = opIdent(detail, op);
-        if(op.opType == opTypes.qry) {//only query use inputs
+        if(op.type == opTypes.qry) {//only query use inputs
             for(let input of op.inputs) {
                 x.addQryInput($('#xboxhead'), input);
             }
@@ -111,12 +121,12 @@ function showDetailInternal(detail, data) {
             xclick(x.qryBtnDom(ident, _tr), queryDatasFunc(detail, op));
             detail.qryOp = op;
         }
-        if(op.opType == opTypes.add) {
+        if(op.type == opTypes.add) {
             $('#xboxhead').append(x.addBtn.format(ident, _tr, op.name));
             xclick(x.addBtnDom(ident, _tr), showDialogFunc(detail, op, queryInputsToModel));
         }
-        if(op.opType == opTypes.edt) _ops = true;
-        if(op.opType == opTypes.del) _ops = true;
+        if(op.type == opTypes.edt) _ops = true;
+        if(op.type == opTypes.del) _ops = true;
     }
     
     //table head
@@ -154,11 +164,11 @@ function showDetailBody(detail, data) {
             x.tabletrDom(_tr).append($(x.tabletd.format(_tr, (++_td), '')));
             for(let op of detail.options) {
                 let ident = opIdent(detail, op);
-                if(op.opType == opTypes.edt) {
+                if(op.type == opTypes.edt) {
                     x.tabletdDom(_tr, _td).append(x.edtBtn.format(ident, _tr, op.name));
                     xclick(x.edtBtnDom(ident, _tr), showDialogFunc(detail, op, model));
                 }
-                if(op.opType == opTypes.del) {
+                if(op.type == opTypes.del) {
                     x.tabletdDom(_tr, _td).append(x.delBtn.format(ident, _tr, op.name));
                     xclick(x.delBtnDom(ident, _tr), showDialogFunc(detail, op, model));
                 }
@@ -192,12 +202,12 @@ function showDialogFunc(detail, op, model) {//model or supplier function
     return function() {
         let _model = ('function'===typeof(model)) ? model(detail) : model;
         showDialog(detailToDlg(detail), op, _model, function(data){
-            if(op.opType == opTypes.qry || Array.isArray(data)) {
+            if(op.type == opTypes.qry || Array.isArray(data)) {
                 xmodel.set(detail, data);
             }else{
-                if(op.opType == opTypes.add) xmodel.add(data);
-                if(op.opType == opTypes.edt) xmodel.edt(data);
-                if(op.opType == opTypes.del) xmodel.del(data);
+                if(op.type == opTypes.add) xmodel.add(data);
+                if(op.type == opTypes.edt) xmodel.edt(data);
+                if(op.type == opTypes.del) xmodel.del(data);
             }
             showDetailBody(detail, xmodel.datas);
         });
