@@ -81,6 +81,7 @@ function showDetail(detail) {
     }
 }
 
+var _ops;
 function showDetailInternal(detail, data) {
     $('#xboxhead').empty();
     $('#xboxbody').empty();
@@ -93,7 +94,7 @@ function showDetailInternal(detail, data) {
                 `;
     $('#xboxbody').append($(tablehtm));
 
-    let _ops = false;
+    _ops = false;
     let _tr = 0;
     //box head
     for(let op of detail.options) {
@@ -144,7 +145,7 @@ function showDetailBody(detail, data) {
             }
         }
         //options td
-        if(_op) {
+        if(_ops) {
             x.tabletrDom(_tr).append($(x.tabletd.format(_tr, (++_td), '')));
             for(let op of detail.options) {
                 if(op.opType == opTypes.edt) {
