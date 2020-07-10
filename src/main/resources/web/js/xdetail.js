@@ -81,6 +81,10 @@ function showDetail(detail) {
     }
 }
 
+function opIdent(detail, op) {
+    return op.path ? detail.path + '_' + op.path : detail.path;
+}
+
 var _ops;
 function showDetailInternal(detail, data) {
     $('#xboxhead').empty();
@@ -98,17 +102,18 @@ function showDetailInternal(detail, data) {
     let _tr = 0;
     //box head
     for(let op of detail.options) {
+        let ident = opIdent(detail, op);
         if(op.opType == opTypes.qry) {//only query use inputs
             for(let input of op.inputs) {
                 x.addQryInput($('#xboxhead'), input);
             }
-            $('#xboxhead').append(x.qryBtn.format(detail.path, _tr, op.name));
-            xclick(x.qryBtnDom(detail.path, _tr), queryDatasFunc(detail, op));
+            $('#xboxhead').append(x.qryBtn.format(ident, _tr, op.name));
+            xclick(x.qryBtnDom(ident, _tr), queryDatasFunc(detail, op));
             detail.qryOp = op;
         }
         if(op.opType == opTypes.add) {
-            $('#xboxhead').append(x.addBtn.format(detail.path, _tr, op.name));
-            xclick(x.addBtnDom(detail.path, _tr), showDialogFunc(detail, op, queryInputsToModel));
+            $('#xboxhead').append(x.addBtn.format(ident, _tr, op.name));
+            xclick(x.addBtnDom(ident, _tr), showDialogFunc(detail, op, queryInputsToModel));
         }
         if(op.opType == opTypes.edt) _ops = true;
         if(op.opType == opTypes.del) _ops = true;
@@ -148,13 +153,14 @@ function showDetailBody(detail, data) {
         if(_ops) {
             x.tabletrDom(_tr).append($(x.tabletd.format(_tr, (++_td), '')));
             for(let op of detail.options) {
+                let ident = opIdent(detail, op);
                 if(op.opType == opTypes.edt) {
-                    x.tabletdDom(_tr, _td).append(x.edtBtn.format(detail.path, _tr, op.name));
-                    xclick(x.edtBtnDom(detail.path, _tr), showDialogFunc(detail, op, model));
+                    x.tabletdDom(_tr, _td).append(x.edtBtn.format(ident, _tr, op.name));
+                    xclick(x.edtBtnDom(ident, _tr), showDialogFunc(detail, op, model));
                 }
                 if(op.opType == opTypes.del) {
-                    x.tabletdDom(_tr, _td).append(x.delBtn.format(detail.path, _tr, op.name));
-                    xclick(x.delBtnDom(detail.path, _tr), showDialogFunc(detail, op, model));
+                    x.tabletdDom(_tr, _td).append(x.delBtn.format(ident, _tr, op.name));
+                    xclick(x.delBtnDom(ident, _tr), showDialogFunc(detail, op, model));
                 }
             }
         }

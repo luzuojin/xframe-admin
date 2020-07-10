@@ -13,12 +13,17 @@ public class Option implements Comparable<Option> {
 	public static final Option del = new Option("删除", XOption.type_del);   //HttpMethods.DELETE
 	
 	private String name;
+	private String path;
 	private List<Column> inputs = new ArrayList<>();
 	private int opType; //1(增), 2(查)
 	
 	public Option(String name, int opType) {
-		this.name = name;
-		this.opType = opType;
+	    this(name, opType, "");
+	}
+	public Option(String name, int opType, String path) {
+	    this.name = name;
+	    this.opType = opType;
+	    this.path = path;
 	}
 	
 	public String getName() {
@@ -39,10 +44,15 @@ public class Option implements Comparable<Option> {
 	public void setOpType(int opType) {
 		this.opType = opType;
 	}
-	
-	public Option copy(XOption op) {
+	public String getPath() {
+        return path;
+    }
+    public void setPath(String path) {
+        this.path = path;
+    }
+    public Option copy(XOption op, String path) {
 		String xname = op == null ? null : op.value();
-		return new Option(XStrings.orElse(xname, this.name), opType);
+		return new Option(XStrings.orElse(xname, this.name), opType, path);
 	}
 	public Option with(List<Column> columns) {
 	    this.inputs = columns;

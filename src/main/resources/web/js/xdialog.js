@@ -79,7 +79,7 @@ function submitDialog(dlg, op, func) {
         model[key] = dlgInputDom(dlg.ident, key).val();
         if(column.type==xTypes._pass) model[key]=$.md5(model[key]);
     }
-    doPost(dlg.segpath, op, model,
+    doPost(dlg.segpath.urljoin(op.path), op, model,
         function(resp) {
             modalHide();
             func(resp);

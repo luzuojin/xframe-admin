@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import dev.xframe.admin.view.Detail.TableDetail;
+import dev.xframe.admin.view.details.Table;
 
 /**
  * path use @Http.path
@@ -16,7 +16,7 @@ import dev.xframe.admin.view.Detail.TableDetail;
 public @interface XSegment {
 	
 	String name();
-	Class<? extends Detail> detail() default TableDetail.class;
+	Class<? extends Detail> detail() default Table.class;
 	Class<?> model();
 	boolean padding() default false;//Option.add时是否把qry表单中的字段用来填充
 

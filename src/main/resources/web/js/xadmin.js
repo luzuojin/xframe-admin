@@ -6,6 +6,14 @@ String.prototype.format = function() {
     }
     return str;
 }
+String.prototype.urljoin = function(sub) {
+    var url = this;
+    if(sub) {
+        url = url + '/' + sub;
+    }
+    return url;
+}
+
 
 var xurl = window.location.origin.startsWith("http") ? window.location.origin : "http://127.0.0.1:8001";
 var xpaths = {
