@@ -5,7 +5,6 @@ import java.util.List;
 
 import dev.xframe.admin.system.BasicContext;
 import dev.xframe.admin.view.Segment;
-import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpMethods;
@@ -18,7 +17,7 @@ public class PrivilegeService {
 	@Inject
 	private BasicContext viewCtx;
 	
-	@HttpMethods.GET(XOption.listing)
+	@HttpMethods.GET()
 	public Object get() {
 		List<Privilege> privileges = new ArrayList<>();
 		viewCtx.getChapters().forEach(c->{

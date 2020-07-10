@@ -11,8 +11,6 @@ public @interface XOption {
 
 	public String value();
 
-	public static final String listing = "list";
-	
 	public static final int type_ini = -1;
 	public static final int type_qry = 1;
 	public static final int type_add = 2;

@@ -199,8 +199,8 @@ var xtd = {
 
 //panel detail
 var xpd = {//重用dialog相关element
-    edtBtn: `<button id="xpanel_edtbtn_{0}" type="button" class="btn btn-lg bg-info m-auto">{1}</button>`,
-    delBtn: `<button id="xpanel_delbtn_{0}" type="button" class="btn btn-lg bg-danger m-auto">{1}</button>`,
+    edtBtn: `<div class="col-sm-2 m-auto"><button id="xpanel_edtbtn_{0}" type="button" class="btn btn-block bg-info">{1}</button></div>`,
+    delBtn: `<div class="col-sm-2 m-auto"><button id="xpanel_delbtn_{0}" type="button" class="btn btn-block bg-danger">{1}</button></div>`,
     edtBtnDom: function(path){return $('#xpanel_edtbtn_{0}'.format(path))},
     delBtnDom: function(path){return $('#xpanel_delbtn_{0}'.format(path))},
     btnRow: `<div id="xpanel_btnrow" class="form-group row"></div>`,
