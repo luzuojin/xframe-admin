@@ -1,22 +1,15 @@
 package dev.xframe.admin.view;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Segment {
 	
 	private String name;
 	private String path;
-	private List<Column> columns = new ArrayList<>();
-	private List<Option> options = new ArrayList<>();
+	private Detail detail;
 	
-	private boolean padding;
-	private boolean listable;
-	
-	public Segment(String name, String path, boolean padding) {
+	public Segment(String name, String path, Detail detail) {
 		this.name = name;
 		this.path = path;
-		this.padding = padding;
+		this.detail = detail;
 	}
 	
 	public String getName() {
@@ -31,29 +24,11 @@ public class Segment {
 	public void setPath(String path) {
 		this.path = path;
 	}
-	public List<Column> getColumns() {
-		return columns;
-	}
-	public void setColumns(List<Column> columns) {
-		this.columns = columns;
-	}
-	public List<Option> getOptions() {
-		return options;
-	}
-	public void setOptions(List<Option> options) {
-		this.options = options;
-	}
-	public boolean getListable() {
-	    return listable;
-	}
-    public void setListable(boolean listable) {
-        this.listable = listable;
+    public Detail getDetail() {
+        return detail;
     }
-	public boolean getPadding() {
-		return padding;
-	}
-	public void setPadding(boolean padding) {
-		this.padding = padding;
-	}
+    public void setDetail(Detail detail) {
+        this.detail = detail;
+    }
 	
 }

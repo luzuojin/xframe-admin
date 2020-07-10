@@ -16,12 +16,19 @@ var xuserseg = {//用户登录/修改密码...
     ]
 };
 
+var xuserdlg = {
+    ident: xuserseg.path,
+    segname: xuserseg.name,
+    segpath: xsegpath(xuserseg),
+    opColumns: function(op){return xuserseg.columns}
+}
+
 function doLogin(func) {
     let op = {
         name: "登录",
         opType: opTypes.add
     };
-    showDialog(xuserseg, op, undefined, function(data){
+    showDialog(xuserdlg, op, undefined, function(data){
         onLogin(data);
         func();
     });
@@ -43,7 +50,7 @@ function showUser(user) {
             // name: "登出",
             opType: opTypes.del
         };
-        doPost(segpath(xuserseg), op, {name: xuser.name, passw: ''}, function(resp){
+        doPost(xuserdlg.segpath, op, {name: xuser.name, passw: ''}, function(resp){
             xuser = undefined;
             location.reload();
         });
@@ -58,6 +65,6 @@ function showUser(user) {
             name: xuser.name,
             passw: ''
         }
-        showDialog(xuserseg, op, model, function(){});
+        showDialog(xuserdlg, op, model, function(){});
     });
 }
