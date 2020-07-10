@@ -1,9 +1,9 @@
 var xmodel = {
     datas: [],
     pkeys: [],
-    set: function(seg, datas) {
+    set: function(detail, datas) {
         let pkeys = []
-        for(c of seg.columns) {
+        for(c of detail.columns) {
             if(c.primary) pkeys.push(c.key);
         }
         this.pkeys = pkeys;
@@ -61,19 +61,19 @@ addQryInput: function(parent, xinput) {
 },
 };
 
-function queryDatasFunc(segment, op) {
+function queryDatasFunc(detail, op) {
     return function() {
         let params = {};
         for(let input of op.inputs) {
             params[input.key] = x.qryInputDom(input.key).val();
         }
-        doGet('{0}?{1}'.format(segpath(segment), ($.param(params))), function(data){showDetailBody(segment, data);});
+        doGet('{0}?{1}'.format(detail.segpath, ($.param(params))), function(data){showDetailBody(detail, data);});
     }
 }
 
 var xlatestOp;
 var _op;
-function showDetail(segment, data) {
+function showDetail(detail, data) {
     $('#xthead').empty();
     $('#xboxhead').empty();
 
@@ -81,18 +81,18 @@ function showDetail(segment, data) {
 
     let _tr = 0;
     //box head
-    for(let op of segment.options) {
+    for(let op of detail.options) {
         if(op.opType == opTypes.qry) {//only query use inputs
             for(let input of op.inputs) {
                 x.addQryInput($('#xboxhead'), input);
             }
-            $('#xboxhead').append(x.qryBtn.format(segment.path, _tr, op.name));
-            xclick(x.qryBtnDom(segment.path, _tr), queryDatasFunc(segment, op));
-            segment.qryOp = op;
+            $('#xboxhead').append(x.qryBtn.format(detail.path, _tr, op.name));
+            xclick(x.qryBtnDom(detail.path, _tr), queryDatasFunc(detail, op));
+            detail.qryOp = op;
         }
         if(op.opType == opTypes.add) {
-            $('#xboxhead').append(x.addBtn.format(segment.path, _tr, op.name));
-            xclick(x.addBtnDom(segment.path, _tr), showDialogFunc(segment, op, queryInputsToModel));
+            $('#xboxhead').append(x.addBtn.format(detail.path, _tr, op.name));
+            xclick(x.addBtnDom(detail.path, _tr), showDialogFunc(detail, op, queryInputsToModel));
         }
         if(op.opType == opTypes.edt) _op = true;
         if(op.opType == opTypes.del) _op = true;
@@ -101,7 +101,7 @@ function showDetail(segment, data) {
     //box body --> table
     //table head
     $('#xthead').append($(x.tabletr.format(_tr)))
-    for(let column of segment.columns){
+    for(let column of detail.columns){
         if(xcolumn.list(column)) {
             x.tabletrDom(_tr).append($(x.tabletd.format(_tr, 0, column.hint)));
         }
@@ -110,12 +110,12 @@ function showDetail(segment, data) {
         x.tabletrDom(_tr).append($(x.tabletd.format(_tr, 0, "Options")));    
     }
 
-    xmodel.set(segment, data);
+    xmodel.set(detail, data);
     //table body
-    showDetailBody(segment, xmodel.datas);
+    showDetailBody(detail, xmodel.datas);
 }
 
-function showDetailBody(segment, data) {
+function showDetailBody(detail, data) {
     $('#xtbody').empty();
 
     let _tr = 0;
@@ -124,7 +124,7 @@ function showDetailBody(segment, data) {
         model._id = (++ _tr);
         $('#xtbody').append($(x.tabletr.format(_tr)))
         var _td = 0;
-        for(let column of segment.columns){
+        for(let column of detail.columns){
             if(xcolumn.list(column)) {
                 x.tabletrDom(_tr).append($(x.tabletd.format(_tr, (++_td), model[column.key])));
             }
@@ -132,42 +132,53 @@ function showDetailBody(segment, data) {
         //options td
         if(_op) {
             x.tabletrDom(_tr).append($(x.tabletd.format(_tr, (++_td), '')));
-            for(let op of segment.options) {
+            for(let op of detail.options) {
                 if(op.opType == opTypes.edt) {
-                    x.tabletdDom(_tr, _td).append(x.edtBtn.format(segment.path, _tr, op.name));
-                    xclick(x.edtBtnDom(segment.path, _tr), showDialogFunc(segment, op, model));
+                    x.tabletdDom(_tr, _td).append(x.edtBtn.format(detail.path, _tr, op.name));
+                    xclick(x.edtBtnDom(detail.path, _tr), showDialogFunc(detail, op, model));
                 }
                 if(op.opType == opTypes.del) {
-                    x.tabletdDom(_tr, _td).append(x.delBtn.format(segment.path, _tr, op.name));
-                    xclick(x.delBtnDom(segment.path, _tr), showDialogFunc(segment, op, model));
+                    x.tabletdDom(_tr, _td).append(x.delBtn.format(detail.path, _tr, op.name));
+                    xclick(x.delBtnDom(detail.path, _tr), showDialogFunc(detail, op, model));
                 }
             }
         }
     }
 }
 
-function queryInputsToModel(seg) {
-    var obj = {};
-    if(seg.padding) {
-        for(let t of seg.qryOp.inputs) {
+function queryInputsToModel(detail) {
+    if(detail.padding) {
+        var obj = {};
+        for(let t of detail.qryOp.inputs) {
            obj[t.key] = x.qryInputDom(t.key).val();
         }
+        return obj;
     }
-    return obj;
 }
 
-function showDialogFunc(seg, op, model) {//model or supplier function
+function detailToDlg(detail) {
+    return {
+        ident: detail.path,
+        segname: detail.segname,
+        segpath: detail.segpath,
+        opColumns: function (_op) {
+            return (_op.inputs && _op.inputs.length > 0) ? _op.inputs : detail.columns;
+        }
+    }
+}
+
+function showDialogFunc(detail, op, model) {//model or supplier function
     return function() {
-        let _model = ('function'===typeof(model)) ? model(seg) : model;
-        showDialog(seg, op, _model, function(data){
+        let _model = ('function'===typeof(model)) ? model(detail) : model;
+        showDialog(detailToDlg(detail), op, _model, function(data){
             if(op.opType == opTypes.qry || Array.isArray(data)) {
-                xmodel.set(segment, data);
+                xmodel.set(detail, data);
             }else{
                 if(op.opType == opTypes.add) xmodel.add(data);
                 if(op.opType == opTypes.edt) xmodel.edt(data);
                 if(op.opType == opTypes.del) xmodel.del(data);
             }
-            showDetailBody(segment, xmodel.datas);
+            showDetailBody(detail, xmodel.datas);
         });
     };
 }

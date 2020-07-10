@@ -52,7 +52,7 @@ function showSummary() {
     doGet(xpaths.summary, showSiderbar);
 }
 
-function segpath(segment) {
+function xsegpath(segment) {
     return '{0}/{1}'.format(segment.spath, segment.path);
 }
 
@@ -166,7 +166,7 @@ return `<li class="nav-item has-treeview">
 }
 let chapterdom= function(data){return $('#chapter_{0}'.format(data.spath?data.spath : data.path));};
 
-let segmenthtm= function(segment){
+let segmenthtm= function(seg){
     return `
         <li class="nav-item">
             <a id="seg_{0}_{1}" class="nav-link" href="javascript:void(0);">
@@ -174,33 +174,36 @@ let segmenthtm= function(segment){
               <p>{2}</p>
             </a>
         </li>
-        `.format(segment.spath, segment.path, segment.name);
+        `.format(seg.spath, seg.path, seg.name);
 }
-let segmentdom= function(segment){return $('#seg_{0}_{1}'.format(segment.spath, segment.path));}
+let segmentdom= function(seg){return $('#seg_{0}_{1}'.format(seg.spath, seg.path));}
 
 function showSiderbar(data) {
     for(let chapter of data.chapters){
         $('#xsiderbar').append(chapterhtm(chapter));
-        for(let segment of chapter.segments){//二级菜单
-            segment.spath = chapter.path;
-            chapterdom(chapter).append(segmenthtm(segment));
-            xclick(segmentdom(segment), showDetailFunc(segment));
+        for(let seg of chapter.segments){//二级菜单
+            seg.spath = chapter.path;
+            seg.detail.path = seg.path;
+            seg.detail.segname = seg.name;
+            seg.detail.segpath = xsegpath(seg);
+            chapterdom(chapter).append(segmenthtm(seg));
+            xclick(segmentdom(seg), showDetailFunc(seg));
         }
     }
 }
 
 var xlatestSeg;
-function showDetailFunc(segment) {
+function showDetailFunc(seg) {
     return function() {
         if(xlatestSeg)
            segmentdom(xlatestSeg).removeClass('active'); 
-        xlatestSeg = segment;
-        segmentdom(segment).addClass('active');
+        xlatestSeg = seg;
+        segmentdom(seg).addClass('active');
 
-        if(segment.listable) {
-            doGet('{0}/list'.format(segpath(segment)), function(data){showDetail(segment, data);});
+        if(seg.detail.listable) {
+            doGet('{0}/list'.format(xsegpath(seg)), function(data){showDetail(seg.detail, data);});
         } else {
-            showDetail(segment, []);
+            showDetail(seg.detail, []);
         }
     };
 }

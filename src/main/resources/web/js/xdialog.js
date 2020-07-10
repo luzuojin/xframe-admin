@@ -38,45 +38,48 @@ let addDlgInput= function(parent, xinput, idkey, value) {
     }
 }
 
-
-function dialogTitle(segment, op) {
-    return '{0}&nbsp;/&nbsp;{1}'.format(segment.name, op.name)
+/*
+dialog = {
+    ident;
+    segname; //parent name
+    segpath; //submit path
+    opColumns(op);
+}
+*/
+function dialogTitle(dlg, op) {
+    return '{0}&nbsp;/&nbsp;{1}'.format(dlg.segname, op.name)
 }
 
-function dialogInputVal(seg, model, key) {
+function dialogInputVal(model, key) {
     return model ? model[key] : '';
 }
 
-function showDialog(segment, op, model, func) {
+function showDialog(dlg, op, model, func) {
     $('#xdialog_title').empty();
     $('#xdialog_form').empty();
 
-    $('#xdialog_title').append(dialogTitle(segment, op))
-    for(let column of opColumns(segment, op)){
+    $('#xdialog_title').append(dialogTitle(dlg, op))
+    for(let column of dlg.opColumns(op)){
         if(op.opType == opTypes.add && !xcolumn.add(column)) continue;
         if(op.opType >= opTypes.edt && !xcolumn.edel(column)) continue;
-        let val = dialogInputVal(segment, model, column.key);
-        addDlgInput($('#xdialog_form'), column, segment.path, val);
+        let val = dialogInputVal(model, column.key);
+        addDlgInput($('#xdialog_form'), column, dlg.ident, val);
         if (op.opType == opTypes.del || (model && !xcolumn.edit(column))) {
-            dlgInputDom(segment.path, column.key).attr("disabled", true);
+            dlgInputDom(dlg.ident, column.key).attr("disabled", true);
         }
     }
-    xclick($('#xdialog_submit'), function(){submitDialog(segment, op, func);})
+    xclick($('#xdialog_submit'), function(){submitDialog(dlg, op, func);})
     modalShow();
 }
 
-function opColumns(seg, op) {
-    return (op.inputs && op.inputs.length > 0) ? op.inputs : seg.columns;
-}
-
-function submitDialog(segment, op, func) {
+function submitDialog(dlg, op, func) {
     var model = {};
-    for(let column of opColumns(segment, op)) {
+    for(let column of dlg.opColumns(op)) {
         let key = column.key;
-        model[key] = dlgInputDom(segment.path, key).val();
+        model[key] = dlgInputDom(dlg.ident, key).val();
         if(column.type==xTypes._pass) model[key]=$.md5(model[key]);
     }
-    doPost(segpath(segment), op, model,
+    doPost(dlg.segpath, op, model,
         function(resp) {
             modalHide();
             func(resp);
