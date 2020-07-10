@@ -6,13 +6,23 @@ import dev.xframe.admin.view.XSegment;
 
 public class Panel extends Classic {
 	
+	private String desc;
+	
 	public Panel() {
 		super(type_panel);
 	}
 	
+	public String getDesc() {
+		return desc;
+	}
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+
 	@Override
 	public Detail parseFrom(XSegment xseg, Class<?> declaring) {
 		super.parseFrom(xseg, declaring);
+		this.desc = xseg.desc();
 		this.checkQryAndAddOption();
 		return this;
 	}
