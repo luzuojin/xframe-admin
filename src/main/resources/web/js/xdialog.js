@@ -20,21 +20,23 @@ let addDlgInput= function(parent, xinput, idkey, value) {
     if(xinput.type==xTypes._enum || xinput.type==xTypes._mult) {
         let _col = dlgEnum.format(idkey, xinput.key, xinput.hint);
         parent.append(dlgColumn.format(idkey, xinput.key, xinput.hint, _col));
-        xselect2(dlgInputDom(idkey, xinput.key), xinput);
-        if(value) dlgInputDom(idkey, xinput.key).val(value).trigger('change');
+        let _dom = dlgInputDom(idkey, xinput.key);
+        xselect2(_dom, xinput);
+        //enum id值不应该使用0, 0默认不填充(记忆功能需要)
+        if(value && value != 0) _dom.val(value).trigger('change');
     } else if(xinput.type==xTypes._bool) {
         let _col = dlgBool.format(idkey, xinput.key);
         parent.append(dlgColumn.format(idkey, xinput.key, xinput.hint, _col));
-        let ckbox = dlgInputDom(idkey, xinput.key);
-        ckbox.change(function (){ckbox.val(this.checked);});
-        if(value) ckbox.attr('checked', value);
+        let _dom = dlgInputDom(idkey, xinput.key);
+        _dom.change(function (){_dom.val(this.checked);});
+        if(value) _dom.attr('checked', value);
     } else {
         let _type = (xinput.type==xTypes._pass) ? 'password' : 'text';
         let _col = dlgText.format(idkey, xinput.key, xinput.hint, _type);
         parent.append(dlgColumn.format(idkey, xinput.key, xinput.hint, _col));
-        let _text = dlgInputDom(idkey, xinput.key);
-        if(value) _text.val(value).trigger('change');
-        if(xinput.type==xTypes._time) xdatepicker(_text);
+        let _dom = dlgInputDom(idkey, xinput.key);
+        if(value) _dom.val(value).trigger('change');
+        if(xinput.type==xTypes._time) xdatepicker(_dom);
     }
 }
 
@@ -51,7 +53,7 @@ function dialogTitle(dlg, op) {
 }
 
 function dialogInputVal(model, key) {
-    return model ? model[key] : '';
+    return model ? model[key] : undefined;
 }
 
 function showDialog(dlg, op, model, func) {

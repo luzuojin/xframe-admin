@@ -75,12 +75,12 @@ public interface Detail {
             XColumn xf = field.getAnnotation(XColumn.class);
             String name = field.getName();
             if(xf == null) {
-                columns.add(new Column(name, name, XColumn.type_text, "", XColumn.full, false));
+                columns.add(new Column(name, name, XColumn.type_text, "", true, XColumn.full, false));
             } else if(xf.show() > 0) {
                 int xtype = xf.type();
                 if(xtype == 0 && (field.getType() == boolean.class || field.getType() == Boolean.class))
                     xtype = XColumn.type_bool;
-                columns.add(new Column(name, XStrings.orElse(xf.value(), name), xtype, xf.enumKey(), xf.show(), xf.primary()));
+                columns.add(new Column(name, XStrings.orElse(xf.value(), name), xtype, xf.enumKey(), xf.indep(), xf.show(), xf.primary()));
             }
         }
         return columns;

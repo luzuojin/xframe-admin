@@ -11,20 +11,20 @@ public class Column {
 	
 	private int show;
 	private boolean primary;
-	private boolean indep = false;//enumkey时是否独立选择值, 非独立时如果有会取之前选择过的值作为默认值
+	private boolean indep;//enumkey时是否独立选择值, 非独立时如果有会取之前选择过的值作为默认值
 	
 	public Column(String key, String hint, int type, String enumKey, boolean indep) {
-		this(key, hint, type, enumKey, XColumn.full, false);
-		this.indep = indep;
+		this(key, hint, type, enumKey, indep, XColumn.full, false);
 	}
 	
-	public Column(String key, String hint, int type, String enumKey, int show, boolean primary) {
+	public Column(String key, String hint, int type, String enumKey, boolean indep, int show, boolean primary) {
 		this.key = key;
 		this.hint = hint;
 		this.type = type;
 		this.enumKey = enumKey;
 		this.show = show;
 		this.primary = primary;
+		this.indep = indep;
 		
 		if(!XStrings.isEmpty(enumKey) && this.type == 0)
 			this.type = XColumn.type_enum;

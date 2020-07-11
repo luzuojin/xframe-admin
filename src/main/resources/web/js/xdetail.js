@@ -1,13 +1,12 @@
-function getIniOption(detail) {
+function getOption(detail, opType) {
     for(let op of detail.options) {
-        if(op.type ===  opTypes.ini) return op;
+        if(op.type ===  opType) return op;
     }
 }
-
 function showDetail(detail) {
     let dtypes = [undefined, xtd, xpd]//xtd:1, xpd:2
     let det = dtypes[detail.type];
-    let ini = getIniOption(detail);
+    let ini = getOption(detail, opTypes.ini);
     if(ini) {//loading ini data
         doGet(detail.segpath.urljoin(ini.path), function(data){
             det.showDetailInternal(detail, data);
@@ -207,11 +206,12 @@ var xpd = {//重用dialog相关element
 
     showDetailInternal: function(detail, data) {
         if(!data) data = {};
+        this.qryOp = getOption(detail, opTypes.qry);
         //empty ex
         $('#xboxhead').empty();
         $('#xboxbody').empty();
         //desc
-        $('#xboxhead').append('<h3>{0}</h3>'.format(detail.desc));
+        $('#xboxhead').append('<div class="col-sm-8 m-auto"><h4>{0}</h4></div>'.format(detail.desc));
         //body form
         let panelhtm = `<form id="xpanel_form" class="form-horizontal"/>`;
         $('#xboxbody').append($(panelhtm));
@@ -220,8 +220,12 @@ var xpd = {//重用dialog相关element
         for(let column of detail.columns) {
             let val = dialogInputVal(data, column.key);
             addDlgInput($('#xpanel_form'), column, dlgIdent, val);
+            let dom = dlgInputDom(dlgIdent, column.key);
             if (data && !xcolumn.edit(column)) {
-                dlgInputDom(dlgIdent, column.key).attr("disabled", true);
+                dom.attr("disabled", true);
+            }
+            if(this.inQryOpInputs(column)) {
+                xchange(dom, this.onColumnChangeFunc(detail, column, dom));
             }
         }
         //add button row
@@ -233,6 +237,35 @@ var xpd = {//重用dialog相关element
             } else if(op.type == opTypes.edt) {
                 $('#xpanel_btnrow').append($(this.edtBtn.format(op.path, op.name)));
                 xclick(this.edtBtnDom(op.path), this.submitPanelFunc(detail, op));
+            }
+        }
+    },
+    qryOp: undefined,
+    inQryOpInputs: function(column) {
+        if(this.qryOp) {
+            for(let c of this.qryOp.inputs) {
+                if(c.key === column.key) return true;
+            }
+        }
+        return false;
+    },
+    qryColumnVals: {},
+    onColumnChangeFunc: function(detail, column, dom) {
+        let that = this;
+        return function(e) {
+            that.qryColumnVals[column.key] = dom.val();
+            if(that.qryOp) {
+                for(let c of that.qryOp.inputs) {
+                    if(!that.qryColumnVals[c.key]) return;
+                }
+                doGet('{0}?{1}'.format(detail.segpath, ($.param(that.qryColumnVals))), function(data){
+                    if(data.columns) {//显示结构发生变化
+                        detail.columns = data.columns;
+                        that.showDetailInternal(detail, data.internal);    
+                    } else {
+                        that.showDetailInternal(detail, data);
+                    }
+                });
             }
         }
     },
