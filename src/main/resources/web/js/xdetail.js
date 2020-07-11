@@ -54,10 +54,6 @@ var xmodel = {
     }
 }
 
-var xd = {
-
-}
-
 //table detail
 var xtd = {
     tabletd: `<td id='xtd_{0}_{1}'>{2}</td>`,
