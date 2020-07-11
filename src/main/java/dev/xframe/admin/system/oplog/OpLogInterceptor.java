@@ -1,5 +1,6 @@
 package dev.xframe.admin.system.oplog;
 
+import dev.xframe.admin.system.auth.OpUser;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;
 import dev.xframe.http.service.config.HttpInterceptor;
@@ -17,7 +18,7 @@ public class OpLogInterceptor implements HttpInterceptor {
     
     @Override
     public Response intercept(Request req) {//succ ops
-        String user = OpLogUser.get();
+        String user = OpUser.get();
         if(user != null) {
             HttpMethod method = req.method();
             if(!method.equals(HttpMethod.GET) && !method.equals(HttpMethod.OPTIONS)) {

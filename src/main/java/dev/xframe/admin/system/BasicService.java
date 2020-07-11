@@ -2,7 +2,7 @@ package dev.xframe.admin.system;
 
 import dev.xframe.admin.conf.LogicException;
 import dev.xframe.admin.system.auth.AuthContext;
-import dev.xframe.admin.system.oplog.OpLogUser;
+import dev.xframe.admin.system.auth.OpUser;
 import dev.xframe.admin.system.user.User;
 import dev.xframe.admin.view.VLogin;
 import dev.xframe.admin.view.VUser;
@@ -31,7 +31,7 @@ public class BasicService {
 	
 	@HttpMethods.GET("enum")
 	public Object getEnum(@HttpArgs.Param String key) {
-		return basicCtx.getEnumValue(OpLogUser.get(), key);
+		return basicCtx.getEnumValue(OpUser.get(), key);
 	}
     
     @HttpMethods.POST("profile")

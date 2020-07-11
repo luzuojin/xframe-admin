@@ -1,12 +1,9 @@
 package dev.xframe.admin.system.auth;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import dev.xframe.admin.system.oplog.OpLogUser;
 import dev.xframe.http.Request;
 import dev.xframe.inject.Configurator;
 import dev.xframe.inject.Inject;
@@ -23,16 +20,18 @@ public class AuthContext implements Loadable {
     
     private Map<String, UserPrivileges> tokenMap = new ConcurrentHashMap<>();
     
-    private Set<String> unblockedPathes = new HashSet<>();
+    private Map<String, UserPrivileges> userMap = new ConcurrentHashMap<>();
+    
+    private Map<String, Unblocked> unblockedMap = new ConcurrentHashMap<>();
     
     @Override
     public void load() {
         taskCtx.setup(1);
         taskCtx.regist(Task.period("token-expiry", 10, this::clearExpiryUser));
         
-        unblockedPathes.add("basic/summary");
-        unblockedPathes.add("basic/enum");
-        unblockedPathes.add("basic/profile");
+        addUnblockedPath(Unblocked.of("basic/summary", HttpMethod.GET));
+        addUnblockedPath(Unblocked.of("basic/enum", HttpMethod.GET));
+        addUnblockedPath(Unblocked.of("basic/profile", HttpMethod.POST));
     }
     
     public void clearExpiryUser() {
@@ -45,42 +44,61 @@ public class AuthContext implements Loadable {
     }
     
     public void addUnblockedPath(String p) {
-        this.unblockedPathes.add(p);
+    	addUnblockedPath(Unblocked.of(p));
+    }
+    public void addUnblockedPath(Unblocked u) {
+    	this.unblockedMap.put(u.path, u);
     }
 
     public String regist(UserPrivileges privileges) {
-        OpLogUser.set(privileges.getUsername());
+        OpUser.set(privileges.getUsername());
         String token = UUID.randomUUID().toString();
         tokenMap.put(token, privileges);
+        userMap.put(privileges.getUsername(), privileges);
         return token;
     }
-
+    
+    public String getAuthUsername(Request req) {
+    	String token = req.getHeader("x-token");
+        if(token != null) {
+            UserPrivileges p = tokenMap.get(token);
+            if(p != null) return p.getUsername();
+        }
+        return null;
+    }
+    
+    public boolean unblockedMatch(HttpMethod method, String path) {
+    	Unblocked unblocked = unblockedMap.get(path);
+		return unblocked != null && unblocked.match(method);
+	}
+    
+    //判断请求是否非法
     public boolean isReqIllegal(Request req) {
         String path = req.xpath();
-        if(unblockedPathes.contains(path)) {
+        if(unblockedMatch(req.method(), path)) {
             return false;
         }
-        
-        String token = req.getHeader("x-token");
-        if(token == null) {
-            return true;
+        if(req.remoteHost().startsWith("127.")) {//本地
+            return false;
         }
-        
-        UserPrivileges p = tokenMap.get(token);
+        return !hasPrivilege(req.method(), path);
+    }
+
+	public boolean hasPrivilege(HttpMethod method, String path) {
+		String username = OpUser.get();
+        if(username == null) {
+            return false;
+        }
+        UserPrivileges p = userMap.get(username);
         if(p != null) {
-            OpLogUser.set(p.getUsername());
-            if(req.method().equals(HttpMethod.GET)) {
-                if(p.contains(path)) return false;
+            if(method.equals(HttpMethod.GET)) {
+                if(p.contains(path)) return true;
             } else {
-                if(p.wholeContains(path)) return false;
+                if(p.wholeContains(path)) return true;
             }
         }
-        
-        if(req.remoteHost().startsWith("127.")) {
-            return false;
-        }
-        return true;
-    }
+        return false;
+	}
 
     public UserPrivileges getPrivileges(Request req) {
         String token = req.getHeader("x-token");

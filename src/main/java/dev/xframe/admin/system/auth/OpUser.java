@@ -1,8 +1,8 @@
-package dev.xframe.admin.system.oplog;
+package dev.xframe.admin.system.auth;
 
 import dev.xframe.utils.XThreadLocal;
 
-public class OpLogUser {
+public class OpUser {
     
     private static XThreadLocal<String> opuser = new XThreadLocal<>();
     
