@@ -6,28 +6,28 @@
 
 ```java
 侧边栏
-	一级目录 @XChapter(Chapter)
-	   -- Path (识别)
-	   -- Name (显示)
-	二级目录 @XSegment(Segment) --> 唯一对应一个@Rest Service
-	   -- Path (从@Rest中读取,@Rest的URL以@Chapter中配置的Path开头)
-	   -- Name (显示)
+  一级目录 @XChapter(Chapter)
+     -- Path (识别)
+     -- Name (显示)
+  二级目录 @XSegment(Segment) --> 唯一对应一个@Rest Service
+     -- Path (从@Rest中读取,@Rest的URL以@Chapter中配置的Path开头)
+     -- Name (显示)
 详情页(与二级目录--对应, @Reset Service)
-	Detail
-	   -- Type
-	      -Panel  (Columns单页展示,处理单个对象)
-	      -Table  (Columns表格展示,处理对象列表)
-	   -- Column(s) (对应@XSegment.model/query.args中的字段, @XColumn配置参数)
-	      -type   (@XColumn.type_*)
-	      -key    (默认为字段名/参数名)
-	      -hint   (展示文字/提示文字)
-	      -enumKey(下拉列表时获取下拉菜单的关键字)
-	      -show   (展示配置 @XColumn.!type_*)
-	   -- Option(s) (对应@Rest中的各@HttpMethods方法, @XOption配置展示文字)
-	      -type   (见Options说明)
-	      -path   (可选suburl)
-	      -name   (展示文字)
-	      -inputs (@HttpArgs获取,查询操作必须有,其他操作默认使用Detail.Columns)
+  Detail
+     -- Type
+        -Panel  (Columns单页展示,处理单个对象)
+        -Table  (Columns表格展示,处理对象列表)
+     -- Column(s) (对应@XSegment.model/query.args中的字段, @XColumn配置参数)
+        -type   (@XColumn.type_*)
+	-key    (默认为字段名/参数名)
+	-hint   (展示文字/提示文字)
+	-enumKey(下拉列表时获取下拉菜单的关键字)
+	-show   (展示配置 @XColumn.!type_*)
+     -- Option(s) (对应@Rest中的各@HttpMethods方法, @XOption配置展示文字)
+        -type   (见Options说明)
+	-path   (可选suburl)
+	-name   (展示文字)
+	-inputs (@HttpArgs获取,查询操作必须有,其他操作默认使用Detail.Columns)
 Options
    ini(加载) -> 对应@HttpMethods.GET且参数为空, 唯一(只能有一个该种方法)
    qry(查询) -> 对应@HttpMethods.GET且参数不为空, 唯一(只能有一个该种方法)
@@ -43,8 +43,8 @@ Others (可参考用户系统相关的代码)
    Type_ENUM  -> 下拉选择框需要通过BasicContext.registEnumValue提前配置选项列表
  
  启动参数
- 	-Dstore.dir -> h2databse目录
- 	-Dlogs.dir  -> pid/log目录
+   -Dstore.dir -> h2databse目录
+   -Dlogs.dir  -> pid/log目录
 
 ```
 
