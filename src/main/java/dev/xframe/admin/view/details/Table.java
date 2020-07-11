@@ -30,7 +30,7 @@ public class Table extends Classic {
     //只能存在一个qry option
     protected void checkQryOption() {
 		if(options.stream().filter(opt->opt.getType()==XOption.type_qry).count() > 1) {
-			throw new IllegalArgumentException("Detail can only exist on ini option(@HttpMethods.GET&empty(args)");
+			throw new IllegalArgumentException("Detail can only exist one qry option(@HttpMethods.GET&empty(args)");
 		}
 	}
 

@@ -39,13 +39,16 @@ public class Panel extends Classic {
 	public Detail parseFrom(XSegment xseg, Class<?> declaring) {
 		super.parseFrom(xseg, declaring);
 		this.desc = xseg.desc();
-		this.checkAddOption();
+		this.checkOptions();
 		return this;
 	}
 	//Panel只支持ini/edit/delete操作, qry操作输入框变化时自动处理
-	private void checkAddOption() {
+	private void checkOptions() {
 		if(options.stream().filter(opt->opt.getType()==XOption.type_add).findAny().isPresent()) {
 			throw new IllegalArgumentException("Panel don`t support add option");
+		}
+		if(options.stream().filter(opt->opt.getType()==XOption.type_qry).count() > 1) {
+			throw new IllegalArgumentException("Panel can only exist one qry option(@HttpMethods.GET&empty(args)");
 		}
 	}
 
