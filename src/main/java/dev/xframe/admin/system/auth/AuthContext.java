@@ -60,9 +60,6 @@ public class AuthContext implements Loadable {
         if(unblockedPathes.contains(path)) {
             return false;
         }
-        if(req.remoteHost().startsWith("127.")) {
-        	return false;
-        }
         
         String token = req.getHeader("x-token");
         if(token == null) {
@@ -77,6 +74,10 @@ public class AuthContext implements Loadable {
             } else {
                 if(p.wholeContains(path)) return false;
             }
+        }
+        
+        if(req.remoteHost().startsWith("127.")) {
+            return false;
         }
         return true;
     }

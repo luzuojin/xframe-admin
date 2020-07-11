@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,7 @@ public class BasicContext implements Loadable {
 
 	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	
-	private Map<String, Supplier<List<VEnum>>> enumValues = new HashMap<>();
+	private Map<String, Object> enumValues = new HashMap<>();
 	
 	@Override
 	public void load() {
@@ -88,12 +89,23 @@ public class BasicContext implements Loadable {
 		return summary.copyBy(privileges);
 	}
 	
-	public List<VEnum> getEnumValue(String key) {
-	    return enumValues.get(key).get();
+	@SuppressWarnings("unchecked")
+    public List<VEnum> getEnumValue(String username, String key) {
+	    Object func = enumValues.get(key);
+	    if(func instanceof Supplier) {
+	        return ((Supplier<List<VEnum>>) func).get();
+	    }
+        return ((Function<String, List<VEnum>>)func).apply(username);
 	}
 	
-	public void registEnumValue(String key, Supplier<List<VEnum>> supplier) {
-	    enumValues.put(key, supplier);
+	public void registEnumValue(String key, Supplier<List<VEnum>> func) {
+	    enumValues.put(key, func);
+	}
+	/**
+	 * supply by username
+	 */
+	public void registEnumValue(String key, Function<String, List<VEnum>> func) {
+	    enumValues.put(key, func);
 	}
 
 }

@@ -6,6 +6,14 @@ String.prototype.format = function() {
     }
     return str;
 }
+String.prototype.urljoin = function(sub) {
+    var url = this;
+    if(sub) {
+        url = url + '/' + sub;
+    }
+    return url;
+}
+
 
 var xurl = window.location.origin.startsWith("http") ? window.location.origin : "http://127.0.0.1:8001";
 var xpaths = {
@@ -15,6 +23,7 @@ var xpaths = {
 
 //option types
 var opTypes = {
+    ini: -1,
     qry: 1,
     add: 2,
     edt: 3,
@@ -71,7 +80,7 @@ var httpTypes = ['_', 'get', 'post', 'put', 'delete']
 function doPost(path, op, data, func) {
     xlatestOp = op;
     $.ajax({
-        type: httpTypes[op.opType],
+        type: httpTypes[op.type],
         url: '{0}/{1}'.format(xurl, path),
         data: JSON.stringify(data),
         headers: {"x-token": xtoken()},
@@ -119,6 +128,11 @@ function xclick(btn, func) {
     btn.click(func);
 }
 
+function xchange(dom, func) {
+    dom.off('change');
+    dom.on('change', func);
+}
+
 function xdatepicker(e) {
     e.datepicker({
         format: "yyyy-mm-dd",
@@ -132,20 +146,23 @@ function xdatepicker(e) {
 function xselect2(e, xinput) {
     let k = xinput.enumKey;
     let d = xenum(k);
+    let m = xinput.type==xTypes._mult;
     let s = e.select2({
                 theme: 'bootstrap4',
                 dropdownAutoWidth : true,
                 width: 'auto',
                 data: d,
-                multiple: xinput.type==xTypes._mult,
+                multiple: m,
                 minimumResultsForSearch: 10
             });
-    if(xinput.indep) return;
+    e.val('').trigger('change');//设置默认不选择
+    //多选/无记忆
+    if(m || xinput.indep) return;
     //设置cache值
     if(eCaches[k]) s.val(eCaches[k]).trigger('change');
     //设值完成之后添加值变化监听
     s.on('change', function(evt){
-        eCaches[k] = this.value;
+        if(this.value) eCaches[k] = this.value;
     });
 }
 var eCaches = {};

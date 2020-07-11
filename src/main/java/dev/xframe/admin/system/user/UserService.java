@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import dev.xframe.admin.system.SystemContext;
 import dev.xframe.admin.system.SystemRepo;
 import dev.xframe.admin.view.XColumn;
-import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
@@ -25,9 +24,9 @@ public class UserService {
     private SystemContext sysCtx;
     
 	/**
-	 * 点击侧边栏时调用该方法 可以返回空数组
+	 * 点击侧边栏时调用该方法(GET且参数为空) 可以返回空数组
 	 */
-	@HttpMethods.GET(XOption.listing)
+	@HttpMethods.GET("ini")
 	public Object get() {
 		List<User> datas = sysRepo.fetchUsers();
 		setRoleDesc(datas);

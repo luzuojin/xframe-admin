@@ -9,37 +9,38 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 public @interface XColumn {
 
-	String value() default "";
+	String value() default "";		//显示文字(hint)
 	
-	int type() default type_text;
+	int type() default type_text;	//类型 @see 常量
 
-	int show() default full;
+	int show() default full;		//显示配置 @see 常量
 	
-	String enumKey() default "";
+	String enumKey() default "";	//下拉列表时获取下拉菜单的关键字 @see BasicContext.registEnumValue
 	
-	boolean primary() default false;
+	boolean primary() default false;//用来修改/删除时匹配前端cache用
 	
-	boolean indep() default false;
+	boolean indep() default false;	//新增弹框默认值是否从查询框中获取(false 获取)
 	
-	public static final int type_text = 0;
-	public static final int type_bool = 1;
-	public static final int type_enum = 2;
-	public static final int type_time = 3;
-	public static final int type_area = 4;
-	public static final int type_pass = 9;
-	public static final int type_mult = 20;
-	
-	public static final int list = 1 << 0;
-	public static final int edit = 1 << 1;//是否可编辑,显示由edel决定
-	public static final int add  = 1 << 2;
-	public static final int edel = 1 << 3;//disable edit and delete column display
-	public static final int full = (1 << 4) - 1;
-	
-	public static final int list_edel = (list | edel);
-	
-	public static final int xor_list = (full ^ list);
-	public static final int xor_edit = (full ^ edit);
-	public static final int xor_add  = (full ^ add);
-	public static final int xor_edel = (full ^ edel);
+	//Column类型
+	public static final int type_text = 0;	//文本
+	public static final int type_bool = 1;	//check radio
+	public static final int type_enum = 2;	//下拉框 @see BasicContext.registEnumValue
+	public static final int type_time = 3;	//时间选择框
+	public static final int type_area = 4;	//大段文本
+	public static final int type_pass = 9;	//密码
+	public static final int type_mult = 20;	//下拉框(多选)
+
+	//展示在哪里的相关配置
+	public static final int list = 1 << 0;//Table列表中展示
+	public static final int edit = 1 << 1;//是否可编辑(disable),显示由edel决定
+	public static final int add  = 1 << 2;//新增(add)Dialog中展示
+	public static final int edel = 1 << 3;//编辑/删除(edt/del)中展示
+	//下面为各种组合展示的配置
+	public static final int full = (1 << 4) - 1;		//所有
+	public static final int list_edel = (list | edel);	//列表及改删(只有新增不显示)
+	public static final int xor_list = (full ^ list);	//只有列表不显示
+	public static final int xor_edit = (full ^ edit);	//只是不能编辑
+	public static final int xor_add  = (full ^ add);	//新增不显示
+	public static final int xor_edel = (full ^ edel);	//改删均不展示
 	
 }
