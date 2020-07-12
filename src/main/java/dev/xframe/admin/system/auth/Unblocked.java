@@ -12,7 +12,7 @@ public class Unblocked {
 		this.method = method;
 	}
 	public boolean match(HttpMethod method) {
-		return this.method == null || this.method.equals(method);
+		return this.method == null || this.method.equals(method) || HttpMethod.OPTIONS.equals(method);
 	}
 	public static Unblocked of(String path) {
 		return of(path, null);

@@ -29,8 +29,6 @@ public class AuthContext implements Loadable {
         taskCtx.setup(1);
         taskCtx.regist(Task.period("token-expiry", 10, this::clearExpiryUser));
         
-        addUnblockedPath(Unblocked.of("basic/summary", HttpMethod.GET));
-        addUnblockedPath(Unblocked.of("basic/enum", HttpMethod.GET));
         addUnblockedPath(Unblocked.of("basic/profile", HttpMethod.POST));
     }
     
