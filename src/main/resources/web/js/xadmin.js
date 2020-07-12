@@ -139,12 +139,11 @@ var xformatDatetime = 'YYYY-MM-DD HH:mm:ss';
 var xformatDate = 'YYYY-MM-DD';
 var xformatTime = 'HH:mm:ss';
 function xdatepicker(e, _format=xformatDatetime) {
-    e.attr('data-toggle', 'datetimepicker');
-    e.attr('data-target', '#'+e.attr('id'));
     e.datetimepicker({
         format: _format,
         useCurrent: 'day',
-        buttons: {showClose:true},
+        showClose: false,
+        showTodayButton: false,
         icons: {time: "fa fa-clock"},
         locale: 'zh-cn'
     });
