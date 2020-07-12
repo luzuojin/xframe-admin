@@ -35,10 +35,12 @@ var xTypes = {
     _text: 0,
     _bool: 1,
     _enum: 2,
-    _time: 3,
+    _datetime: 3,
     _area: 4,
     _pass: 9,
     _mult: 20,//multi enum select
+    _date: 31,
+    _time: 32,
 }
 
 var xcolumn = {
@@ -133,13 +135,18 @@ function xchange(dom, func) {
     dom.on('change', func);
 }
 
-function xdatepicker(e) {
-    e.datepicker({
-        format: "yyyy-mm-dd",
-        autoclose: true,
-        todayHighlight: true,
-        isRTL: false,
-        language: "zh-CN"
+var xformatDatetime = 'YYYY-MM-DD HH:mm:ss';
+var xformatDate = 'YYYY-MM-DD';
+var xformatTime = 'HH:mm:ss';
+function xdatepicker(e, _format=xformatDatetime) {
+    e.attr('data-toggle', 'datetimepicker');
+    e.attr('data-target', '#'+e.attr('id'));
+    e.datetimepicker({
+        format: _format,
+        useCurrent: 'day',
+        buttons: {showClose:true},
+        icons: {time: "fa fa-clock"},
+        locale: 'zh-cn'
     });
 }
 

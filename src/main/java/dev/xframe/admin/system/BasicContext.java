@@ -2,6 +2,8 @@ package dev.xframe.admin.system;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -33,7 +35,9 @@ public class BasicContext implements Loadable {
     
 	private Summary summary;
 
-	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	private DateTimeFormatter dataTimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	private DateTimeFormatter dateformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	private DateTimeFormatter timeformatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 	
 	private Map<String, Object> enumValues = new HashMap<>();
 	
@@ -43,7 +47,10 @@ public class BasicContext implements Loadable {
 		summary.setName("xframe-admin");
 		summary.setIcon("");
 		
-		ArgParsers.offer(Timestamp.class, s->XStrings.isEmpty(s) ? null : Timestamp.valueOf(LocalDate.parse(s, formatter).atTime(0, 0)));
+		ArgParsers.offer(Timestamp.class, s->XStrings.isEmpty(s) ? null : Timestamp.valueOf(LocalDateTime.parse(s, dataTimeformatter)));
+		ArgParsers.offer(LocalDateTime.class, s->XStrings.isEmpty(s) ? null : LocalDateTime.parse(s, dataTimeformatter));
+		ArgParsers.offer(LocalDate.class, s->XStrings.isEmpty(s) ? null : LocalDate.parse(s, dateformatter));
+		ArgParsers.offer(LocalTime.class, s->XStrings.isEmpty(s) ? null : LocalTime.parse(s, timeformatter));
 		
 		Map<String, Chapter> chapters = new LinkedHashMap<>();
         for (Class<?> clazz : Codes.getDeclaredClasses()) {

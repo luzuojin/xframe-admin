@@ -25,10 +25,12 @@ public @interface XColumn {
 	public static final int type_text = 0;	//文本
 	public static final int type_bool = 1;	//check radio
 	public static final int type_enum = 2;	//下拉框 @see BasicContext.registEnumValue
-	public static final int type_time = 3;	//时间选择框
+	public static final int type_datetime = 3;	//日期+时间
 	public static final int type_area = 4;	//大段文本
 	public static final int type_pass = 9;	//密码
 	public static final int type_mult = 20;	//下拉框(多选)
+	public static final int type_date = 31;	//日期
+	public static final int type_time = 32;	//仅时间
 
 	//展示在哪里的相关配置
 	public static final int list = 1 << 0;//Table列表中展示

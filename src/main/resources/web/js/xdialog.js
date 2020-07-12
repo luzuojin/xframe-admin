@@ -60,14 +60,16 @@ setFuncTo(dlgMakeFuncs, [xTypes._area],
     });
 
 //text
-setFuncTo(dlgHtmlFuncs, [xTypes._text, xTypes._pass, xTypes._time],
+setFuncTo(dlgHtmlFuncs, [xTypes._text, xTypes._pass, xTypes._datetime, xTypes._date, xTypes._time],
     function(id, c) {
         return dlgText.format(id, c.key, c.hint, (c.type==xTypes._pass)?'password':'text')
     });
-setFuncTo(dlgMakeFuncs, [xTypes._text, xTypes._pass, xTypes._time],
+setFuncTo(dlgMakeFuncs, [xTypes._text, xTypes._pass, xTypes._datetime, xTypes._date, xTypes._time],
     function(_d, c, v){
         if(v) _d.val(v).trigger('change');
-        if(c.type==xTypes._time) xdatepicker(_d);//time pick
+        if(c.type==xTypes._datetime) xdatepicker(_d);//time pick
+        if(c.type==xTypes._date) xdatepicker(_d, xformatDate);//time pick
+        if(c.type==xTypes._time) xdatepicker(_d, xformatTime);//time pick
     });
 
 /*

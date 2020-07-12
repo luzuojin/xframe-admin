@@ -80,7 +80,9 @@ var xtd = {
             xselect2(this.qryInputDom(xinput.key), xinput);
         } else {
             parent.append(this.qryText.format(xinput.key, xinput.hint));
-            if(xinput.type==xTypes._time) xdatepicker(this.qryInputDom(xinput.key));
+            if(xinput.type==xTypes._datetime) xdatepicker(this.qryInputDom(xinput.key));
+            if(xinput.type==xTypes._date) xdatepicker(this.qryInputDom(xinput.key), xformatDate);
+            if(xinput.type==xTypes._date) xdatepicker(this.qryInputDom(xinput.key), xformatTime);
         }
     },
     queryDatasFunc: function(detail, op) {

@@ -1,6 +1,7 @@
 package dev.xframe.admin.system.oplog;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 
 import dev.xframe.admin.conf.LogicException;
 import dev.xframe.admin.system.XEnumKeys;
@@ -23,11 +24,14 @@ public class OpLogService {
 	public Object query(
 			@HttpArgs.Param @XColumn(value="操作用户", enumKey=XEnumKeys.USER_LIST) String opUser,
 	        @HttpArgs.Param @XColumn("操作路径") String opPath,
-			@HttpArgs.Param	@XColumn(value="开始时间", type=XColumn.type_time) Timestamp startTime,
-			@HttpArgs.Param @XColumn(value="结束时间", type=XColumn.type_time) Timestamp endTime) {
-	    if(startTime == null || endTime == null) {
+			@HttpArgs.Param	@XColumn(value="开始时间", type=XColumn.type_date) LocalDate start,
+			@HttpArgs.Param @XColumn(value="结束时间", type=XColumn.type_date) LocalDate end) {
+	    if(start == null || end == null) {
 	        throw new LogicException("时间为空");
 	    }
+	    Timestamp startTime = Timestamp.valueOf(start.atTime(0, 0));
+	    Timestamp endTime = Timestamp.valueOf(end.atTime(23,59,59));
+	    
 	    if(XStrings.isEmpty(opUser)) {
 	        if(XStrings.isEmpty(opPath)) {
 	            throw new LogicException("条件为空");
