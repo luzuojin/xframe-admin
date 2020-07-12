@@ -1,6 +1,8 @@
 package dev.xframe.admin.view.details;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import dev.xframe.admin.view.Column;
 import dev.xframe.admin.view.Detail;
@@ -17,8 +19,9 @@ public class Panel extends Classic {
 			this.columns = columns;
 			this.internal = internal;
 		}
+		static final Map<Class<?>, List<Column>> caches = new HashMap<>();
 		public static Flex of(Object data) {
-			return new Flex(Detail.parseModelColumns(data.getClass()), data);
+			return new Flex(caches.computeIfAbsent(data.getClass(), Detail::parseModelColumns), data);
 		}
 	}
 	
