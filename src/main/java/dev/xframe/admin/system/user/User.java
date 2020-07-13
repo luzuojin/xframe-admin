@@ -19,7 +19,7 @@ public class User {
 	private int[] roles;
 	@XColumn(value="角色", show=XColumn.list)
 	private Object[] rolesDesc;
-	@XColumn(value="创建时间", show=XColumn.list_edel, type=XColumn.type_time)
+	@XColumn(value="创建时间", show=XColumn.list_edel, type=XColumn.type_datetime)
 	private Timestamp ctime;
 	
 	public User() {
