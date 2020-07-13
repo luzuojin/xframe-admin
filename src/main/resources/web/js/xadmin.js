@@ -50,13 +50,38 @@ var xcolumn = {
     edel: function(c){return (c.show & 8) > 0;},
 }
 
+var xenumCache = {};
 function xenum(key) {
-    return $.parseJSON($.ajax({
-        type: "GET",
-        url: "{0}/{1}?key={2}".format(xurl, xpaths.xenum, key),
-        cache: false,
-        async: false
-    }).responseText).data;
+    if(key in xenumCache) {
+        return xenumCache[key];
+    } else {
+        let xenumData = $.parseJSON($.ajax({
+            type: "GET",
+            url: "{0}/{1}?key={2}".format(xurl, xpaths.xenum, key),
+            cache: false,
+            async: false
+        }).responseText).data;
+        xenumCache[key] = xenumData;
+        return xenumData;//multi,key
+    }
+}
+function xenumText(key, id) {
+    let simpleText = function(_id) {
+        let data = xenum(key);
+        for(let e of data) {
+            if(e.id == _id) return e.text;
+        }
+        return _id;
+    }
+    if(Array.isArray(id)) {
+        let texts = [];
+        for(let _id of id) {
+            texts.push(simpleText(_id))
+        }
+        return texts;
+    } else {
+        return simpleText(_id);
+    }
 }
 
 function showSummary() {

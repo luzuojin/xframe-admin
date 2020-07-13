@@ -14,11 +14,8 @@ public class Role {
 	@XColumn(value="角色")
 	private String name;
 	
-	@XColumn(value="权限", show=XColumn.xor_list, enumKey=XEnumKeys.PRIVILEGES, type=XColumn.type_mult)
+	@XColumn(value="权限", enumKey=XEnumKeys.PRIVILEGES, type=XColumn.type_mult)
 	private List<String> authorities = new ArrayList<>();
-	
-	@XColumn(value="权限", show=XColumn.list)
-	private List<String> authoritiesDesc = new ArrayList<>();
 	
 	@XColumn(value="只读")
 	private boolean readOnly;
@@ -40,12 +37,6 @@ public class Role {
 	}
 	public void setAuthorities(List<String> authorities) {
 		this.authorities = authorities;
-	}
-	public List<String> getAuthoritiesDesc() {
-		return authoritiesDesc;
-	}
-	public void setAuthoritiesDesc(List<String> authoritiesDesc) {
-		this.authoritiesDesc = authoritiesDesc;
 	}
 	public boolean getReadOnly() {
 		return readOnly;

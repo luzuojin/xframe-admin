@@ -46,7 +46,6 @@ public class RoleService {
 		if(ex != null) {
 			ex.setAuthorities(role.getAuthorities());
 			ex.setReadOnly(role.getReadOnly());
-			sysCtx.setRoleDesc(ex);
 			sysRepo.saveRole(ex);
 			return ex;
 		}
