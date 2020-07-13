@@ -15,10 +15,8 @@ public class User {
 	private String email;
 	@XColumn(value="密码", show=XColumn.add, type=XColumn.type_pass)
 	private String passw;
-	@XColumn(value="角色", show=XColumn.xor_list, enumKey=XEnumKeys.ROLE_LIST, type=XColumn.type_mult)
+	@XColumn(value="角色", enumKey=XEnumKeys.ROLE_LIST, type=XColumn.type_mult)
 	private int[] roles;
-	@XColumn(value="角色", show=XColumn.list)
-	private Object[] rolesDesc;
 	@XColumn(value="创建时间", show=XColumn.list_edel, type=XColumn.type_datetime)
 	private Timestamp ctime;
 	
@@ -73,13 +71,7 @@ public class User {
     public void setRoles(int[] roles) {
         this.roles = roles;
     }
-    public Object[] getRolesDesc() {
-        return rolesDesc;
-    }
-    public void setRolesDesc(Object[] rolesDesc) {
-        this.rolesDesc = rolesDesc;
-    }
-
+    
     @Override
 	public int hashCode() {
 		final int prime = 31;
