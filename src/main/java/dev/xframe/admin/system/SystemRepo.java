@@ -5,6 +5,7 @@ import java.util.List;
 
 import dev.xframe.admin.store.StoreKey;
 import dev.xframe.admin.system.role.Role;
+import dev.xframe.admin.system.server.Server;
 import dev.xframe.admin.system.user.User;
 import dev.xframe.inject.Repository;
 import dev.xframe.jdbc.TypeQuery;
@@ -18,6 +19,8 @@ public class SystemRepo {
 	private TypeQuery<Role> roleQuery =
 			TypeQuery.newBuilder(Role.class).setTable(StoreKey.DAT, "T_ROLE").build();
 	
+	private TypeQuery<Server> serverQuery =
+			TypeQuery.newBuilder(Server.class).setTable(StoreKey.DAT, "T_SERVER").build();
 	
 	public List<User> fetchUsers() {
 		return userQuery.fetchAll();
@@ -58,6 +61,26 @@ public class SystemRepo {
 
     public void deleteRole(Role role) {
         roleQuery.delete(role);
+    }
+    
+    public List<Server> fetchServers(){
+    	return serverQuery.fetchAll();
+    }
+    
+    public Server fetchServer(int serverId){
+    	return serverQuery.fetchOne(serverId);
+    }
+    
+    public void addServer(Server server) {
+    	serverQuery.insert(server);
+    }
+    
+    public void delServer(Server server) {
+    	serverQuery.delete(server);
+    }
+    
+    public void saveServer(Server server) {
+    	serverQuery.update(server);
     }
 
 }

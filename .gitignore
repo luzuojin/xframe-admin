@@ -31,3 +31,12 @@ bin/
 .vscode/
 
 /src/main/webapp
+/xadmin_dat.lock.db
+/xadmin_dat.mv.db
+/xadmin_log.lock.db
+/xadmin_log.mv.db
+/xadmin_dat.lock.db.mv.db
+/xadmin_dat.lock.db.trace.db
+/xadmin_dat.trace.db
+/xadmin_log.lock.db.mv.db
+/xadmin_log.lock.db.trace.db

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import dev.xframe.admin.system.auth.UserPrivileges;
 import dev.xframe.admin.system.privilege.Privilege;
 import dev.xframe.admin.system.role.Role;
+import dev.xframe.admin.system.server.Server;
 import dev.xframe.admin.system.user.User;
 import dev.xframe.admin.view.Segment;
 import dev.xframe.admin.view.VEnum;
@@ -28,7 +29,10 @@ public class SystemContext implements Loadable {
     
     private List<Privilege> privileges = new ArrayList<>();
     
+    private List<Server> servers = new ArrayList<Server>();
+    
     private Map<String, String> privilegeDesc = new HashMap<>();
+    
     
     @Override
     public void load() {
@@ -45,12 +49,18 @@ public class SystemContext implements Loadable {
         
         roles = sysRepo.fetchRoles();
         
+        servers = sysRepo.fetchServers();
+        
         basicCtx.registEnumValue(XEnumKeys.ROLE_LIST, ()->{
             return roles.stream().map(role->new VEnum(String.valueOf(role.getId()), role.getName())).collect(Collectors.toList());
         });
         
         basicCtx.registEnumValue(XEnumKeys.USER_LIST, ()->{
             return sysRepo.fetchUsers().stream().map(user->new VEnum(user.getName())).collect(Collectors.toList());
+        });
+        
+        basicCtx.registEnumValue(XEnumKeys.SERVER_LIST, ()->{
+            return servers.stream().map(server->new VEnum(server.getId()+"#"+server.getName())).collect(Collectors.toList());
         });
     }
     
@@ -96,5 +106,20 @@ public class SystemContext implements Loadable {
         roles.add(role);
         sysRepo.addRole(role);
     }
+    
+    public void addServer(Server server) {
+    	int id = servers.stream().mapToInt(Server::getId).max().orElse(1000);
+    	server.setId(++id);
+    	this.servers.add(server);
+    	sysRepo.addServer(server);
+    }
+
+	public List<Server> getServers() {
+		return servers;
+	}
+	
+	public Server getServer(int serverId) {
+		return servers.stream().filter(a -> a.getId() == serverId).findAny().orElse(null);
+	}
 
 }

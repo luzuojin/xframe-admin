@@ -9,7 +9,7 @@ public class Option implements Comparable<Option> {
 	
 	public static final Option ini = new Option("加载", XOption.type_ini);	//HttpMethods.GET(url)
 	public static final Option qry = new Option("查询", XOption.type_qry);   //HttpMethods.GET
-	public static final Option edt = new Option("修改", XOption.type_edt);   //HttpMethods.PUT
+	public static final Option edt = new Option("测试", XOption.type_edt);   //HttpMethods.PUT
 	public static final Option add = new Option("新增", XOption.type_add);   //HttpMethods.POST
 	public static final Option del = new Option("删除", XOption.type_del);   //HttpMethods.DELETE
 	
