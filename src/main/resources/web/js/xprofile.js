@@ -7,7 +7,7 @@ function xtoken() {
 }
 
 var xuserseg = {//用户登录/修改密码...
-    spath: "basic",
+    cpath: "basic",
     path:  "profile",
     name:  "用户",
     columns: [
@@ -19,7 +19,7 @@ var xuserseg = {//用户登录/修改密码...
 var xuserdlg = {
     ident: xuserseg.path,
     segname: xuserseg.name,
-    segpath: xsegpath(xuserseg),
+    segpath: xuserseg.cpath.urljoin(xuserseg.path),
     opColumns: function(op){return xuserseg.columns}
 }
 
@@ -43,7 +43,7 @@ function showUser(user) {
     $('#xuser').empty();
     $('#xuser').append(userhtm.format(user.name));
 
-    $('#xboxhead').append('<h3>Welcome</h3>');
+    $('#xcontent').append('<div class="card-header"><h3>Welcome</h3></div>');
 
     xclick($('#xuser_logout'), function(){
         let op = {

@@ -203,11 +203,14 @@ var xtd = {
 
 //panel detail
 var xpd = {//重用dialog相关element
+    descHtm: `<div class="col-sm-8 m-auto h-100 h5">{0}</div>`,
+    panelhtm: `<form id="xpanel_form" class="form-horizontal"/>`,
+    btnRow: `<div id="xpanel_btnrow" class="form-group row"></div>`,
+
     edtBtn: `<div class="col-sm-2 m-auto"><button id="xpanel_edtbtn_{0}" type="button" class="btn btn-block bg-info">{1}</button></div>`,
     delBtn: `<div class="col-sm-2 m-auto"><button id="xpanel_delbtn_{0}" type="button" class="btn btn-block bg-danger">{1}</button></div>`,
     edtBtnDom: function(path){return $('#xpanel_edtbtn_{0}'.format(path))},
     delBtnDom: function(path){return $('#xpanel_delbtn_{0}'.format(path))},
-    btnRow: `<div id="xpanel_btnrow" class="form-group row"></div>`,
 
     showDetailInternal: function(detail, data) {
         if(!data) data = {};
@@ -216,10 +219,9 @@ var xpd = {//重用dialog相关element
         $('#xboxhead').empty();
         $('#xboxbody').empty();
         //desc
-        $('#xboxhead').append('<div class="col-sm-8 m-auto"><h4>{0}</h4></div>'.format(detail.desc));
+        $('#xboxhead').append(this.descHtm.format(detail.desc));
         //body form
-        let panelhtm = `<form id="xpanel_form" class="form-horizontal"/>`;
-        $('#xboxbody').append($(panelhtm));
+        $('#xboxbody').append($(this.panelhtm));
         //add to body form use methods from dialog
         let dlgIdent = 'xpanel';
         for(let column of detail.columns) {
@@ -265,7 +267,8 @@ var xpd = {//重用dialog相关element
                 }
                 doGet('{0}?{1}'.format(detail.segpath, ($.param(that.qryColumnVals))), function(data){
                     if(data.columns) {//显示结构发生变化
-                        detail.columns = data.columns;
+                        //change columns and retain the reference
+                        Object.assign(detail.columns, data.columns, {length:data.columns.length});
                         that.showDetailInternal(detail, data.internal);    
                     } else {
                         that.showDetailInternal(detail, data);

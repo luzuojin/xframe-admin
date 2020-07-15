@@ -80,16 +80,12 @@ function xenumText(key, id) {
         }
         return texts;
     } else {
-        return simpleText(_id);
+        return simpleText(id);
     }
 }
 
 function showSummary() {
     doGet(xpaths.summary, showSiderbar);
-}
-
-function xsegpath(segment) {
-    return '{0}/{1}'.format(segment.spath, segment.path);
 }
 
 function doGet(path, func) {
@@ -212,7 +208,7 @@ return `<li class="nav-item has-treeview">
         </li>
         `.format(chapter.name, chapter.path)
 }
-let chapterdom= function(data){return $('#chapter_{0}'.format(data.spath?data.spath : data.path));};
+let chapterdom= function(chapter){return $('#chapter_{0}'.format(chapter.path));};
 
 let segmenthtm= function(seg){
     return `
@@ -222,34 +218,107 @@ let segmenthtm= function(seg){
               <p>{2}</p>
             </a>
         </li>
-        `.format(seg.spath, seg.path, seg.name);
+        `.format(seg.cpath, seg.path, seg.name);
 }
-let segmentdom= function(seg){return $('#seg_{0}_{1}'.format(seg.spath, seg.path));}
+let segmentdom= function(seg){return $('#seg_{0}_{1}'.format(seg.cpath, seg.path));}
+
+let tabctxhtm= `
+            <div class="card-header p-0 border-bottom-0">
+            <ul id="xtabContainer" class="nav nav-tabs" role="tablist"></ul>
+            </div>
+            `;
+let tabelehtm= function(seg){
+    return `
+        <li class="nav-item">
+            <a id="segtab_{0}_{1}" class="nav-link text-dark" data-toggle="pill" href="javascript:void(0);" role="tab" aria-selected="false">{2}</a>
+        </li>`.format(seg.cpath, seg.path, seg.name);
+}
+let tabeledom= function(seg) {return $('#segtab_{0}_{1}'.format(seg.cpath, seg.path));}
 
 function showSiderbar(data) {
+    let fixSegDetail = function(seg, cpath, segpath) {
+        seg.cpath = cpath;
+        seg.detail.path = seg.path;
+        seg.detail.segname = seg.name;
+        seg.detail.segpath = segpath;
+    }
     for(let chapter of data.chapters){
         $('#xsiderbar').append(chapterhtm(chapter));
-        for(let seg of chapter.segments){//二级菜单
-            seg.spath = chapter.path;
-            seg.detail.path = seg.path;
-            seg.detail.segname = seg.name;
-            seg.detail.segpath = xsegpath(seg);
-            chapterdom(chapter).append(segmenthtm(seg));
-            xclick(segmentdom(seg), showDetailFunc(seg));
+        if(chapter.padded) {//有tab页
+            for(let pseg of chapter.padded) {
+                pseg.cpath = chapter.path
+                let _segments = [];
+                for(let tsegIdx in chapter.segments) {
+                    let tseg = chapter.segments[tsegIdx];
+                    let nseg = Object.assign({}, tseg, {detail: Object.assign({},tseg.detail)});//copy seg
+                    fixSegDetail(nseg, chapter.path, chapter.path.urljoin(pseg.path).urljoin(tseg.path))
+                    nseg.index = tsegIdx;
+                    _segments.push(nseg);
+                }
+                chapterdom(chapter).append(segmenthtm(pseg))
+                xclick(segmentdom(pseg), showDetailFunc(pseg, _segments));
+            }
+        } else {
+            for(let seg of chapter.segments){//二级菜单
+                fixSegDetail(seg, chapter.path, chapter.path.urljoin(seg.path));
+                chapterdom(chapter).append(segmenthtm(seg));
+                xclick(segmentdom(seg), showDetailFunc(seg));
+            }
         }
     }
 }
 
 var xlatestSeg;
-function showDetailFunc(seg) {
+var xlatestTab={};
+function showDetailFunc(seg, segTabs=undefined) {
     return function() {
         if(xlatestSeg)
-           segmentdom(xlatestSeg).removeClass('active'); 
+            segmentdom(xlatestSeg).removeClass('active'); 
         xlatestSeg = seg;
         segmentdom(seg).addClass('active');
 
-        showDetail(seg.detail);
+        $('#xcontent').empty();
+        let detailBodyHtm = `
+                <div class="card-header">
+                  <div class="row">
+                    <div id="xboxhead" class="clearfix w-100"></div>
+                  </div>
+                </div>
+                <div id="xboxbody" class="card-body">
+                </div>`;
+        
+        if(segTabs) {
+            $('#xcontent').append($(tabctxhtm));
+            $('#xcontent').append($(detailBodyHtm));
+            for(let segTab of segTabs) {
+                $('#xtabContainer').append(tabelehtm(segTab));
+                xclick(tabeledom(segTab), showDetailFuncByTab(segTab));
+            }
+            //show first tab
+            let showIndex = 0;
+            if(seg.cpath in xlatestTab) {
+                showIndex = xlatestTab[seg.cpath];
+            }
+            showDetailFuncByTab(segTabs[showIndex])();
+        } else {
+            $('#xcontent').append($(detailBodyHtm));
+            showDetail(seg.detail);
+        }
     };
+}
+
+function showDetailFuncByTab(segTab) {
+    return function() {
+        if(xlatestSeg.tab) {
+            tabeledom(xlatestSeg.tab).removeClass('active');
+            tabeledom(xlatestSeg.tab).attr('aria-selected', false);
+        }
+        xlatestSeg.tab = segTab;
+        xlatestTab[segTab.cpath] = segTab.index;
+        tabeledom(segTab).addClass('active');
+        tabeledom(segTab).attr('aria-selected', true);
+        showDetail(segTab.detail);
+    }
 }
 
 // popup dialog keypress listening

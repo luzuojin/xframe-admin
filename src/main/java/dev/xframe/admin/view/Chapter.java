@@ -5,38 +5,26 @@ import java.util.List;
 
 import dev.xframe.admin.system.auth.UserPrivileges;
 
-public class Chapter implements Comparable<Chapter> {
-	
-	private String name;
-	private String path;
+public class Chapter extends Navi implements Comparable<Chapter> {
 	
 	private int order;
 	
+	private Padding padding = Padding.NIL;
 	private List<Segment> segments = new ArrayList<>();
+	private List<Navi> padded;
 	
-	public Chapter() {
-	}
-
 	public Chapter(XChapter xc) {
-		this.name = xc.name();
-		this.path = xc.path();
-		this.order= xc.order();
+		this(xc.name(), xc.path(), xc.order());
 	}
-
-	public String getName() {
-		return name;
+	
+	public Chapter(String name, String path, int order) {
+		super(name, path);
+		this.order = order;
 	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
+	
+	public Chapter(XChapter xc, Padding flexable) {
+		this(xc);
+		this.padding = flexable;
 	}
 
 	public List<Segment> getSegments() {
@@ -47,11 +35,19 @@ public class Chapter implements Comparable<Chapter> {
 		this.segments = segments;
 	}
 
-    public Chapter copyBy(String path, UserPrivileges privileges) {
-        Chapter c = new Chapter();
-        c.name = this.name;
-        c.path = this.path;
-        c.order = this.order;
+	public List<Navi> getPadded() {
+		return padded;
+	}
+
+	public void setPadded(List<Navi> padded) {
+		this.padded = padded;
+	}
+
+	public Chapter copyBy(String path, UserPrivileges privileges) {
+        Chapter c = new Chapter(name, path, order);
+        if(padding != Padding.NIL) {
+        	c.padded = padding.get();
+        }
         for (Segment seg : segments) {
             if(privileges.contains(path + "/" + seg.getPath())) {
                 c.segments.add(seg);
@@ -63,6 +59,10 @@ public class Chapter implements Comparable<Chapter> {
 	@Override
 	public int compareTo(Chapter o) {
 		return Integer.compare(o.order, this.order);
+	}
+
+	public void fix(Padding padding) {
+		this.padding = padding;
 	}
 
 }
