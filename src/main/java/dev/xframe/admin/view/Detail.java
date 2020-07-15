@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public interface Detail {
         Method[] methods = declaring.getDeclaredMethods();
         for (Method method : methods) {
             if(method.isAnnotationPresent(GET.class)) {
-            	Option opt = (method.getParameters().length==0) ? Option.ini : Option.qry;
+            	Option opt = isIniMethod(method) ? Option.ini : Option.qry;
 				options.add(parseOption(opt, model, method, method.getAnnotation(GET.class).value()));
             } else if(method.isAnnotationPresent(PUT.class)) {
                 options.add(parseOption(Option.edt, model, method, method.getAnnotation(PUT.class).value()));
@@ -39,6 +40,10 @@ public interface Detail {
         Collections.sort(options);
         return options;
     }
+
+	static boolean isIniMethod(Method method) {//GET,只有非URL参数
+		return !Arrays.stream(method.getParameters()).filter(p->p.isAnnotationPresent(HttpArgs.Param.class)).findAny().isPresent();
+	}
     
     static Option parseOption(Option op, Class<?> model, Method method, String path) {
         return op.copy(method.getAnnotation(XOption.class), path).with(parseParamColumns(model, method));
