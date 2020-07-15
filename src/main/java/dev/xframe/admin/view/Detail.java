@@ -49,9 +49,9 @@ public interface Detail {
         Parameter[] params = method.getParameters();
         //只有一个参数而且由HttpBody(post)解析.(edit/delete/add)
         if(params.length == 1 && params[0].isAnnotationPresent(HttpArgs.Body.class)) {
-            if(!params[0].getType().equals(model)) {//与seg.model不同
+			if(!params[0].getType().equals(model) && params[0].isAnnotationPresent(XAdapter.class)) {//与seg.model不同
                 columns = parseModelColumns(params[0].getType());
-            }
+            }//else 特殊解析(JSONString...),由业务完成
         } else {
             for (Parameter p : params) {
                 XColumn xi = p.getAnnotation(XColumn.class);
