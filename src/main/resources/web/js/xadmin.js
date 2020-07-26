@@ -58,6 +58,7 @@ function xenum(key) {
         let xenumData = $.parseJSON($.ajax({
             type: "GET",
             url: "{0}/{1}?key={2}".format(xurl, xpaths.xenum, key),
+            headers: {"x-token": xtoken()},
             cache: false,
             async: false
         }).responseText).data;
