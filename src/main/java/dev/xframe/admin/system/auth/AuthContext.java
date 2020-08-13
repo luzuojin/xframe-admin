@@ -56,14 +56,23 @@ public class AuthContext implements Loadable {
         return token;
     }
     
+    public void unregist(Request req, String name) {
+    	tokenMap.remove(getXToken(req));
+    	userMap.remove(name);
+	}
+    
     public String getAuthUsername(Request req) {
-    	String token = req.getHeader("x-token");
+    	String token = getXToken(req);
         if(token != null) {
             UserPrivileges p = tokenMap.get(token);
             if(p != null) return p.getUsername();
         }
         return null;
     }
+
+	private String getXToken(Request req) {
+		return req.getHeader("x-token");
+	}
     
     public boolean unblockedMatch(HttpMethod method, String path) {
     	Unblocked unblocked = unblockedMap.get(path);
@@ -99,7 +108,7 @@ public class AuthContext implements Loadable {
 	}
 
     public UserPrivileges getPrivileges(Request req) {
-        String token = req.getHeader("x-token");
+        String token = getXToken(req);
         return tokenMap.get(token);
     }
 

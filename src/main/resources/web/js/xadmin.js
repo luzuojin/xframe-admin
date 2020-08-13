@@ -19,6 +19,8 @@ var xurl = window.location.origin.startsWith("http") ? window.location.origin : 
 var xpaths = {
     summary: "basic/summary",
     xenum  : "basic/enum",
+    upload : "basic/upload",
+    preview: "basic/preview"
 }
 
 //option types
@@ -37,6 +39,7 @@ var xTypes = {
     _enum: 2,
     _datetime: 3,
     _area: 4,
+    _file: 5,
     _pass: 9,
     _mult: 20,//multi enum select
     _date: 31,

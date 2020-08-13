@@ -1,16 +1,18 @@
 package dev.xframe.admin.system;
 
-import dev.xframe.admin.conf.LogicException;
+import java.io.File;
+import java.io.IOException;
+
 import dev.xframe.admin.system.auth.AuthContext;
 import dev.xframe.admin.system.auth.OpUser;
-import dev.xframe.admin.system.user.User;
-import dev.xframe.admin.view.VLogin;
-import dev.xframe.admin.view.VUser;
 import dev.xframe.http.Request;
+import dev.xframe.http.Response;
+import dev.xframe.http.request.MultiPart;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
 import dev.xframe.inject.Inject;
+import io.netty.handler.codec.http.multipart.FileUpload;
 
 @Rest("basic")
 public class BasicService {
@@ -20,9 +22,7 @@ public class BasicService {
 	@Inject
 	private AuthContext authCtx;
 	@Inject
-	private SystemRepo sysRepo;
-	@Inject
-	private SystemContext sysCtx;
+	private FileTransferHandler ftHandler;
 	
 	@HttpMethods.GET("summary")
 	public Object summary(Request req) {
@@ -34,28 +34,16 @@ public class BasicService {
 		return basicCtx.getEnumValue(OpUser.get(), key);
 	}
     
-    @HttpMethods.POST("profile")
-    public Object login(@HttpArgs.Body VLogin data) {
-        User user = sysRepo.fetchUser(data.getName());
-        if(user == null)
-            throw new LogicException("用户不存在");
-        if(!user.getPassw().equals(data.getPassw()))
-            throw new LogicException("密码错误");
-
-        return new VUser(user.getName(), authCtx.regist(sysCtx.getPrivileges(user)));
+    @HttpMethods.POST("upload")
+    public Object upload(@HttpArgs.Body MultiPart mp) throws IOException {
+    	FileUpload fu = (FileUpload) mp.getBodyHttpData("file");
+    	File target = ftHandler.upload(fu.getFilename(), fu.getFile());
+    	return target.getName();
     }
-
-    @HttpMethods.DELETE("profile")
-    public Object logout(@HttpArgs.Body VLogin data) {
-        return "{}";
-    }
-
-    @HttpMethods.PUT("profile")
-    public Object profile(@HttpArgs.Body VLogin data) {
-        User user = sysRepo.fetchUser(data.getName());
-        user.setPassw(data.getPassw());
-        sysRepo.saveUser(user);
-        return "{}";
+    
+    @HttpMethods.GET("preview")
+    public Object preview(@HttpArgs.Param String name) {
+    	return Response.of(ftHandler.preview(name));
     }
 
 }

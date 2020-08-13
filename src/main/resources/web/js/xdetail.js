@@ -289,9 +289,7 @@ var xpd = {//重用dialog相关element
         let dlgIdent = 'xpanel';
         var model = {};
         for(let column of detail.columns) {
-            let key = column.key;
-            model[key] = dlgInputDom(dlgIdent, key).val();
-            if(column.type==xTypes._pass) model[key]=$.md5(model[key]);
+            model[column.key] = dlgInputVal(dlgIdent, column);
         }
         doPost(detail.segpath.urljoin(op.path), op, model, func);
     }

@@ -27,6 +27,7 @@ public @interface XColumn {
 	public static final int type_enum = 2;	//下拉框 @see BasicContext.registEnumValue
 	public static final int type_datetime = 3;	//日期+时间
 	public static final int type_area = 4;	//大段文本
+	public static final int type_file = 5;	//文件上传
 	public static final int type_pass = 9;	//密码
 	public static final int type_mult = 20;	//下拉框(多选)
 	public static final int type_date = 31;	//日期

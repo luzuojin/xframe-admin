@@ -14,8 +14,22 @@ let dlgBool= `
               <label class="custom-control-label" for="dinput_{0}_{1}" style="margin-left:7.5px;"/>
             </div>
             `;
+let dlgFile=`
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" id="dinput_{0}_{1}">
+              <label class="custom-file-label" id="dinput_{0}_{1}_label" for="dinput_{0}_{1}">{2}</label>
+            </div>
+            `;
+let fileLabelDom = function(_id) {return $('#{0}_label'.format(_id));};
 
-let dlgInputDom= function(idkey, columnkey){return $('#dinput_{0}_{1}'.format(idkey, columnkey));}
+//dialog input
+let dlgInputDom= function(idkey, columnkey){return $('#dinput_{0}_{1}'.format(idkey, columnkey));};
+let dlgInputVal= function(idkey, column){
+    if(column.type==xTypes._file) return fileLabelDom(dlgInputDom(idkey, column.key).attr('id')).html();
+    let _val = dlgInputDom(idkey, column.key).val();
+    if(column.type==xTypes._pass) return $.md5(_val);
+    return _val;
+};
 
 let addDlgInput= function(parent, xcolumn, idkey, value) {
     let _htm = getFuncFrom(dlgHtmlFuncs, xcolumn.type)(idkey, xcolumn);
@@ -72,6 +86,34 @@ setFuncTo(dlgMakeFuncs, [xTypes._text, xTypes._pass, xTypes._datetime, xTypes._d
         if(c.type==xTypes._time) xdatepicker(_d, xformatTime);//time pick
     });
 
+//file
+setFuncTo(dlgHtmlFuncs, [xTypes._file],
+    function(id, c) {
+        return dlgFile.format(id, c.key, c.hint)
+    });
+setFuncTo(dlgMakeFuncs, [xTypes._file],
+    function(_d, c, v){
+        let _id = _d.attr('id');
+        if(v) fileLabelDom(_id).html(v);
+        xchange(_d, function(evt){
+            let fd = new FormData();
+            let fi = evt.target.files[0];
+            fd.append('file', fi);
+            $.ajax({
+                url: '{0}/{1}'.format(xurl, xpaths.upload),
+                type: 'post',
+                headers: {"x-token": xtoken()},
+                data: fd,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function(resp){
+                    fileLabelDom(_id).html(resp.data);
+                },
+            });
+        });
+    });
+
 /*
 dialog = {
     ident;
@@ -109,9 +151,7 @@ function showDialog(dlg, op, model, func) {
 function submitDialog(dlg, op, func) {
     var model = {};
     for(let column of dlg.opColumns(op)) {
-        let key = column.key;
-        model[key] = dlgInputDom(dlg.ident, key).val();
-        if(column.type==xTypes._pass) model[key]=$.md5(model[key]);
+        model[column.key] = dlgInputVal(dlg.ident, column)
     }
     doPost(dlg.segpath.urljoin(op.path), op, model,
         function(resp) {
