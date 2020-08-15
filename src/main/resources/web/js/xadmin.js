@@ -40,6 +40,7 @@ var xTypes = {
     _datetime: 3,
     _area: 4,
     _file: 5,
+    _imag: 6,
     _pass: 9,
     _mult: 20,//multi enum select
     _date: 31,

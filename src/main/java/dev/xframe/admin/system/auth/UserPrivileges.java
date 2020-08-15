@@ -2,10 +2,11 @@ package dev.xframe.admin.system.auth;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import dev.xframe.admin.system.privilege.Privilege;
 
-public class UserPrivileges {
+public class UserPrivileges implements Predicate<String> {
     
     private String username;
     
@@ -49,5 +50,10 @@ public class UserPrivileges {
     public long getLastActiveTime() {
         return lastActiveTime;
     }
+
+	@Override
+	public boolean test(String path) {
+		return contains(path);
+	}
 
 }

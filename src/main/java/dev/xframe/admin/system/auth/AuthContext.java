@@ -71,7 +71,9 @@ public class AuthContext implements Loadable {
     }
 
 	private String getXToken(Request req) {
-		return req.getHeader("x-token");
+		String token = req.getHeader("x-token");
+		if(token == null) token = req.getParam("x-token");
+		return token;
 	}
     
     public boolean unblockedMatch(HttpMethod method, String path) {

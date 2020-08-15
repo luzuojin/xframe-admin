@@ -2,8 +2,7 @@ package dev.xframe.admin.view;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import dev.xframe.admin.system.auth.UserPrivileges;
+import java.util.function.Predicate;
 
 public class Chapter extends Navi implements Comparable<Chapter> {
 	
@@ -43,13 +42,13 @@ public class Chapter extends Navi implements Comparable<Chapter> {
 		this.padded = padded;
 	}
 
-	public Chapter copyBy(String path, UserPrivileges privileges) {
+	public Chapter copyBy(String path, Predicate<String> predicate) {
         Chapter c = new Chapter(name, path, order);
         if(padding != Padding.NIL) {
         	c.padded = padding.get();
         }
         for (Segment seg : segments) {
-            if(privileges.contains(path + "/" + seg.getPath())) {
+            if(predicate.test(path + "/" + seg.getPath())) {
                 c.segments.add(seg);
             }
         }

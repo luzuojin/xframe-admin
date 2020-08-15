@@ -2,7 +2,7 @@ package dev.xframe.admin.view;
 
 public class Segment extends Navi {
 	
-	private Detail detail;
+	protected Detail detail;
 	
 	public Segment(String name, String path) {
 		super(name, path);
@@ -18,5 +18,5 @@ public class Segment extends Navi {
     public void setDetail(Detail detail) {
         this.detail = detail;
     }
-	
+    
 }

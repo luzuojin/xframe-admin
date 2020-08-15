@@ -14,21 +14,22 @@ let dlgBool= `
               <label class="custom-control-label" for="dinput_{0}_{1}" style="margin-left:7.5px;"/>
             </div>
             `;
+let dlgImag=`<img class="col-sm-2 img-thumbnail" src="{0}">`;
 let dlgFile=`
             <div class="custom-file">
               <input type="file" class="custom-file-input" id="dinput_{0}_{1}">
               <label class="custom-file-label" id="dinput_{0}_{1}_label" for="dinput_{0}_{1}">{2}</label>
             </div>
+            <div id="dinput_{0}_{1}_preview"/>
             `;
 let fileLabelDom = function(_id) {return $('#{0}_label'.format(_id));};
+let filePreviewDom = function(_id) {return $('#{0}_preview'.format(_id));};
 
 //dialog input
 let dlgInputDom= function(idkey, columnkey){return $('#dinput_{0}_{1}'.format(idkey, columnkey));};
 let dlgInputVal= function(idkey, column){
-    if(column.type==xTypes._file) return fileLabelDom(dlgInputDom(idkey, column.key).attr('id')).html();
-    let _val = dlgInputDom(idkey, column.key).val();
-    if(column.type==xTypes._pass) return $.md5(_val);
-    return _val;
+    let func = getFuncFrom(dlgDataFuncs, column.type);
+    return func ? func(idkey, column) : dlgInputDom(idkey, column.key).val();
 };
 
 let addDlgInput= function(parent, xcolumn, idkey, value) {
@@ -40,6 +41,7 @@ let addDlgInput= function(parent, xcolumn, idkey, value) {
 
 let dlgHtmlFuncs = {};
 let dlgMakeFuncs = {};
+let dlgDataFuncs = {};
 
 //enum
 setFuncTo(dlgHtmlFuncs, [xTypes._enum, xTypes._mult],
@@ -85,19 +87,30 @@ setFuncTo(dlgMakeFuncs, [xTypes._text, xTypes._pass, xTypes._datetime, xTypes._d
         if(c.type==xTypes._date) xdatepicker(_d, xformatDate);//time pick
         if(c.type==xTypes._time) xdatepicker(_d, xformatTime);//time pick
     });
+setFuncTo(dlgDataFuncs, [xTypes._pass],
+    function(k, c){
+        return $.md5(dlgInputDom(k, c.key).val());
+    });
 
 //file
-setFuncTo(dlgHtmlFuncs, [xTypes._file],
+setFuncTo(dlgHtmlFuncs, [xTypes._file, xTypes._imag],
     function(id, c) {
         return dlgFile.format(id, c.key, c.hint)
     });
-setFuncTo(dlgMakeFuncs, [xTypes._file],
+setFuncTo(dlgMakeFuncs, [xTypes._file, xTypes._imag],
     function(_d, c, v){
         let _id = _d.attr('id');
-        if(v) fileLabelDom(_id).html(v);
+        let _fv = function(_v) {
+            fileLabelDom(_id).html(_v);
+            if(c.type == xTypes._imag)
+                filePreviewDom(_id).html(dlgImag.format('{0}/{1}?name={2}&x-token={3}'.format(xurl, xpaths.preview, _v, xtoken())));
+        }
+        if(v) _fv(v);
+
         xchange(_d, function(evt){
-            let fd = new FormData();
             let fi = evt.target.files[0];
+            if(!fi) return;//cancel
+            let fd = new FormData();
             fd.append('file', fi);
             $.ajax({
                 url: '{0}/{1}'.format(xurl, xpaths.upload),
@@ -107,11 +120,13 @@ setFuncTo(dlgMakeFuncs, [xTypes._file],
                 dataType: 'json',
                 contentType: false,
                 processData: false,
-                success: function(resp){
-                    fileLabelDom(_id).html(resp.data);
-                },
+                success: function(resp){_fv(resp.data);}
             });
         });
+    });
+setFuncTo(dlgDataFuncs, [xTypes._file, xTypes._imag],
+    function(k, c){
+        return fileLabelDom(dlgInputDom(k, c.key).attr('id')).html();
     });
 
 /*

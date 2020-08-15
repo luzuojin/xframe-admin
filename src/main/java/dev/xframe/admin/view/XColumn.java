@@ -28,6 +28,7 @@ public @interface XColumn {
 	public static final int type_datetime = 3;	//日期+时间
 	public static final int type_area = 4;	//大段文本
 	public static final int type_file = 5;	//文件上传
+	public static final int type_imag = 6;	//文件(图片)上传
 	public static final int type_pass = 9;	//密码
 	public static final int type_mult = 20;	//下拉框(多选)
 	public static final int type_date = 31;	//日期
