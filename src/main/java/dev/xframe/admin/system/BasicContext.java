@@ -42,7 +42,7 @@ public class BasicContext implements Loadable {
 		ArgParsers.offer(LocalTime.class, s->XStrings.isEmpty(s) ? null : LocalTime.parse(s, timeformatter));
 		
 		summary = new Summary();
-		summary.setName("XframeAdmin");
+		summary.setName("XFrameAdmin");
 		summary.setIcon("img/xframe.png");
 		
 		summary.parseFrom(Codes.getDeclaredClasses());

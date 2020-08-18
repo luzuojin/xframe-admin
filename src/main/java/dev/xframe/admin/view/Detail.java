@@ -61,7 +61,7 @@ public interface Detail {
             for (Parameter p : params) {
                 XColumn xi = p.getAnnotation(XColumn.class);
                 if(xi != null) {
-                    columns.add(new Column(p.getName(), XStrings.orElse(xi.value(), p.getName()), xi.type(), xi.enumKey(), xi.indep()));
+                    columns.add(new Column(p.getName(), XStrings.orElse(xi.value(), p.getName()), xi.type(), xi.enumKey()));
                 }
             }
         }
@@ -80,15 +80,20 @@ public interface Detail {
             XColumn xf = field.getAnnotation(XColumn.class);
             String name = field.getName();
             if(xf == null) {
-                columns.add(new Column(name, name, XColumn.type_text, "", true, XColumn.full, false));
+                columns.add(new Column(name, name, XColumn.type_text, "", XColumn.full, false));
             } else if(xf.show() > 0) {
                 int xtype = xf.type();
-                if(xtype == 0 && (field.getType() == boolean.class || field.getType() == Boolean.class))
-                    xtype = XColumn.type_bool;
-                columns.add(new Column(name, XStrings.orElse(xf.value(), name), xtype, xf.enumKey(), xf.indep(), xf.show(), xf.primary()));
+                if(xtype == 0 && (field.getType() == boolean.class || field.getType() == Boolean.class)) {
+                	xtype = XColumn.type_bool;
+                }
+                if(xtype == XColumn.type_model || xtype == XColumn.type_list) {
+                	columns.add(new Nested(name, XStrings.orElse(xf.value(), name), xtype, xf.enumKey(), xf.show(), xf.primary(), parseModelColumns(Nested.getType(field))));
+                } else {
+                	columns.add(new Column(name, XStrings.orElse(xf.value(), name), xtype, xf.enumKey(), xf.show(), xf.primary()));
+                }
             }
         }
         return columns;
     }
-    
+
 }

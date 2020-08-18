@@ -19,8 +19,6 @@ public @interface XColumn {
 	
 	boolean primary() default false;//用来修改/删除时匹配前端cache用
 	
-	boolean indep() default false;	//新增弹框默认值是否从查询框中获取(false 获取)
-	
 	//Column类型
 	public static final int type_text = 0;	//文本
 	public static final int type_bool = 1;	//check radio
@@ -33,6 +31,8 @@ public @interface XColumn {
 	public static final int type_mult = 20;	//下拉框(多选)
 	public static final int type_date = 31;	//日期
 	public static final int type_time = 32;	//仅时间
+	public static final int type_model = 80;//对应object
+	public static final int type_list  = 81; //object list
 
 	//展示在哪里的相关配置
 	public static final int list = 1 << 0;//Table列表中展示

@@ -22,10 +22,12 @@ let dlgFile=`
             </div>
             <div id="dinput_{0}_{1}_preview"/>
             `;
+
 let fileLabelDom = function(_id) {return $('#{0}_label'.format(_id));};
 let filePreviewDom = function(_id) {return $('#{0}_preview'.format(_id));};
 
 //dialog input
+let dlgInputId = function(idkey, columnkey){return 'dinput_{0}_{1}'.format(idkey, columnkey);};
 let dlgInputDom= function(idkey, columnkey){return $('#dinput_{0}_{1}'.format(idkey, columnkey));};
 let dlgInputVal= function(idkey, column){
     let func = getFuncFrom(dlgDataFuncs, column.type);
@@ -92,6 +94,7 @@ setFuncTo(dlgDataFuncs, [xTypes._pass],
         return $.md5(dlgInputDom(k, c.key).val());
     });
 
+
 //file
 setFuncTo(dlgHtmlFuncs, [xTypes._file, xTypes._imag],
     function(id, c) {
@@ -128,6 +131,87 @@ setFuncTo(dlgDataFuncs, [xTypes._file, xTypes._imag],
     function(k, c){
         return fileLabelDom(dlgInputDom(k, c.key).attr('id')).html();
     });
+
+
+//nested
+setFuncTo(dlgHtmlFuncs, [xTypes._model],
+    function(id, c) {
+        let nestedHtml = `<div id="dinput_{0}_{1}" class="border-left border-bottom text-sm"></div>`;
+        return nestedHtml.format(id, c.key);
+    });
+setFuncTo(dlgMakeFuncs, [xTypes._model],
+    function(_d, c, v) {
+        _d.empty();
+        let nid = _d.attr('id');
+        for(let col of c.columns) {
+            addDlgInput(_d, col, nid, v ? v[col.key] : '');
+        }
+    });
+setFuncTo(dlgDataFuncs, [xTypes._model],
+    function(k, c) {
+        let nid = dlgInputId(k, c.key);
+        let obj = {};
+        for(let col of c.columns) {
+            let val = dlgInputVal(nid, col);
+            if(val) obj[col.key] = val;
+        }
+        return obj;
+    });
+//nested
+setFuncTo(dlgHtmlFuncs, [xTypes._list],
+    function(id, c) {
+        let nestedHtm = `<button id="dinput_{0}_{1}" type="button" style="border: dashed 1px #dee2e6;" class="form-group form-control">+</button>`;
+        return nestedHtm.format(id, c.key);
+    });
+let _idxCache={};
+setFuncTo(dlgMakeFuncs, [xTypes._list],
+    function(_d, c, v) {
+        //make empty list element
+        let makeElement = function(nid, _id, aplFunc, _v) {
+            let _eid = '{0}_{1}'.format(nid, _id);
+            let _e = $(`<div id="{0}" class="border-left border-bottom position-relative form-group text-sm">`.format(_eid));
+            aplFunc(_e);
+            for(let col of c.columns) {
+                addDlgInput(_e, col, _eid, _v?_v[col.key]:'');
+            }
+            //minus btn
+            let minusBtn = $(`<button type="button" class="position-absolute close" style="right:.5rem;bottom:.25rem;"><i class="fas fa-minus-circle fa-xs"></i></button>`);
+            xclick(minusBtn, ()=>minusBtn.parent().remove());
+            _e.append(minusBtn);
+            return _e;
+        };
+        let nid = _d.attr('id');
+        xclick(_d, ()=>makeElement(nid, (++_idxCache[nid]), (_x)=>_d.before(_x)));
+        _idxCache[nid] = 0;
+        if(!v) return
+        let _l;
+        for(let _v of v) {
+            let aplFunc = _l ? (_x)=>_l.after(_x) : (_x)=>_d.before(_x);
+            let _e = makeElement(nid, _v._id, aplFunc, _v);
+            _l = _e;
+            _idxCache[nid] = _v._id;
+        }
+    });
+setFuncTo(dlgDataFuncs, [xTypes._list],
+    function(k, c) {
+        let nid = dlgInputId(k, c.key);
+        let max = _idxCache[nid];
+        let dat = [];
+        for (let _lid = 1; _lid <= max; ++_lid) {
+            let _eid = '{0}_{1}'.format(nid, _lid);
+            let _e = $('#{0}'.format(_eid));
+            if(_e.length && _e.length>0) {
+                let obj = {};
+                for(let col of c.columns) {
+                    let val = dlgInputVal(_eid, col);
+                    if(val) obj[col.key] = val;
+                }
+                if(Object.keys(obj).length > 0) dat.push(obj);
+            }
+        }
+        return dat;
+    });
+
 
 /*
 dialog = {

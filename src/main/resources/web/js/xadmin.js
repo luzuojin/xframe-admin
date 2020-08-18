@@ -45,6 +45,8 @@ var xTypes = {
     _mult: 20,//multi enum select
     _date: 31,
     _time: 32,
+    _model:80,
+    _list: 81,
 }
 
 var xcolumn = {
@@ -188,8 +190,8 @@ function xselect2(e, xinput) {
                 minimumResultsForSearch: 10
             });
     e.val('').trigger('change');//设置默认不选择
-    //多选/无记忆
-    if(m || xinput.indep) return;
+    //多选 无记忆
+    if(m) return;
     //设置cache值
     if(eCaches[k]) s.val(eCaches[k]).trigger('change');
     //设值完成之后添加值变化监听

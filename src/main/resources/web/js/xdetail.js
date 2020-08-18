@@ -37,7 +37,7 @@ var xmodel = {
         for(key of this.pkeys) {
             if(d1[key] != d2[key]) return false;
         }
-        return true;
+        return this.pkeys.length > 0;
     },
     add: function(data) {
         this.datas.push(data);
@@ -65,8 +65,6 @@ var getValFromModel = function(model, column) {
 var xtd = {
     tabletd: `<td id='xtd_{0}_{1}'>{2}</td>`,
     tabletr: `<tr id='xtr_{0}'/>`,
-    tabletdDom: function(tr, td){return $('#xtd_{0}_{1}'.format(tr, td))},
-    tabletrDom: function(tr){return $('#xtr_{0}'.format(tr))},
 
     delBtn: `<button id="delbtn_{0}_{1}" type="button" class="btn btn-sm btn-outline-danger">{2}</button>`,
     edtBtn: `<button id="edtbtn_{0}_{1}" type="button" class="btn btn-sm btn-outline-info" style="margin-right:5px">{2}</button>`,
@@ -105,17 +103,10 @@ var xtd = {
     _ops: false,
     showDetailInternal: function(detail, data=undefined) {
         if(!data) data = [];
+        xmodel.set(detail, data);
 
         $('#xboxhead').empty();
         $('#xboxbody').empty();
-
-        let tablehtm = `
-                    <table id="xtable" class="table table-bordered table-hover">
-                        <thead id="xthead"></thead>
-                        <tbody id="xtbody"></tbody>
-                    </table>
-                    `;
-        $('#xboxbody').append($(tablehtm));
 
         _ops = false;
         let _tr = 0;
@@ -138,49 +129,81 @@ var xtd = {
             if(op.type == opTypes.del) _ops = true;
         }
         
-        //table head
-        $('#xthead').append($(this.tabletr.format(_tr)))
-        for(let column of detail.columns){
-            if(xcolumn.list(column)) {
-                this.tabletrDom(_tr).append($(this.tabletd.format(_tr, 0, column.hint)));
-            }
-        }
-        if(_ops) {//options td head
-            this.tabletrDom(_tr).append($(this.tabletd.format(_tr, 0, "Options")));    
-        }
 
-        xmodel.set(detail, data);
+        let tablehtm = `
+                    <table id="xtable" class="table table-bordered table-hover">
+                        <thead id="xthead"></thead>
+                        <tbody id="xtbody"></tbody>
+                    </table>
+                    `;
+        $('#xboxbody').append($(tablehtm));
+
+        //table head
+        this.showTableHead($('#xthead'), detail.columns, _tr, _ops);
         //table body
         this.showDetailBody(detail, xmodel.datas);
+    },
+    showTableHead: function(parent, columns, _tr, __ops=false) {
+        let _tabletr = $(this.tabletr.format(_tr));
+        parent.append(_tabletr);
+        for(let column of columns){
+            if(xcolumn.list(column)) {
+                _tabletr.append($(this.tabletd.format(_tr, 0, column.hint)));
+            }
+        }
+        if(__ops) {//options td head
+            _tabletr.append($(this.tabletd.format(_tr, 0, "Options")));    
+        }
     },
     showDetailBodyFunc:function() {
         return this.showDetailBody.bind(this);
     },
     showDetailBody: function(detail, data) {
-        $('#xtbody').empty();
+        this.showTableBody($('#xtbody'), detail.columns, data, _ops, detail)
+    },
+    showTableBody:function(parent, columns, data, _ops, detail) {
+        parent.empty();
 
         let _tr = 0;
         //table body
         for(let model of data) {
             model._id = (++ _tr);
-            $('#xtbody').append($(this.tabletr.format(_tr)))
+            let _tabletr = $(this.tabletr.format(_tr));
+            parent.append(_tabletr)
             var _td = 0;
-            for(let column of detail.columns){
+            for(let column of columns){
                 if(xcolumn.list(column)) {
-                    this.tabletrDom(_tr).append($(this.tabletd.format(_tr, (++_td), getValFromModel(model, column))));
+                    if(column.type == xTypes._model || column.type == xTypes._list) {
+                        let _tabletd = $(this.tabletd.format(_tr, (++_td), ''));
+                        let _ntable = $(`<table class="table table-bordered table-hover table-sm text-sm mb-0 "></table>`);
+                        let _nthead = $(`<thead></thead>`);
+                        let _ntbody = $(`<tbody></tbody>`);
+
+                        _tabletr.append(_tabletd);
+                        _tabletd.append(_ntable);
+                        _ntable.append(_nthead);
+                        _ntable.append(_ntbody);
+                        
+                        this.showTableHead(_nthead, column.columns, _tr);
+                        let val = getValFromModel(model, column);
+                        this.showTableBody(_ntbody, column.columns, column.type==xTypes._model?[val]:val)
+                    } else {
+                        _tabletr.append($(this.tabletd.format(_tr, (++_td), getValFromModel(model, column))));
+                    }
                 }
             }
             //options td
             if(_ops) {
-                this.tabletrDom(_tr).append($(this.tabletd.format(_tr, (++_td), '')));
+                let _tabletd = $(this.tabletd.format(_tr, (++_td), ''));
+                _tabletr.append(_tabletd);
                 for(let op of detail.options) {
                     let ident = opIdent(detail, op);
                     if(op.type == opTypes.edt) {
-                        this.tabletdDom(_tr, _td).append(this.edtBtn.format(ident, _tr, op.name));
+                        _tabletd.append(this.edtBtn.format(ident, _tr, op.name));
                         xclick(this.edtBtnDom(ident, _tr), showDialogFunc(detail, op, model, this.showDetailBodyFunc()));
                     }
                     if(op.type == opTypes.del) {
-                        this.tabletdDom(_tr, _td).append(this.delBtn.format(ident, _tr, op.name));
+                        _tabletd.append(this.delBtn.format(ident, _tr, op.name));
                         xclick(this.delBtnDom(ident, _tr), showDialogFunc(detail, op, model, this.showDetailBodyFunc()));
                     }
                 }
