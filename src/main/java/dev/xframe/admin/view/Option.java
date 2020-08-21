@@ -7,11 +7,12 @@ import dev.xframe.utils.XStrings;
 
 public class Option implements Comparable<Option> {
 	
-	public static final Option ini = new Option("加载", XOption.type_ini);	//HttpMethods.GET(url)
+	public static final Option ini = new Option("加载", XOption.type_ini);	//HttpMethods.GET(empty args)
 	public static final Option qry = new Option("查询", XOption.type_qry);   //HttpMethods.GET
 	public static final Option edt = new Option("修改", XOption.type_edt);   //HttpMethods.PUT
 	public static final Option add = new Option("新增", XOption.type_add);   //HttpMethods.POST
 	public static final Option del = new Option("删除", XOption.type_del);   //HttpMethods.DELETE
+	public static final Option flx = new Option("结构", XOption.type_flx);	//HttpMethods.GET(marked @XOption.type)
 	
 	private String name;
 	private String path;

@@ -2,6 +2,7 @@ package dev.xframe.admin.view;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,8 +28,7 @@ public interface Detail {
         Method[] methods = declaring.getDeclaredMethods();
         for (Method method : methods) {
             if(method.isAnnotationPresent(GET.class)) {
-            	Option opt = isIniMethod(method) ? Option.ini : Option.qry;
-				options.add(parseOption(opt, model, method, method.getAnnotation(GET.class).value()));
+            	options.add(parseOption(GetMethodOption(method), model, method, method.getAnnotation(GET.class).value()));
             } else if(method.isAnnotationPresent(PUT.class)) {
                 options.add(parseOption(Option.edt, model, method, method.getAnnotation(PUT.class).value()));
             } else if(method.isAnnotationPresent(DELETE.class)) {
@@ -41,6 +41,12 @@ public interface Detail {
         return options;
     }
 
+    static Option GetMethodOption(Method method) {
+    	return isIniMethod(method) ? Option.ini : (isFlxMethod(method) ? Option.flx : Option.qry);
+    }
+	static boolean isFlxMethod(Method method) {
+		return method.isAnnotationPresent(XOption.class) && method.getAnnotation(XOption.class).type() == XOption.type_flx;
+	}
 	static boolean isIniMethod(Method method) {//GET,只有非URL参数
 		return !Arrays.stream(method.getParameters()).filter(p->p.isAnnotationPresent(HttpArgs.Param.class)).findAny().isPresent();
 	}
@@ -77,6 +83,7 @@ public interface Detail {
         }
         Field[] fields = model.getDeclaredFields();
         for (Field field : fields) {
+        	if(Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers())) continue;
             XColumn xf = field.getAnnotation(XColumn.class);
             String name = field.getName();
             if(xf == null) {

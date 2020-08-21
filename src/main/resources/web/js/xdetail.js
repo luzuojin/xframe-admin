@@ -237,7 +237,6 @@ var xpd = {//重用dialog相关element
 
     showDetailInternal: function(detail, data) {
         if(!data) data = {};
-        this.qryOp = getOption(detail, opTypes.qry);
         //empty ex
         $('#xboxhead').empty();
         $('#xboxbody').empty();
@@ -246,18 +245,7 @@ var xpd = {//重用dialog相关element
         //body form
         $('#xboxbody').append($(this.panelhtm));
         //add to body form use methods from dialog
-        let dlgIdent = 'xpanel';
-        for(let column of detail.columns) {
-            let val = dialogInputVal(data, column.key);
-            addDlgInput($('#xpanel_form'), column, dlgIdent, val);
-            let dom = dlgInputDom(dlgIdent, column.key);
-            if (data && !xcolumn.edit(column)) {
-                dom.attr("disabled", true);
-            }
-            if(this.inQryOpInputs(column)) {
-                xchange(dom, this.onColumnChangeFunc(detail, column, dom));
-            }
-        }
+        showDialogForm($('#xpanel_form'), detailToDlg(detail), {}, data, getOption(detail, opTypes.flx));
         //add button row
         $('#xboxbody').append($(this.btnRow));
         for(let op of detail.options) {
@@ -270,36 +258,6 @@ var xpd = {//重用dialog相关element
             }
         }
     },
-    qryOp: undefined,
-    inQryOpInputs: function(column) {
-        if(this.qryOp) {
-            for(let c of this.qryOp.inputs) {
-                if(c.key === column.key) return true;
-            }
-        }
-        return false;
-    },
-    qryColumnVals: {},
-    onColumnChangeFunc: function(detail, column, dom) {
-        let that = this;
-        return function(e) {
-            that.qryColumnVals[column.key] = dom.val();
-            if(that.qryOp) {
-                for(let c of that.qryOp.inputs) {
-                    if(!that.qryColumnVals[c.key]) return;
-                }
-                doGet('{0}?{1}'.format(detail.segpath, ($.param(that.qryColumnVals))), function(data){
-                    if(data.columns) {//显示结构发生变化
-                        //change columns and retain the reference
-                        Object.assign(detail.columns, data.columns, {length:data.columns.length});
-                        that.showDetailInternal(detail, data.internal);    
-                    } else {
-                        that.showDetailInternal(detail, data);
-                    }
-                });
-            }
-        }
-    },
     submitPanelFunc: function(detail, op) {
         let that = this;
         return function() {
@@ -309,7 +267,7 @@ var xpd = {//重用dialog相关element
         }
     },
     submitPanel: function(detail, op, func) {
-        let dlgIdent = 'xpanel';
+        let dlgIdent = detail.path;
         var model = {};
         for(let column of detail.columns) {
             model[column.key] = dlgInputVal(dlgIdent, column);
@@ -325,6 +283,9 @@ function detailToDlg(detail) {
         segpath: detail.segpath,
         opColumns: function (_op) {
             return (_op.inputs && _op.inputs.length > 0) ? _op.inputs : detail.columns;
+        },
+        flex: function(_cols) {//有flxOp时 调用
+            Object.assign(detail.columns, _cols, {length:_cols.length});
         }
     }
 }
@@ -341,7 +302,7 @@ function showDialogFunc(detail, op, model, refreshDetail) {//model or supplier f
                 if(op.type == opTypes.del) xmodel.del(data);
             }
             refreshDetail(detail, xmodel.datas);
-        });
+        }, getOption(detail, opTypes.flx));
     };
 }
 

@@ -27,10 +27,13 @@ public class Table extends Classic {
         return this;
     }
     
-    //只能存在一个qry option
+    //只能存在一个qry/flx option
     protected void checkQryOption() {
 		if(options.stream().filter(opt->opt.getType()==XOption.type_qry).count() > 1) {
-			throw new IllegalArgumentException("Detail can only exist one qry option(@HttpMethods.GET&empty(args)");
+			throw new IllegalArgumentException("Detail can only exist one qry option(@HttpMethods.GET");
+		}
+		if(options.stream().filter(opt->opt.getType()==XOption.type_flx).count() > 1) {
+			throw new IllegalArgumentException("Detail can only exist one flx option(@HttpMethods.GET");
 		}
 	}
 

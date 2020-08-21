@@ -29,7 +29,8 @@ var opTypes = {
     qry: 1,
     add: 2,
     edt: 3,
-    del: 4
+    del: 4,
+    flx: 5
 }
 
 //text types

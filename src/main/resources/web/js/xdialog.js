@@ -18,7 +18,7 @@ let dlgImag=`<img class="col-sm-2 img-thumbnail" src="{0}">`;
 let dlgFile=`
             <div class="custom-file">
               <input type="file" class="custom-file-input" id="dinput_{0}_{1}">
-              <label class="custom-file-label" id="dinput_{0}_{1}_label" for="dinput_{0}_{1}">{2}</label>
+              <label class="custom-file-label" id="dinput_{0}_{1}_label" for="dinput_{0}_{1}"></label>
             </div>
             <div id="dinput_{0}_{1}_preview"/>
             `;
@@ -229,30 +229,60 @@ function dialogInputVal(model, key) {
     return model ? model[key] : undefined;
 }
 
-function showDialog(dlg, op, model, func) {
-    $('#xdialog_title').empty();
-    $('#xdialog_form').empty();
+function getDialogObj(dlg, op) {
+    var obj = {};
+    for(let column of dlg.opColumns(op)) {
+        obj[column.key] = dlgInputVal(dlg.ident, column)
+    }
+    return obj;
+}
 
-    $('#xdialog_title').append(dialogTitle(dlg, op))
+function showDialogForm(parent, dlg, op, model, flxOp) {
+    let flxChange = function() {
+        let flxParams = {};
+        for(let c of flxOp.inputs) {
+            let v = dlgInputVal(dlg.ident, c);
+            if(!v) return;
+            flxParams[c.key] = v;
+        }
+        let exData = getDialogObj(dlg, op);
+        console.log(JSON.stringify(exData));
+        doGet('{0}?{1}'.format(dlg.segpath.urljoin(flxOp.path), ($.param(flxParams))), function(data){
+            if(data.columns) {//显示结构发生变化
+                dlg.flex(data.columns);
+                showDialogForm(parent, dlg, op, exData, flxOp);  
+            }
+        });
+    };
+    let inFlxCols = function(col) {
+        if(flxOp) 
+            for(let c of flxOp.inputs)
+                if(c.key == col.key) return true;
+        return false;
+    };
+    parent.empty();
     for(let column of dlg.opColumns(op)){
         if(op.type == opTypes.add && !xcolumn.add(column)) continue;
         if(op.type >= opTypes.edt && !xcolumn.edel(column)) continue;
         let val = dialogInputVal(model, column.key);
-        addDlgInput($('#xdialog_form'), column, dlg.ident, val);
+        addDlgInput(parent, column, dlg.ident, val);
         if (op.type == opTypes.del || (model && !xcolumn.edit(column))) {
             dlgInputDom(dlg.ident, column.key).attr("disabled", true);
         }
+        if(inFlxCols(column)) xchange(dlgInputDom(dlg.ident, column.key), flxChange);
     }
+}
+
+function showDialog(dlg, op, model, func, flxOp) {
+    $('#xdialog_title').empty();
+    $('#xdialog_title').append(dialogTitle(dlg, op))
+    showDialogForm($('#xdialog_form'), dlg, op, model, flxOp);
     xclick($('#xdialog_submit'), function(){submitDialog(dlg, op, func);})
     modalShow();
 }
 
 function submitDialog(dlg, op, func) {
-    var model = {};
-    for(let column of dlg.opColumns(op)) {
-        model[column.key] = dlgInputVal(dlg.ident, column)
-    }
-    doPost(dlg.segpath.urljoin(op.path), op, model,
+    doPost(dlg.segpath.urljoin(op.path), op, getDialogObj(dlg, op),
         function(resp) {
             modalHide();
             func(resp);
