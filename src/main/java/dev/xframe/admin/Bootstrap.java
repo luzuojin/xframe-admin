@@ -1,12 +1,11 @@
 package dev.xframe.admin;
 
 import dev.xframe.admin.conf.SysProperties;
-import dev.xframe.boot.Bootstrap;
 
-public class Boostrap {
+public class Bootstrap {
 	
 	public static void main(String[] args) {
-		new Bootstrap()
+		new dev.xframe.boot.Bootstrap()
 			.withName("xframe-admin")
 			.include("dev.xframe.*")
 			.exclude("dev.xframe.test.*;dev.xframe.jdbc.*")
