@@ -9,6 +9,7 @@ import dev.xframe.admin.view.Detail;
 
 //结构变化的结果
 public class Flex {
+	public static final String HEADER_KEY = "flex-name";
 	//Http.header("flex-name")
 	public final String flexName;
 	public final List<Column> columns;

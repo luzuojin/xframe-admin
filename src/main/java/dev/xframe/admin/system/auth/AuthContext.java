@@ -15,7 +15,9 @@ import io.netty.handler.codec.http.HttpMethod;
 @Configurator
 public class AuthContext implements Loadable {
     
-    @Inject
+    private static final String TOKEN_KEY = "x-token";
+
+	@Inject
     private TaskContext taskCtx;
     
     private Map<String, UserPrivileges> tokenMap = new ConcurrentHashMap<>();
@@ -71,8 +73,8 @@ public class AuthContext implements Loadable {
     }
 
 	private String getXToken(Request req) {
-		String token = req.getHeader("x-token");
-		if(token == null) token = req.getParam("x-token");
+		String token = req.getHeader(TOKEN_KEY);
+		if(token == null) token = req.getParam(TOKEN_KEY);
 		return token;
 	}
     
@@ -110,8 +112,7 @@ public class AuthContext implements Loadable {
 	}
 
     public UserPrivileges getPrivileges(Request req) {
-        String token = getXToken(req);
-        return tokenMap.get(token);
+        return tokenMap.get(getXToken(req));
     }
 
 }
