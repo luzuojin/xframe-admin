@@ -91,6 +91,12 @@ function xenumText(key, id) {
         return simpleText(id);
     }
 }
+function xvalue(value) {
+    return value == undefined ? '' : value;
+}
+function xvalueByKey(value, key) {
+    return value ? xvalue(value[key]) : '';
+}
 
 function showSummary() {
     doGet(xpaths.summary, showSiderbar);

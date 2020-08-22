@@ -144,7 +144,7 @@ setFuncTo(dlgMakeFuncs, [xTypes._model],
         _d.empty();
         let nid = _d.attr('id');
         for(let col of c.columns) {
-            addDlgInput(_d, col, nid, v ? v[col.key] : '');
+            addDlgInput(_d, col, nid, xvalueByKey(v, col.key));
         }
     });
 setFuncTo(dlgDataFuncs, [xTypes._model],
@@ -172,7 +172,7 @@ setFuncTo(dlgMakeFuncs, [xTypes._list],
             let _e = $(`<div id="{0}" class="border-left border-bottom position-relative form-group text-sm">`.format(_eid));
             aplFunc(_e);
             for(let col of c.columns) {
-                addDlgInput(_e, col, _eid, _v?_v[col.key]:'');
+                addDlgInput(_e, col, _eid, xvalueByKey(_v, col.key));
             }
             //minus btn
             let minusBtn = $(`<button type="button" class="position-absolute close" style="right:.5rem;bottom:.25rem;"><i class="fas fa-minus-circle fa-xs"></i></button>`);

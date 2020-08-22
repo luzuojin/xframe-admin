@@ -58,7 +58,7 @@ var getValFromModel = function(model, column) {
     if(column.type == xTypes._enum || column.type == xTypes._mult) {
         return xenumText(column.enumKey, val);
     }
-    return val;
+    return xvalue(val);
 }
 
 //table detail
