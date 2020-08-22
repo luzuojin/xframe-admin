@@ -1,10 +1,8 @@
 package dev.xframe.admin.system.privilege;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
 
-import dev.xframe.admin.system.BasicContext;
-import dev.xframe.admin.view.Segment;
+import dev.xframe.admin.system.SystemContext;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpMethods;
@@ -15,18 +13,11 @@ import dev.xframe.inject.Inject;
 public class PrivilegeService {
 	
 	@Inject
-	private BasicContext viewCtx;
+	private SystemContext sysCtx;
 	
 	@HttpMethods.GET()
 	public Object get() {
-		List<Privilege> privileges = new ArrayList<>();
-		viewCtx.getChapters().forEach(c->{
-			privileges.add(new Privilege(c.getName(), c.getPath()));
-			for (Segment seg : c.getSegments()) {
-				privileges.add(new Privilege("&nbsp;&nbsp;&nbsp;&nbsp;"+seg.getName(), c.getPath() + "/" + seg.getPath()));
-			}
-		});
-		return privileges;
+		return sysCtx.getPrivileges().stream().filter(p->p!=Privilege.WHOLE).collect(Collectors.toList());
 	}
 
 }

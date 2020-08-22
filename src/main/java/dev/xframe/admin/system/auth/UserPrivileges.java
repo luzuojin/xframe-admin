@@ -12,7 +12,7 @@ public class UserPrivileges implements Predicate<String> {
     
     private Set<Privilege> wholePrivileges = new HashSet<>();
     
-    private Set<Privilege> privileges = new HashSet<>();
+    private Set<Privilege> readPrivileges = new HashSet<>();
     
     private long lastActiveTime;
     
@@ -27,7 +27,7 @@ public class UserPrivileges implements Predicate<String> {
 
     public UserPrivileges add(Privilege privilege, boolean readOnly) {
         if(privilege != null) {
-            privileges.add(privilege);
+            readPrivileges.add(privilege);
             if(!readOnly) {
                 wholePrivileges.add(privilege);
             }
@@ -35,8 +35,8 @@ public class UserPrivileges implements Predicate<String> {
         return this;
     }
     
-    public boolean contains(String path) {
-        return privileges.stream().filter(p->match(p, path)).findAny().isPresent();
+    public boolean readContains(String path) {
+        return readPrivileges.stream().filter(p->match(p, path)).findAny().isPresent();
     }
     
     public boolean wholeContains(String path) {
@@ -44,7 +44,7 @@ public class UserPrivileges implements Predicate<String> {
     }
 
     private boolean match(Privilege p, String path) {
-        return p.getPath().equals("_") || p.getPath().equals(path) || p.getPath().startsWith(path + "/") || path.startsWith(p.getPath() + "/");
+        return p.getPath().equals(Privilege.WHOLE_PATH) || p.getPath().equals(path) || p.getPath().startsWith(path + "/") || path.startsWith(p.getPath() + "/");
     }
 
     public long getLastActiveTime() {
@@ -53,7 +53,7 @@ public class UserPrivileges implements Predicate<String> {
 
 	@Override
 	public boolean test(String path) {
-		return contains(path);
+		return readContains(path);
 	}
 
 }

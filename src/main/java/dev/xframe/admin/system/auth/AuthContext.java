@@ -103,7 +103,7 @@ public class AuthContext implements Loadable {
         UserPrivileges p = userMap.get(username);
         if(p != null) {
             if(method.equals(HttpMethod.GET)) {
-                if(p.contains(path)) return true;
+                if(p.readContains(path)) return true;
             } else {
                 if(p.wholeContains(path)) return true;
             }

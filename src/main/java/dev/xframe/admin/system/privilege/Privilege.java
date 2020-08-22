@@ -4,6 +4,9 @@ import dev.xframe.admin.view.XColumn;
 
 public class Privilege {
 	
+	public static final String WHOLE_PATH = "_";
+	public static final Privilege WHOLE = new Privilege("全部", WHOLE_PATH);
+	
 	@XColumn("模块名")
 	private String name;
 	@XColumn("访问路径")
