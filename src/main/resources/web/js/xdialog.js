@@ -231,28 +231,47 @@ function dialogInputVal(model, key) {
 
 function getDialogObj(dlg, op) {
     var obj = {};
-    for(let column of dlg.opColumns(op)) {
+    for(let column of dlg.columns) {
         obj[column.key] = dlgInputVal(dlg.ident, column)
     }
     return obj;
 }
 
+function packFlxParams(flxOp, valFunc) {
+    let flxParams = {}
+    for(let c of flxOp.inputs) {
+        let v = valFunc(c);
+        if(!v) return;
+        flxParams[c.key] = v;
+    }
+    return flxParams;
+}
+
 function showDialogForm(parent, dlg, op, model, flxOp) {
-    let flxChange = function() {
-        let flxParams = {};
-        for(let c of flxOp.inputs) {
-            let v = dlgInputVal(dlg.ident, c);
-            if(!v) return;
-            flxParams[c.key] = v;
+    dlg.columns = dlg.opColumns(op);
+    if(model && flxOp) {//已有数据 先请求columns
+        let flxParams = packFlxParams(flxOp, _c=>model[_c.key]);
+        if(flxParams) showDialogForm0Flx(parent, dlg, op, model, flxOp, flxParams);
+    }
+    showDialogForm0(parent, dlg, op, model, flxOp);
+}
+
+function showDialogForm0Flx(parent, dlg, op, model, flxOp, flxParams) {
+    doGet('{0}?{1}'.format(dlg.segpath.urljoin(flxOp.path), ($.param(flxParams))), function(data){
+        if(data.columns) {//显示结构发生变化
+            dlg.columns = data.columns;
+            dlg.flex(dlg.columns);//flx pass
+            showDialogForm0(parent, dlg, op, model, flxOp);  
+        } else {
+            showDialogForm0(parent, dlg, op, model, flxOp);
         }
-        let exData = getDialogObj(dlg, op);
-        console.log(JSON.stringify(exData));
-        doGet('{0}?{1}'.format(dlg.segpath.urljoin(flxOp.path), ($.param(flxParams))), function(data){
-            if(data.columns) {//显示结构发生变化
-                dlg.flex(data.columns);
-                showDialogForm(parent, dlg, op, exData, flxOp);  
-            }
-        });
+    });
+}
+
+function showDialogForm0(parent, dlg, op, model, flxOp) {
+    let flxChange = function() {
+        let flxParams = packFlxParams(flxOp, _c=>dlgInputVal(dlg.ident, _c));
+        if(flxParams) showDialogForm0Flx(parent, dlg, op, getDialogObj(dlg, op), flxOp, flxParams);
     };
     let inFlxCols = function(col) {
         if(flxOp) 
@@ -261,7 +280,7 @@ function showDialogForm(parent, dlg, op, model, flxOp) {
         return false;
     };
     parent.empty();
-    for(let column of dlg.opColumns(op)){
+    for(let column of dlg.columns){
         if(op.type == opTypes.add && !xcolumn.add(column)) continue;
         if(op.type >= opTypes.edt && !xcolumn.edel(column)) continue;
         let val = dialogInputVal(model, column.key);

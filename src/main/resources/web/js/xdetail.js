@@ -245,7 +245,7 @@ var xpd = {//重用dialog相关element
         //body form
         $('#xboxbody').append($(this.panelhtm));
         //add to body form use methods from dialog
-        showDialogForm($('#xpanel_form'), detailToDlg(detail), {}, data, getOption(detail, opTypes.flx));
+        showDialogForm($('#xpanel_form'), detailToDlg(detail, true), {}, data, getOption(detail, opTypes.flx));
         //add button row
         $('#xboxbody').append($(this.btnRow));
         for(let op of detail.options) {
@@ -276,7 +276,7 @@ var xpd = {//重用dialog相关element
     }
 };
 
-function detailToDlg(detail) {
+function detailToDlg(detail, flxPass=false) {
     return {
         ident: detail.path,
         segname: detail.segname,
@@ -285,7 +285,7 @@ function detailToDlg(detail) {
             return (_op.inputs && _op.inputs.length > 0) ? _op.inputs : detail.columns;
         },
         flex: function(_cols) {//有flxOp时 调用
-            Object.assign(detail.columns, _cols, {length:_cols.length});
+            if(flxPass) Object.assign(detail.columns, _cols, {length:_cols.length});
         }
     }
 }
