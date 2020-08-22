@@ -108,13 +108,13 @@ function doGet(path, func) {
 
 var xlatestOp;
 var httpTypes = ['_', 'get', 'post', 'put', 'delete']
-function doPost(path, op, data, func) {
+function doPost(path, op, data, func, _headers={}) {
     xlatestOp = op;
     $.ajax({
         type: httpTypes[op.type],
         url: '{0}/{1}'.format(xurl, path),
         data: JSON.stringify(data),
-        headers: {"x-token": xtoken()},
+        headers: Object.assign({"x-token": xtoken()}, _headers),
         dataType: 'json',
         success: doResp(func)
     });

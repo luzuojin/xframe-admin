@@ -229,7 +229,7 @@ function dialogInputVal(model, key) {
     return model ? model[key] : undefined;
 }
 
-function getDialogObj(dlg, op) {
+function getDialogFormObj(dlg) {
     var obj = {};
     for(let column of dlg.columns) {
         obj[column.key] = dlgInputVal(dlg.ident, column)
@@ -257,10 +257,11 @@ function showDialogForm(parent, dlg, op, model, flxOp) {
 }
 
 function showDialogForm0Flx(parent, dlg, op, model, flxOp, flxParams) {
-    doGet('{0}?{1}'.format(dlg.segpath.urljoin(flxOp.path), ($.param(flxParams))), function(data){
-        if(data.columns) {//显示结构发生变化
-            dlg.columns = data.columns;
-            dlg.flex(dlg.columns);//flx pass
+    doGet('{0}?{1}'.format(dlg.segpath.urljoin(flxOp.path), ($.param(flxParams))), function(resp){
+        if(resp) {//显示结构发生变化
+            dlg.columns = resp.columns;
+            dlg.flexName = resp.flexName;
+            dlg.flex(resp);//flx pass
             showDialogForm0(parent, dlg, op, model, flxOp);  
         } else {
             showDialogForm0(parent, dlg, op, model, flxOp);
@@ -271,7 +272,7 @@ function showDialogForm0Flx(parent, dlg, op, model, flxOp, flxParams) {
 function showDialogForm0(parent, dlg, op, model, flxOp) {
     let flxChange = function() {
         let flxParams = packFlxParams(flxOp, _c=>dlgInputVal(dlg.ident, _c));
-        if(flxParams) showDialogForm0Flx(parent, dlg, op, getDialogObj(dlg, op), flxOp, flxParams);
+        if(flxParams) showDialogForm0Flx(parent, dlg, op, getDialogFormObj(dlg), flxOp, flxParams);
     };
     let inFlxCols = function(col) {
         if(flxOp) 
@@ -301,12 +302,11 @@ function showDialog(dlg, op, model, func, flxOp) {
 }
 
 function submitDialog(dlg, op, func) {
-    doPost(dlg.segpath.urljoin(op.path), op, getDialogObj(dlg, op),
+    doPost(dlg.segpath.urljoin(op.path), op, getDialogFormObj(dlg),
         function(resp) {
             modalHide();
             func(resp);
-        }
-    );
+        }, {'flex-name': dlg.flexName});
 }
 
 function modalShow() {

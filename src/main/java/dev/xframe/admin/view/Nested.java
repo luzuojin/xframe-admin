@@ -9,8 +9,8 @@ public class Nested extends Column {
 
 	private List<Column> columns;
 
-	public Nested(String key, String hint, int type, String enumKey, int show, boolean primary, List<Column> columns) {
-		super(key, hint, type, enumKey, show, primary);
+	public Nested(String key, XColumn xc, List<Column> columns) {
+		super(key, xc, xc.type());
 		this.columns = columns;
 	}
 

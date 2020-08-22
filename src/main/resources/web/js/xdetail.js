@@ -245,34 +245,30 @@ var xpd = {//重用dialog相关element
         //body form
         $('#xboxbody').append($(this.panelhtm));
         //add to body form use methods from dialog
-        showDialogForm($('#xpanel_form'), detailToDlg(detail, true), {}, data, getOption(detail, opTypes.flx));
+        let dlg = detailToDlg(detail, true);
+        showDialogForm($('#xpanel_form'), dlg, {}, data, getOption(detail, opTypes.flx));
         //add button row
         $('#xboxbody').append($(this.btnRow));
         for(let op of detail.options) {
             if(op.type == opTypes.del) {
                 $('#xpanel_btnrow').append($(this.delBtn.format(op.path, op.name)));
-                xclick(this.delBtnDom(op.path), this.submitPanelFunc(detail, op));
+                xclick(this.delBtnDom(op.path), this.submitPanelFunc(detail, dlg, op));
             } else if(op.type == opTypes.edt) {
                 $('#xpanel_btnrow').append($(this.edtBtn.format(op.path, op.name)));
-                xclick(this.edtBtnDom(op.path), this.submitPanelFunc(detail, op));
+                xclick(this.edtBtnDom(op.path), this.submitPanelFunc(detail, dlg, op));
             }
         }
     },
-    submitPanelFunc: function(detail, op) {
+    submitPanelFunc: function(detail, dlg, op) {
         let that = this;
         return function() {
-            that.submitPanel(detail, op, function(resp){
+            that.submitPanel(detail, dlg, op, function(resp){
                 that.showDetailInternal(detail, resp);
             });
         }
     },
-    submitPanel: function(detail, op, func) {
-        let dlgIdent = detail.path;
-        var model = {};
-        for(let column of detail.columns) {
-            model[column.key] = dlgInputVal(dlgIdent, column);
-        }
-        doPost(detail.segpath.urljoin(op.path), op, model, func);
+    submitPanel: function(detail, dlg, op, func) {
+        doPost(dlg.segpath.urljoin(op.path), op, getDialogFormObj(dlg), func, {'flex-name': detail.flexName});
     }
 };
 
@@ -284,8 +280,11 @@ function detailToDlg(detail, flxPass=false) {
         opColumns: function (_op) {
             return (_op.inputs && _op.inputs.length > 0) ? _op.inputs : detail.columns;
         },
-        flex: function(_cols) {//有flxOp时 调用
-            if(flxPass) Object.assign(detail.columns, _cols, {length:_cols.length});
+        flex: function(flx) {//有flxOp时 调用
+            if(flxPass) {
+                Object.assign(detail.columns, flx.columns, {length:flx.columns.length});
+                detail.flexName = flx.flexName;
+            }
         }
     }
 }
