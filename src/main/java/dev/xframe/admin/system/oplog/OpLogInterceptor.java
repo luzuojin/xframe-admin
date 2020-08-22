@@ -17,23 +17,25 @@ public class OpLogInterceptor implements HttpInterceptor {
     private OpLogRepo logRepo;
     
     @Override
-    public Response intercept(Request req) {//succ ops
-        String user = OpUser.get();
-        if(user != null) {
-            HttpMethod method = req.method();
-            if(!method.equals(HttpMethod.GET) && !method.equals(HttpMethod.OPTIONS)) {
-                String path = req.xpath();
-                if(!path.startsWith("basic/upload")) {
-                	String params = XStrings.newStringUtf8(req.content());
-                	String host = XStrings.orElse(req.getHeader("x-host"), req.remoteHost());
-                	
-                	XLogger.info("[{}] [{}] [{}] [{}] [{}]", user, host, method.name(), path, params);
-                	
-                	logRepo.add(new OpLog(user, path, params, host, method.name()));
-                }
-            }
-        }
+    public Response intercept(Request req) {
         return null;
     }
+    
+	@Override
+	public void afterHandle(Request req, Response resp) {//succ ops
+		String user = OpUser.get();
+        if(user == null) return;
+        HttpMethod method = req.method();
+        if(!method.equals(HttpMethod.GET) && !method.equals(HttpMethod.OPTIONS)) {
+        	String path = req.xpath();
+        	if(!path.startsWith("basic/upload")) {
+        		String params = XStrings.newStringUtf8(req.content());
+        		String host = XStrings.orElse(req.getHeader("x-host"), req.remoteHost());
+
+        		XLogger.info("[{}] [{}] [{}] [{}] [{}]", user, host, method.name(), path, params);
+        		logRepo.add(new OpLog(user, path, params, host, method.name()));
+        	}
+        }
+	}
     
 }
