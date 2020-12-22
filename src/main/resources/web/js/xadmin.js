@@ -103,18 +103,25 @@ function showSummary() {
 }
 
 function doGet(path, func) {
+    doGet0(path, doResp(func));
+}
+function doGet0(path, func) {
+    xlatestOp = undefined;
     $.ajax({
         type: 'get',
         url: '{0}/{1}'.format(xurl, path),
         headers: {"x-token": xtoken()},
         dataType: 'json',
-        success: doResp(func)
+        success: func
     });
 }
 
 var xlatestOp;
 var httpTypes = ['_', 'get', 'post', 'put', 'delete']
 function doPost(path, op, data, func, _headers={}) {
+    doPost0(path, op, data, doResp(func), _headers);   
+}
+function doPost0(path, op, data, func, _headers={}) {
     xlatestOp = op;
     $.ajax({
         type: httpTypes[op.type],
@@ -122,12 +129,12 @@ function doPost(path, op, data, func, _headers={}) {
         data: JSON.stringify(data),
         headers: Object.assign({"x-token": xtoken()}, _headers),
         dataType: 'json',
-        success: doResp(func)
+        success: func
     });
 }
-
 function doResp(func) {
     return function(resp) {
+        console.log(":sss\n" + func);
         if(resp.status == -1) {
             if(resp.data) {
                 xtoast.error(resp.data);

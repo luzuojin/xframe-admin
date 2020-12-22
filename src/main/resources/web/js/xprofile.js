@@ -22,16 +22,43 @@ var xuserdlg = {
     segpath: xuserseg.cpath.urljoin(xuserseg.path),
     opColumns: function(op){return xuserseg.columns}
 }
+//不严谨. 内网访问判定-自动登录
+function isLocalUrl() {
+    if( xurl.startsWith('http://127.0.0.') ||
+        xurl.startsWith('http://10.') ||
+        xurl.startsWith('http://172.16.') ||
+        xurl.startsWith('http://192.168.')
+        ){
+        return true;
+    }
+    return false;
+}
+
+//submit login without show dialog
+function withoutDialog(dlg, op, data, func) {
+    doPost0(dlg.segpath.urljoin(op.path), op, data, func);
+}
 
 function doLogin(func) {
     let op = {
         name: "登录",
         type: opTypes.add
     };
-    showDialog(xuserdlg, op, undefined, function(data){
-        onLogin(data);
-        func();
-    });
+    let cb = data=>{
+        onLogin(data); func();
+    };    
+    if(isLocalUrl()) {
+        let cb0 = resp=>{
+            if(resp.status == -1) {
+                showDialog(xuserdlg, op, undefined, cb);
+            } else {
+                cb(resp.data);
+            }
+        }
+        withoutDialog(xuserdlg, op, {name:'local'}, cb0);
+    } else {
+        showDialog(xuserdlg, op, undefined, cb);
+    }
 }
 
 function onLogin(data) {

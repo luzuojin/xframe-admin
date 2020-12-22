@@ -13,6 +13,8 @@ import dev.xframe.inject.Inject;
 
 @Rest("basic/profile")
 public class ProfileService {
+    
+    static final String LocalUserName = "local";
 	
 	@Inject
 	private AuthContext authCtx;
@@ -22,13 +24,17 @@ public class ProfileService {
 	private SystemContext sysCtx;
 	
     @HttpMethods.POST
-    public Object login(@HttpArgs.Body VLogin data) {
+    public Object login(Request req, @HttpArgs.Body VLogin data) {
         User user = sysRepo.fetchUser(data.getName());
-        if(user == null)
+        if(user == null) {
             throw new LogicException("用户不存在");
-        if(!user.getPassw().equals(data.getPassw()))
+        } else if(LocalUserName.equals(user.getName())) {//内网用户,只在内网ip访问时生效(admin权限),可删除该用户
+            if(!authCtx.isLocalHost(req)){
+                throw new LogicException("非内网访问");
+            }
+        } else if(!user.getPassw().equals(data.getPassw())) {
             throw new LogicException("密码错误");
-
+        }
         return new VUser(user.getName(), authCtx.regist(sysCtx.getPrivileges(user)));
     }
 

@@ -89,10 +89,18 @@ public class AuthContext implements Loadable {
         if(unblockedMatch(req.method(), path)) {
             return false;
         }
-        if(req.remoteHost().startsWith("127.")) {//本地
-            return false;
-        }
         return !hasPrivilege(req.method(), path);
+    }
+    
+    public boolean isLocalHost(Request req) {
+        String remoteHost = req.remoteHost();
+        if(remoteHost.startsWith("127.0.0.") ||
+           remoteHost.startsWith("10.") ||
+           remoteHost.startsWith("172.16.") ||
+           remoteHost.startsWith("192.168.")) {//本地
+            return true;
+        }
+        return false;
     }
 
 	public boolean hasPrivilege(HttpMethod method, String path) {

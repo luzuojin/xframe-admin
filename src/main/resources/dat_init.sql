@@ -25,3 +25,4 @@ CREATE TABLE `T_USER` (
 ) DEFAULT CHARSET=utf8;
 
 INSERT INTO `T_USER` VALUES ('admin', '10086', 'admin@xframe.dev', '21232f297a57a5a743894a0e4a801fc3', '1001', now());
+INSERT INTO `T_USER` VALUES ('local', '10010', 'local@xframe.dev', '21232f297a57a5a743894a0e4a801fc3', '1001', now());
