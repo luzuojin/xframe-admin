@@ -249,10 +249,13 @@ function packFlxParams(flxOp, valFunc) {
 
 function showDialogForm(parent, dlg, op, model, flxOp) {
     dlg.columns = dlg.opColumns(op);
-    if(model && flxOp) {//已有数据 先请求columns
-        let flxParams = packFlxParams(flxOp, _c=>model[_c.key]);
-        if(flxParams) showDialogForm0Flx(parent, dlg, op, model, flxOp, flxParams);
-    }
+    // if(model && flxOp) {//已有数据 先请求columns
+    //     let flxParams = packFlxParams(flxOp, _c=>model[_c.key]);
+    //     if(flxParams) {
+    //         showDialogForm0Flx(parent, dlg, op, model, flxOp, flxParams);
+    //         return;
+    //     }
+    // }
     showDialogForm0(parent, dlg, op, model, flxOp);
 }
 
