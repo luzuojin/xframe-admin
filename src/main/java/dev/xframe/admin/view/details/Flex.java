@@ -9,16 +9,42 @@ import dev.xframe.admin.view.Detail;
 
 //结构变化的结果
 public class Flex {
-	public static final String HEADER_KEY = "flex-name";
-	//Http.header("flex-name")
-	public final String flexName;
-	public final List<Column> columns;
-	private Flex(List<Column> columns, String flexName) {
-		this.columns = columns;
-		this.flexName = flexName;
+    //可以用来识别变化之后的结构类
+    //Http.header("flex-name")
+    public static final String HEADER_KEY = "flex-name";
+    
+    public final Struct struct;
+    public final Object data;
+	
+	public Flex(Struct struct, Object data) {
+	    this.struct = struct;
+	    this.data = data;
+    }
+    public static Flex data(Object data) {
+        return new Flex(null, data);
 	}
+    public static Flex struct(Class<?> model) {
+        return new Flex(makeStruct(model), null);
+    }
+	public static Flex structAndData(Object data) {
+	    return structAndData(data.getClass(), data);
+	}
+	public static Flex structAndData(Class<?> model, Object data) {
+	    return new Flex(makeStruct(model), data);
+	}
+
 	private static final Map<Class<?>, List<Column>> caches = new HashMap<>();
-	public static Flex of(Class<?> model) {
-		return new Flex(caches.computeIfAbsent(model, Detail::parseModelColumns), model.getName());
+    private static Struct makeStruct(Class<?> model) {
+        return new Struct(caches.computeIfAbsent(model, Detail::parseModelColumns), model.getName());
+    }
+    public static class Struct {
+	    //Http.header("flex-name")
+	    public final String flexName;
+	    public final List<Column> columns;
+	    Struct(List<Column> columns, String flexName) {
+	        this.columns = columns;
+	        this.flexName = flexName;
+	    }
 	}
+	
 }

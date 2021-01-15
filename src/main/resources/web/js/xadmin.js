@@ -134,7 +134,6 @@ function doPost0(path, op, data, func, _headers={}) {
 }
 function doResp(func) {
     return function(resp) {
-        console.log(":sss\n" + func);
         if(resp.status == -1) {
             if(resp.data) {
                 xtoast.error(resp.data);
@@ -201,6 +200,7 @@ function xselect2(e, xinput) {
                 width: 'auto',
                 data: d,
                 multiple: m,
+                minimumInputLength: (d.length > 100 ? 2 : 0),
                 minimumResultsForSearch: 10
             });
     e.val('').trigger('change');//设置默认不选择

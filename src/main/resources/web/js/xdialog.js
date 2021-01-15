@@ -6,7 +6,7 @@ let dlgColumn= `
             </div>
             `;
 let dlgText= `<input id="dinput_{0}_{1}" class="form-control" placeholder="{2}" type="{3}">`;
-let dlgArea= `<textarea id="dinput_{0}_{1}" class="form-control" placeholder="{2}" rows="3"/>`;
+let dlgArea= `<textarea id="dinput_{0}_{1}" class="form-control" placeholder="{2}" rows="8"/>`;
 let dlgEnum= `<select id="dinput_{0}_{1}" class="form-control select2" data-placeholder="{2}" style="width:100%"></select>`;
 let dlgBool= `
             <div class="form-control custom-control custom-switch custom-switch-on-primary">
@@ -258,14 +258,16 @@ function showDialogForm(parent, dlg, op, model, flxOp) {
 
 function showDialogForm0Flx(parent, dlg, op, model, flxOp, flxParams) {
     doGet('{0}?{1}'.format(dlg.segpath.urljoin(flxOp.path), ($.param(flxParams))), function(resp){
-        if(resp) {//显示结构发生变化
-            dlg.columns = resp.columns;
-            dlg.flexName = resp.flexName;
-            dlg.flex(resp);//flx pass
-            showDialogForm0(parent, dlg, op, model, flxOp);  
-        } else {
-            showDialogForm0(parent, dlg, op, model, flxOp);
+        let _data = model;
+        if(resp) {
+            if(resp.struct) {//有结构变化
+                dlg.flex(resp.struct);//flx pass
+                if(resp.data) _data = resp.data;
+            } else if(resp.data) {//只有数据变化时合并原有数据和新数据
+                _data = Object.assign(_data, resp.data);
+            }
         }
+        showDialogForm0(parent, dlg, op, _data, flxOp);
     });
 }
 

@@ -281,6 +281,8 @@ function detailToDlg(detail, flxPass=false) {
             return (_op.inputs && _op.inputs.length > 0) ? _op.inputs : detail.columns;
         },
         flex: function(flx) {//有flxOp时 调用
+            this.columns = flx.columns;
+            this.flexName = flx.flexName;
             if(flxPass) {
                 Object.assign(detail.columns, flx.columns, {length:flx.columns.length});
                 detail.flexName = flx.flexName;
