@@ -8,9 +8,9 @@ public class Chapter extends Navi implements Comparable<Chapter> {
 	
 	private int order;
 	
-	private Padding padding = Padding.NIL;
+	private Navigable navigable = Navigable.NIL;
 	private List<Segment> segments = new ArrayList<>();
-	private List<Navi> padded;
+	private List<Navi> navis;
 	
 	public Chapter(XChapter xc) {
 		this(xc.name(), xc.path(), xc.order());
@@ -21,9 +21,9 @@ public class Chapter extends Navi implements Comparable<Chapter> {
 		this.order = order;
 	}
 	
-	public Chapter(XChapter xc, Padding flexable) {
+	public Chapter(XChapter xc, Navigable navigable) {
 		this(xc);
-		this.padding = flexable;
+		this.navigable = navigable;
 	}
 
 	public List<Segment> getSegments() {
@@ -34,18 +34,18 @@ public class Chapter extends Navi implements Comparable<Chapter> {
 		this.segments = segments;
 	}
 
-	public List<Navi> getPadded() {
-		return padded;
+	public List<Navi> getNavis() {
+		return navis;
 	}
 
-	public void setPadded(List<Navi> padded) {
-		this.padded = padded;
+	public void setNavis(List<Navi> navis) {
+		this.navis = navis;
 	}
 
 	public Chapter copyBy(String path, Predicate<String> predicate) {
         Chapter c = new Chapter(name, path, order);
-        if(padding != Padding.NIL) {
-        	c.padded = padding.get();
+        if(navigable != Navigable.NIL) {
+        	c.navis = navigable.get();
         }
         for (Segment seg : segments) {
             if(predicate.test(path + "/" + seg.getPath())) {
@@ -60,8 +60,8 @@ public class Chapter extends Navi implements Comparable<Chapter> {
 		return Integer.compare(o.order, this.order);
 	}
 
-	public void fix(Padding padding) {
-		this.padding = padding;
+	public void fix(Navigable navigable) {
+		this.navigable = navigable;
 	}
 
 }

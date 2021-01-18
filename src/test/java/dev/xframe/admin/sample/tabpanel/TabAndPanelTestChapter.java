@@ -5,7 +5,7 @@ import java.util.List;
 
 import dev.xframe.admin.system.BasicContext;
 import dev.xframe.admin.view.Navi;
-import dev.xframe.admin.view.Padding;
+import dev.xframe.admin.view.Navigable;
 import dev.xframe.admin.view.VEnum;
 import dev.xframe.admin.view.XChapter;
 import dev.xframe.inject.Bean;
@@ -14,7 +14,7 @@ import dev.xframe.inject.Loadable;
 
 @Bean
 @XChapter(name="面板测试",path="panel")
-public class TabAndPanelTestChapter implements Padding, Loadable {
+public class TabAndPanelTestChapter implements Navigable, Loadable {
 	
 	@Inject
 	private BasicContext basicCtx;

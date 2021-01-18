@@ -190,7 +190,7 @@ function xdatepicker(e, _format=xformatDatetime) {
     });
 }
 
-function xselect2(e, xinput) {
+function xselect2(e, xinput, cacheEnable=false) {
     let k = xinput.enumKey;
     let d = xenum(k);
     let m = xinput.type==xTypes._mult;
@@ -205,7 +205,7 @@ function xselect2(e, xinput) {
             });
     e.val('').trigger('change');//设置默认不选择
     //多选 无记忆
-    if(m) return;
+    if(!cacheEnable || m) return;
     //设置cache值
     if(eCaches[k]) s.val(eCaches[k]).trigger('change');
     //设值完成之后添加值变化监听
@@ -265,8 +265,8 @@ function showSiderbar(data) {
     }
     for(let chapter of data.chapters){
         $('#xsiderbar').append(chapterhtm(chapter));
-        if(chapter.padded) {//有tab页
-            for(let pseg of chapter.padded) {
+        if(chapter.navis) {//有tab页
+            for(let pseg of chapter.navis) {
                 pseg.cpath = chapter.path
                 let _segments = [];
                 for(let tsegIdx in chapter.segments) {

@@ -82,7 +82,7 @@ var xtd = {
     addQryInput: function(parent, xinput) {
         if(xinput.type == xTypes._enum) {
             parent.append(this.qryEnum.format(xinput.key, xinput.hint));
-            xselect2(this.qryInputDom(xinput.key), xinput);
+            xselect2(this.qryInputDom(xinput.key), xinput, true);//查询框/enum记忆
         } else {
             parent.append(this.qryText.format(xinput.key, xinput.hint));
             if(xinput.type==xTypes._datetime) xdatepicker(this.qryInputDom(xinput.key));

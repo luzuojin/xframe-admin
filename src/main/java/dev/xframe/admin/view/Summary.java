@@ -61,7 +61,7 @@ public class Summary {
                 XChapter chapter = clazz.getAnnotation(XChapter.class);
                 Chapter value = new Chapter(chapter);
 				chapters.put(chapter.path(), value);
-				parsePadding(clazz, value);
+				parseNavigable(clazz, value);
             }
         }
         
@@ -80,9 +80,9 @@ public class Summary {
         this.setChapters(chapters.values().stream().sorted().collect(Collectors.toList()));
 	}
 
-	void parsePadding(Class<?> clazz, Chapter chapter) {
-		if(Padding.class.isAssignableFrom(clazz)) {
-			chapter.fix((Padding) BeanHelper.inject(clazz));
+	void parseNavigable(Class<?> clazz, Chapter chapter) {
+		if(Navigable.class.isAssignableFrom(clazz)) {
+			chapter.fix((Navigable) BeanHelper.inject(clazz));
 		}
 	}
 

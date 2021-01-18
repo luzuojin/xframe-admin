@@ -7,14 +7,14 @@ import java.util.List;
  * 自动填充的Chapter
  * 多层结构
  * -Chapter
- * 	 -PaddedSegment
+ * 	 -NavSegment
  *     -Segment(view as Tab)
  * @author luzj
  */
 @FunctionalInterface
-public interface Padding {
+public interface Navigable {
 	
-	Padding NIL = Collections::emptyList;
+	Navigable NIL = Collections::emptyList;
 
 	List<Navi> get();
 
