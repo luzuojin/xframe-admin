@@ -51,6 +51,10 @@ public class UserPrivileges implements Predicate<String> {
         return lastActiveTime;
     }
 
+	public void setLastActiveTime(long lastActiveTime) {
+		this.lastActiveTime = lastActiveTime;
+	}
+
 	@Override
 	public boolean test(String path) {
 		return readContains(path);

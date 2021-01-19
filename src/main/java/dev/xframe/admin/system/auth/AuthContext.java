@@ -37,7 +37,7 @@ public class AuthContext implements Loadable {
     public void clearExpiryUser() {
         tokenMap.keySet().forEach(key->{
             UserPrivileges p = tokenMap.get(key);
-            if(System.currentTimeMillis() - p.getLastActiveTime() > 360_0_000) {//10hours
+            if(System.currentTimeMillis() - p.getLastActiveTime() > 3600_000) {//1hours
                 tokenMap.remove(key);
             }
         });
@@ -115,6 +115,7 @@ public class AuthContext implements Loadable {
             } else {
                 if(p.wholeContains(path)) return true;
             }
+            p.setLastActiveTime(System.currentTimeMillis());
         }
         return false;
 	}
