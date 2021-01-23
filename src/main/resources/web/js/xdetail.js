@@ -63,7 +63,7 @@ var getValFromModel = function(model, column) {
 
 //table detail
 var xtd = {
-    tabletd: `<td id='xtd_{0}_{1}'>{2}</td>`,
+    tabletd: `<td id='xtd_{0}_{1}' class='align-middle'>{2}</td>`,
     tabletr: `<tr id='xtr_{0}'/>`,
 
     delBtn: `<button id="delbtn_{0}_{1}" type="button" class="btn btn-sm btn-outline-danger">{2}</button>`,
