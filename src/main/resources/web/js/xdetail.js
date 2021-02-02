@@ -19,6 +19,17 @@ function showDetail(detail) {
 function opIdent(detail, op) {
     return op.path ? detail.path + '_' + op.path : detail.path;
 }
+function doFlexByResp(detail, resp) {
+    if(resp.struct) {
+        doFlex(detail, resp.struct);
+        return resp.data;
+    }
+    return resp;
+}
+function doFlex(detail, flx) {
+    Object.assign(detail.columns, flx.columns, {length:flx.columns.length});
+    detail.flexName = flx.flexName;
+}
 
 
 var xmodel = {
@@ -97,7 +108,7 @@ var xtd = {
             for(let input of op.inputs) {
                 params[input.key] = that.qryInputDom(input.key).val();
             }
-            doGet('{0}?{1}'.format(detail.segpath, ($.param(params))), function(data){that.showDetailBody(detail, data);});
+            doGet('{0}?{1}'.format(detail.segpath, ($.param(params))), function(data){that.showDetailInternal(detail, doFlexByResp(detail, data));});
         };
     },
     _ops: false,
@@ -283,10 +294,7 @@ function detailToDlg(detail, flxPass=false) {
         flex: function(flx) {//有flxOp时 调用
             this.columns = flx.columns;
             this.flexName = flx.flexName;
-            if(flxPass) {
-                Object.assign(detail.columns, flx.columns, {length:flx.columns.length});
-                detail.flexName = flx.flexName;
-            }
+            if(flxPass) doFlex(detail, flx);
         }
     }
 }

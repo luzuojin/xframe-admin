@@ -41,7 +41,7 @@ public class Flex {
 	    //Http.header("flex-name")
 	    public final String flexName;
 	    public final List<Column> columns;
-	    Struct(List<Column> columns, String flexName) {
+	    public Struct(List<Column> columns, String flexName) {
 	        this.columns = columns;
 	        this.flexName = flexName;
 	    }
