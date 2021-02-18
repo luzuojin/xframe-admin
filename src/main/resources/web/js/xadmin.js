@@ -133,7 +133,8 @@ function doPost0(path, op, data, func, _headers={}) {
     });
 }
 function doResp(func) {
-    return function(resp) {
+    return function(resp, textStatus, xhr) {
+        clrEnumCaches(xhr);
         if(resp.status == -1) {
             if(resp.data) {
                 xtoast.error(resp.data);
@@ -147,6 +148,16 @@ function doResp(func) {
             func(resp.data);
         }
         xlatestOp = undefined;
+    }
+}
+function clrEnumCaches(xhr) {
+    if(xhr) {
+        let clrEnumKeys = xhr.getResponseHeader("ClrEnumKeys");
+        if(clrEnumKeys) {
+            for(let clrEnumKey of clrEnumKeys.split(",")) {
+                delete xenumCache[clrEnumKey]
+            }
+        }
     }
 }
 

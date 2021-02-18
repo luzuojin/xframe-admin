@@ -3,8 +3,10 @@ package dev.xframe.admin.system.user;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dev.xframe.admin.system.ClrEnumKeys;
 import dev.xframe.admin.system.SystemContext;
 import dev.xframe.admin.system.SystemRepo;
+import dev.xframe.admin.system.XEnumKeys;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
@@ -35,6 +37,7 @@ public class UserService {
 	    validateUser(user);
 		user.newCTime();
 		sysRepo.addUser(user);//sync
+		ClrEnumKeys.add(XEnumKeys.USER_LIST);
 		return clearPass(user);
 	}
 
