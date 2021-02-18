@@ -64,7 +64,7 @@ setFuncTo(dlgHtmlFuncs, [xTypes._bool],
 setFuncTo(dlgMakeFuncs, [xTypes._bool],
     function(_d, c, v){
         _d.change(function(){_d.val(this.checked);});
-        if(v) _d.attr('checked', v);
+        if(v) _d.attr('checked', v).trigger('change');
     });
 
 //area
