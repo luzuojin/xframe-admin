@@ -5,10 +5,8 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-
 import dev.xframe.admin.system.auth.AuthContext;
+import dev.xframe.admin.utils.JsonHelper;
 import dev.xframe.admin.view.VResp;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;
@@ -23,17 +21,12 @@ import dev.xframe.inject.Inject;
 @Configurator
 public class RestConfigurator extends ServiceConfigSetter {
 	
+    static final Logger logger = LoggerFactory.getLogger(RestConfigurator.class);
+    
     @Inject
     private AuthContext authCtx;
     @Inject
     private HttpInterceptor httpInterceptor;
-    
-	static final Logger logger = LoggerFactory.getLogger(RestConfigurator.class);
-	
-	final SerializerFeature[] features = new SerializerFeature[] {
-			SerializerFeature.WriteDateUseDateFormat,
-			SerializerFeature.SkipTransientField,
-			SerializerFeature.DisableCircularReferenceDetect };
 	
 	@Override
     public void setErrorHandler(Consumer<ErrorHandler> setter) {
@@ -44,7 +37,7 @@ public class RestConfigurator extends ServiceConfigSetter {
         if(!(ex instanceof LogicException)) {
             logger.error("Rest service throws:", ex);
         }
-    	return Response.of(JSON.toJSONString(VResp.fail(ex.getMessage()), features));
+    	return Response.of(JsonHelper.toJSONString(VResp.fail(ex.getMessage())));
     }
     
     @Override
@@ -53,7 +46,7 @@ public class RestConfigurator extends ServiceConfigSetter {
     }
     
     private Object createObject(Class<?> type, byte[] data) {
-        return JSON.parseObject(data, type);
+        return JsonHelper.parseObject(data, type);
     }
 
     @Override
@@ -62,9 +55,9 @@ public class RestConfigurator extends ServiceConfigSetter {
             if (obj instanceof Response)
             	return (Response) obj;
             if (obj instanceof VResp)
-            	return Response.of(JSON.toJSONString(obj, features));
+            	return Response.of(JsonHelper.toJSONString(obj));
             
-            return Response.of(JSON.toJSONString(VResp.succ(obj), features));
+            return Response.of(JsonHelper.toJSONString(VResp.succ(obj)));
         });
     }
 

@@ -1,7 +1,6 @@
 package dev.xframe.admin.sample.tabpanel;
 
-import com.alibaba.fastjson.JSON;
-
+import dev.xframe.admin.utils.JsonHelper;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.admin.view.details.Flex;
@@ -29,7 +28,7 @@ public class TabPanelTestService {
 	
 	@HttpMethods.PUT
 	public PanelTest put(@HttpArgs.Header(Flex.HEADER_KEY) String flexName, @HttpArgs.Body String json) throws Exception {
-		PanelTest pt = (PanelTest) JSON.parseObject(json, Class.forName(flexName));
+		PanelTest pt = (PanelTest) JsonHelper.parseObject(json, Class.forName(flexName));
 		System.out.println(pt);
 		return pt;
 	}
