@@ -13,7 +13,6 @@ import dev.xframe.jdbc.JdbcTemplate;
 import dev.xframe.jdbc.datasource.DBSource;
 import dev.xframe.jdbc.datasource.DataSources;
 import dev.xframe.jdbc.tools.SQLScript;
-import dev.xframe.utils.XProperties;
 import dev.xframe.utils.XStrings;
 
 @Configurator
@@ -42,8 +41,8 @@ public class StoreConfigurator implements Loadable {
         String dbpath = dbPath(key);
         String driver = "org.h2.Driver";
         String dburl = String.format("jdbc:h2:%s;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;AUTO_SERVER=TRUE;", dbpath);
-        String user = XProperties.get("db.user", "embed");
-        String pass = XProperties.get("db.password", "embed");
+        String user = StoreProps.getDbUser();
+        String pass = StoreProps.getDbPass();
         return new DBSource(user, pass, driver, dburl, 2, 4);
     }
 
