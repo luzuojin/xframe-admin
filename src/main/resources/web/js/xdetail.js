@@ -108,18 +108,14 @@ var xtd = {
             for(let input of op.inputs) {
                 params[input.key] = that.qryInputDom(input.key).val();
             }
-            doGet('{0}?{1}'.format(detail.segpath, ($.param(params))), function(data){that.showDetailInternal(detail, doFlexByResp(detail, data));});
+            doGet('{0}?{1}'.format(detail.segpath, ($.param(params))), function(data){that.showDetailBody(detail, doFlexByResp(detail, data));});
         };
     },
     _ops: false,
     showDetailInternal: function(detail, data=undefined) {
-        if(!data) data = [];
-        xmodel.set(detail, data);
-
         $('#xboxhead').empty();
         $('#xboxbody').empty();
 
-        _ops = false;
         let _tr = 0;
         //box head
         for(let op of detail.options) {
@@ -136,8 +132,8 @@ var xtd = {
                 $('#xboxhead').append(this.addBtn.format(ident, _tr, op.name));
                 xclick(this.addBtnDom(ident, _tr), showDialogFunc(detail, op, this.queryInputsToModelFunc(), this.showDetailBodyFunc()));
             }
-            if(op.type == opTypes.edt) _ops = true;
-            if(op.type == opTypes.del) _ops = true;
+            if(op.type == opTypes.edt) this._ops = true;
+            if(op.type == opTypes.del) this._ops = true;
         }
         
 
@@ -149,12 +145,13 @@ var xtd = {
                     `;
         $('#xboxbody').append($(tablehtm));
 
-        //table head
-        this.showTableHead($('#xthead'), detail.columns, _tr, _ops);
-        //table body
-        this.showDetailBody(detail, xmodel.datas);
+        //detail body
+        this.showDetailBody(detail, data);
     },
-    showTableHead: function(parent, columns, _tr, __ops=false) {
+    showTableHead: function(parent, columns, __ops=false) {
+        parent.empty();
+
+        let _tr = 0;
         let _tabletr = $(this.tabletr.format(_tr));
         parent.append(_tabletr);
         for(let column of columns){
@@ -170,7 +167,9 @@ var xtd = {
         return this.showDetailBody.bind(this);
     },
     showDetailBody: function(detail, data) {
-        this.showTableBody($('#xtbody'), detail.columns, data, _ops, detail)
+        xmodel.set(detail, data ? data : []);
+        this.showTableHead($('#xthead'), detail.columns, this._ops);
+        this.showTableBody($('#xtbody'), detail.columns, xmodel.datas, this._ops, detail)
     },
     showTableBody:function(parent, columns, data, _ops, detail) {
         parent.empty();
