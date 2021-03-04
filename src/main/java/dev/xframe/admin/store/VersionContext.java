@@ -15,6 +15,7 @@ import dev.xframe.jdbc.JdbcEnviron;
 import dev.xframe.jdbc.JdbcTemplate;
 import dev.xframe.jdbc.TypeQuery;
 import dev.xframe.jdbc.tools.SQLScript;
+import dev.xframe.utils.XLogger;
 import dev.xframe.utils.XStrings;
 
 @Configurator
@@ -41,6 +42,10 @@ public class VersionContext implements Loadable  {
 		return queries.get(key).fetchAll();
 	}
 	
+	void addVersion(StoreKey key, Version version) {
+	    queries.get(key).insert(version);
+	}
+	
 	void runScript(StoreKey key, String script) {
 		jdbcs.get(key).execute(script);
 	}
@@ -51,9 +56,12 @@ public class VersionContext implements Loadable  {
 	    if(v == -1) {
 	    	throw new IllegalArgumentException("History versions error");
 	    }
-	    
+	    XLogger.info("Current version: {}", Version.toStr(v));
 	    if(version.getVersion() > v) {
-	    	readScripts(version.getSqlPath()).forEach(script->runScript(key, script));
+	    	readScripts(version.getSqlPath())
+	    	    .forEach(script->runScript(key, script));
+	    	addVersion(key, version);
+	    	XLogger.info("Updated version: {}", Version.toStr(version.getVersion()));
 	    }
 	}
 
