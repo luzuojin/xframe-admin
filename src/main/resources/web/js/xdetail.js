@@ -185,16 +185,20 @@ var xtd = {
                 if(xcolumn.list(column)) {
                     if(column.type == xTypes._model || column.type == xTypes._list) {
                         let _tabletd = $(this.tabletd.format(_tr, (++_td), ''));
-                        let _ntable = $(`<table class="table table-bordered table-hover table-sm text-sm mb-0 "></table>`);
-                        let _nthead = $(`<thead></thead>`);
-                        let _ntbody = $(`<tbody></tbody>`);
-
+                        let _ntable = $(`<table class="table table-bordered table-hover table-sm text-sm mb-0"></table>`.format(_tr, _td));
+                        let _nthead = column.collapse 
+                            ? $(`<thead data-toggle="collapse" data-target="#xst_{0}_{1}" aria-controls="xst_{0}_{1}" aria-expanded="true"></thead>`.format(_tr, _td))
+                            : $(`<thead></thead>`);
+                        let _ntbody = column.collapse
+                            ? $(`<tbody id="xst_{0}_{1}" class="collapse"></tbody>`.format(_tr, _td))
+                            : $(`<tbody></tbody>`);
+                        
                         _tabletr.append(_tabletd);
                         _tabletd.append(_ntable);
                         _ntable.append(_nthead);
                         _ntable.append(_ntbody);
                         
-                        this.showTableHead(_nthead, column.columns, _tr);
+                        this.showTableHead(_nthead, column.columns);
                         let val = getValFromModel(model, column);
                         this.showTableBody(_ntbody, column.columns, column.type==xTypes._model?[val]:val)
                     } else {

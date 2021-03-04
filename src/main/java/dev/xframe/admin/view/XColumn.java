@@ -19,6 +19,8 @@ public @interface XColumn {
 	
 	boolean primary() default false;//用来修改/删除时匹配前端cache用
 	
+	boolean collapse() default false;//type_list时 是否折叠
+	
 	//Column类型
 	public static final int type_text = 0;	//文本
 	public static final int type_bool = 1;	//check radio

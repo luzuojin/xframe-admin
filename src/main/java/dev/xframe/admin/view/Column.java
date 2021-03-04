@@ -11,9 +11,10 @@ public class Column {
 	
 	private int show;
 	private boolean primary;
+	private boolean collapse;
 	
 	public Column(String key) {
-		this(key, key, XColumn.type_text, "", XColumn.full, false);
+		this(key, key, XColumn.type_text, "", XColumn.full, false, false);
 	}
 	public Column(String key, XColumn xc, Class<?> jType) {
 		this(key, xc, byJavaType(xc.type(), jType));
@@ -25,15 +26,16 @@ public class Column {
 		return xtype;
 	}
 	public Column(String key, XColumn xc, int xcType) {
-		this(key, XStrings.orElse(xc.value(), key), xcType, xc.enumKey(), xc.show(), xc.primary());
+		this(key, XStrings.orElse(xc.value(), key), xcType, xc.enumKey(), xc.show(), xc.primary(), xc.collapse());
 	}
-	public Column(String key, String hint, int type, String enumKey, int show, boolean primary) {
+	public Column(String key, String hint, int type, String enumKey, int show, boolean primary, boolean collapse) {
 		this.key = key;
 		this.hint = hint;
 		this.type = type;
 		this.enumKey = enumKey;
 		this.show = show;
 		this.primary = primary;
+		this.collapse = collapse;
 		
 		if(!XStrings.isEmpty(enumKey) && this.type == 0)
 			this.type = XColumn.type_enum;
@@ -85,6 +87,12 @@ public class Column {
 
     public void setPrimary(boolean primary) {
         this.primary = primary;
+    }
+    public boolean getCollapse() {
+        return collapse;
+    }
+    public void setCollapse(boolean collapse) {
+        this.collapse = collapse;
     }
 
 }
