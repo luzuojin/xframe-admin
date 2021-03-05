@@ -308,7 +308,7 @@ function showDialogFunc(detail, op, model, refreshDetail) {//model or supplier f
         showDialog(detailToDlg(detail), op, _model, function(data){
             if(op.type == opTypes.qry || Array.isArray(data)) {
                 xmodel.set(detail, data);
-            }else{
+            }else if(data){
                 if(op.type == opTypes.add) xmodel.add(data);
                 if(op.type == opTypes.edt) xmodel.edt(data);
                 if(op.type == opTypes.del) xmodel.del(data);

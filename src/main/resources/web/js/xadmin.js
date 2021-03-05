@@ -141,6 +141,9 @@ function doResp(func) {
             } else {
                 xtoast.error('{0} 失败'.format(xlatestOp.name));
             }
+        } else if(resp.status == -2) { //提示
+            xtoast.info(resp.data)
+            func(undefined);
         } else if(xlatestOp && xlatestOp.name) {
             xtoast.succ('{0} 成功'.format(xlatestOp.name));
             func(resp.data);
@@ -174,7 +177,8 @@ var xtoast = {
         });
     },
     succ : function(msg) {this.show('success', msg)},
-    error: function(msg) {this.show('error', msg)}
+    error: function(msg) {this.show('error', msg)},
+    info : function(msg) {this.show('info', msg)}
 }
 
 function xclick(btn, func) {

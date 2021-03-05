@@ -18,6 +18,10 @@ public class VResp {
 		return new VResp(-1, data);
 	}
 	
+	public static VResp hint(String text) {
+	    return new VResp(-2, text);
+	}
+	
 	public int getStatus() {
 		return status;
 	}
