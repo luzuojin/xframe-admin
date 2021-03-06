@@ -91,11 +91,14 @@ function xenumText(key, id) {
         return simpleText(id);
     }
 }
-function xvalue(value) {
-    return value == undefined ? '' : value;
+function xOrElse(val, oth) {
+    return val==undefined ? oth : val;
 }
-function xvalueByKey(value, key) {
-    return value ? xvalue(value[key]) : '';
+function xvalue(val) {
+    return xOrElse(val, '');
+}
+function xvalueByKey(val, key) {
+    return val ? xvalue(val[key]) : '';
 }
 
 function showSummary() {
@@ -136,14 +139,10 @@ function doResp(func) {
     return function(resp, textStatus, xhr) {
         clrEnumCaches(xhr);
         if(resp.status == -1) {
-            if(resp.data) {
-                xtoast.error(resp.data);
-            } else {
-                xtoast.error('{0} 失败'.format(xlatestOp.name));
-            }
+            xtoast.error(xOrElse(resp.text, '{0} 失败'.format(xlatestOp.name)));
         } else if(resp.status == -2) { //提示
-            xtoast.info(resp.data)
-            func(undefined);
+            xtoast.info(resp.text)
+            func(resp.data);
         } else if(xlatestOp && xlatestOp.name) {
             xtoast.succ('{0} 成功'.format(xlatestOp.name));
             func(resp.data);
