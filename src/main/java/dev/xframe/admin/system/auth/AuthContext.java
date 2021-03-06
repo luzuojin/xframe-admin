@@ -10,12 +10,14 @@ import dev.xframe.inject.Inject;
 import dev.xframe.inject.Loadable;
 import dev.xframe.task.Task;
 import dev.xframe.task.TaskContext;
+import dev.xframe.utils.XStrings;
 import io.netty.handler.codec.http.HttpMethod;
 
 @Configurator
 public class AuthContext implements Loadable {
     
-    private static final String TOKEN_KEY = "x-token";
+    private static final String TOKEN_KEY   = "x-token";
+    private static final String REAL_IP_KEY = "X-Real-IP";
 
 	@Inject
     private TaskContext taskCtx;
@@ -89,11 +91,14 @@ public class AuthContext implements Loadable {
         if(unblockedMatch(req.method(), path)) {
             return false;
         }
+        if(isLocalHost(req)) {
+            return false;
+        }
         return !hasPrivilege(req.method(), path);
     }
     
     public boolean isLocalHost(Request req) {
-        String remoteHost = req.remoteHost();
+        String remoteHost = getRemoteHost(req);
         if(remoteHost.startsWith("127.0.0.") ||
            remoteHost.startsWith("10.") ||
            remoteHost.startsWith("172.16.") ||
@@ -102,7 +107,10 @@ public class AuthContext implements Loadable {
         }
         return false;
     }
-
+    private String getRemoteHost(Request req) {//优先X-Real-IP (nginx?)
+        return XStrings.orElse(req.getHeader(REAL_IP_KEY), req.remoteHost());
+    }
+    
 	public boolean hasPrivilege(HttpMethod method, String path) {
 		String username = OpUser.get();
         if(username == null) {
