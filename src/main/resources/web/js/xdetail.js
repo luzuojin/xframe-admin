@@ -75,6 +75,7 @@ var getValFromModel = function(model, column) {
 //table detail
 var xtd = {
     tabletd: `<td id='xtd_{0}_{1}' class='align-middle'>{2}</td>`,
+    tbopstd: `<td id='xtd_{0}_{1}' class='align-middle text-right'>{2}</td>`,
     tabletr: `<tr id='xtr_{0}'/>`,
 
     delBtn: `<button id="delbtn_{0}_{1}" type="button" class="btn btn-sm btn-outline-danger">{2}</button>`,
@@ -160,7 +161,7 @@ var xtd = {
             }
         }
         if(__ops) {//options td head
-            _tabletr.append($(this.tabletd.format(_tr, 0, "Options")));    
+            _tabletr.append($(this.tbopstd.format(_tr, 0, "Options")));    
         }
     },
     showDetailBodyFunc:function() {
@@ -208,7 +209,7 @@ var xtd = {
             }
             //options td
             if(_ops) {
-                let _tabletd = $(this.tabletd.format(_tr, (++_td), ''));
+                let _tabletd = $(this.tbopstd.format(_tr, (++_td), ''));
                 _tabletr.append(_tabletd);
                 for(let op of detail.options) {
                     let ident = opIdent(detail, op);
