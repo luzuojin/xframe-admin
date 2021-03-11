@@ -10,8 +10,10 @@ public enum StoreKey implements DBIdent {
 
     //classpath:resources
     public final String script;
+    public final String vTable;
     private StoreKey(String script) {
         this.script = script;
+        this.vTable = String.format("T_VERSION_%S", this.name());
     }
 
 }

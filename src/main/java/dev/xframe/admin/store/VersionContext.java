@@ -31,9 +31,8 @@ public class VersionContext implements Loadable  {
 	@Override
 	public void load() {
 		Arrays.stream(StoreKey.values()).forEach(key->{
-			queries.put(key,
-					TypeQuery.newBuilder(Version.class).setTable(key, "T_VERSION").build());
-			
+            queries.put(key, TypeQuery.newBuilder(Version.class).setTable(key, key.vTable).build());
+            
 			jdbcs.put(key, JdbcEnviron.getJdbcTemplate(key));
 		});
 	}
@@ -49,7 +48,6 @@ public class VersionContext implements Loadable  {
 	void runScript(StoreKey key, String script) {
 		jdbcs.get(key).execute(script);
 	}
-	
 	
 	public void update(StoreKey key, Version version) {
 	    int v = fetch(key).stream().mapToInt(Version::getVersion).max().orElse(-1);
