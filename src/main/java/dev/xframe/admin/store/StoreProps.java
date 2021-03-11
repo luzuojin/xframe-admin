@@ -10,6 +10,6 @@ public class StoreProps {
         return XProperties.get("db.user", "embed");
     }
     public static String getDbPass() {
-        return XProperties.get("db.password", "embed");
+        return XProperties.get("db.pass", "embed");
     }
 }
