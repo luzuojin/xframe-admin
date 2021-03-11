@@ -62,7 +62,14 @@ public class Option implements Comparable<Option> {
 	}
 	@Override
 	public int compareTo(Option o) {
-		return Integer.compare(type, o.type);
+	    if(type == o.type) {
+	        if(type == XOption.type_add) {//add在前端展示时为从右至左
+	            return o.path.compareTo(this.path);
+	        } else {
+	            return this.path.compareTo(o.path);
+	        }
+	    }
+	    return Integer.compare(type, o.type);
 	}
 	
 }
