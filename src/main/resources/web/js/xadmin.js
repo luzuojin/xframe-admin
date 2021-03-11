@@ -257,11 +257,6 @@ let segmenthtm= function(seg){
 }
 let segmentdom= function(seg){return $('#seg_{0}_{1}'.format(seg.cpath, seg.path));}
 
-let tabctxhtm= `
-            <div class="card-header p-0 border-bottom-0">
-            <ul id="xtabContainer" class="nav nav-tabs" role="tablist"></ul>
-            </div>
-            `;
 let tabelehtm= function(seg){
     return `
         <li class="nav-item">
@@ -271,41 +266,54 @@ let tabelehtm= function(seg){
 let tabeledom= function(seg) {return $('#segtab_{0}_{1}'.format(seg.cpath, seg.path));}
 
 function showSiderbar(data) {
-    let fixSegDetail = function(seg, cpath, segpath) {
-        seg.cpath = cpath;
+    let copySegment = function(navi, _detail, _index) {
+        return Object.assign({}, navi, {detail: Object.assign({}, _detail)}, {index: _index});
+    }
+    let psetSegment = function(seg, chapter, navi={}) {
+        seg.cpath = chapter.path;
         seg.detail.path = seg.path;
         seg.detail.segname = seg.name;
-        seg.detail.segpath = segpath;
-    }
+        seg.detail.segpath = chapter.path.urljoin(xvalue(navi.path)).urljoin(seg.path);
+    };
+    let showSegment = function(seg, chapter) {
+        chapterdom(chapter).append(segmenthtm(seg))
+        xclick(segmentdom(seg), showDetailFunc(seg));
+    };
     for(let chapter of data.chapters){
         $('#xsiderbar').append(chapterhtm(chapter));
-        if(chapter.navis) {//有tab页
-            for(let pseg of chapter.navis) {
-                pseg.cpath = chapter.path
-                let _segments = [];
-                for(let tsegIdx in chapter.segments) {
-                    let tseg = chapter.segments[tsegIdx];
-                    let nseg = Object.assign({}, tseg, {detail: Object.assign({},tseg.detail)});//copy seg
-                    fixSegDetail(nseg, chapter.path, chapter.path.urljoin(pseg.path).urljoin(tseg.path))
-                    nseg.index = tsegIdx;
-                    _segments.push(nseg);
+        if(chapter.navis) {
+            //仅有一个segment且path={x}, 不展示tab, 合并navis~segments
+            if(chapter.segments.length == 1 && chapter.segments[0].path.startsWith("{")) {
+                let wseg = chapter.segments[0];//wildcard segment
+                for(let pseg of chapter.navis) {
+                    let seg = copySegment(pseg, wseg.detail)
+                    psetSegment(seg, chapter);
+                    showSegment(seg, chapter);
                 }
-                chapterdom(chapter).append(segmenthtm(pseg))
-                xclick(segmentdom(pseg), showDetailFunc(pseg, _segments));
+            } else {//展示tab
+                for(let pseg of chapter.navis) {
+                    pseg.cpath = chapter.path
+                    pseg.tabs = [];
+                    for(let tsegIdx in chapter.segments) {
+                        let tseg = chapter.segments[tsegIdx];
+                        let nseg = copySegment(tseg, tseg.detail, tsegIdx);//copy seg
+                        psetSegment(nseg, chapter, pseg);
+                        pseg.tabs.push(nseg);
+                    }
+                    showSegment(pseg, chapter)
+                }
             }
         } else {
             for(let seg of chapter.segments){//二级菜单
-                fixSegDetail(seg, chapter.path, chapter.path.urljoin(seg.path));
-                chapterdom(chapter).append(segmenthtm(seg));
-                xclick(segmentdom(seg), showDetailFunc(seg));
+                psetSegment(seg, chapter);
+                showSegment(seg, chapter)
             }
         }
     }
 }
 
 var xlatestSeg;
-var xlatestTab={};
-function showDetailFunc(seg, segTabs=undefined) {
+function showDetailFunc(seg) {
     return function() {
         if(xlatestSeg)
             segmentdom(xlatestSeg).removeClass('active'); 
@@ -321,20 +329,24 @@ function showDetailFunc(seg, segTabs=undefined) {
                 </div>
                 <div id="xboxbody" class="card-body">
                 </div>`;
-        
-        if(segTabs) {
+        if(seg.tabs) {
+            let tabctxhtm= `
+                    <div class="card-header p-0 border-bottom-0">
+                    <ul id="xtabContainer" class="nav nav-tabs" role="tablist"></ul>
+                    </div>
+                    `;
             $('#xcontent').append($(tabctxhtm));
             $('#xcontent').append($(detailBodyHtm));
-            for(let segTab of segTabs) {
+            for(let segTab of seg.tabs) {
                 $('#xtabContainer').append(tabelehtm(segTab));
                 xclick(tabeledom(segTab), showDetailFuncByTab(segTab));
             }
             //show first tab
             let showIndex = 0;
-            if(seg.cpath in xlatestTab) {
-                showIndex = xlatestTab[seg.cpath];
+            if(xlatestSeg.tab) {
+                showIndex = xlatestSeg.tab.index;
             }
-            showDetailFuncByTab(segTabs[showIndex])();
+            showDetailFuncByTab(seg.tabs[showIndex])();
         } else {
             $('#xcontent').append($(detailBodyHtm));
             showDetail(seg.detail);
@@ -349,7 +361,6 @@ function showDetailFuncByTab(segTab) {
             tabeledom(xlatestSeg.tab).attr('aria-selected', false);
         }
         xlatestSeg.tab = segTab;
-        xlatestTab[segTab.cpath] = segTab.index;
         tabeledom(segTab).addClass('active');
         tabeledom(segTab).attr('aria-selected', true);
         showDetail(segTab.detail);

@@ -4,7 +4,7 @@ function getOption(detail, opType) {
     }
 }
 function showDetail(detail) {
-    let dtypes = [undefined, xtd, xpd]//xtd:1, xpd:2
+    let dtypes = [null, xtd, xpd, xmkd]//xtd:1, xpd:2, xmkd:3
     let det = dtypes[detail.type];
     let ini = getOption(detail, opTypes.ini);
     if(ini) {//loading ini data
@@ -74,7 +74,9 @@ var getValFromModel = function(model, column) {
 
 //table detail
 var xtd = {
+    tableth: `<td id='xtd_{0}_{1}' class='align-middle'>{2}</td>`,
     tabletd: `<td id='xtd_{0}_{1}' class='align-middle'>{2}</td>`,
+    tbopsth: `<td id='xtd_{0}_{1}' class='align-middle text-right'>{2}</td>`,
     tbopstd: `<td id='xtd_{0}_{1}' class='align-middle text-right'>{2}</td>`,
     tabletr: `<tr id='xtr_{0}'/>`,
 
@@ -112,7 +114,6 @@ var xtd = {
             doGet('{0}?{1}'.format(detail.segpath, ($.param(params))), function(data){that.showDetailBody(detail, doFlexByResp(detail, data));});
         };
     },
-    _ops: false,
     showDetailInternal: function(detail, data=undefined) {
         $('#xboxhead').empty();
         $('#xboxbody').empty();
@@ -133,8 +134,8 @@ var xtd = {
                 $('#xboxhead').append(this.addBtn.format(ident, _tr, op.name));
                 xclick(this.addBtnDom(ident, _tr), showDialogFunc(detail, op, this.queryInputsToModelFunc(), this.showDetailBodyFunc()));
             }
-            if(op.type == opTypes.edt) this._ops = true;
-            if(op.type == opTypes.del) this._ops = true;
+            if(op.type == opTypes.edt) detail._ops = true;
+            if(op.type == opTypes.del) detail._ops = true;
         }
         
 
@@ -157,11 +158,11 @@ var xtd = {
         parent.append(_tabletr);
         for(let column of columns){
             if(xcolumn.list(column)) {
-                _tabletr.append($(this.tabletd.format(_tr, 0, column.hint)));
+                _tabletr.append($(this.tableth.format(_tr, 0, column.hint)));
             }
         }
         if(__ops) {//options td head
-            _tabletr.append($(this.tbopstd.format(_tr, 0, "Options")));    
+            _tabletr.append($(this.tbopsth.format(_tr, 0, "Options")));    
         }
     },
     showDetailBodyFunc:function() {
@@ -169,8 +170,8 @@ var xtd = {
     },
     showDetailBody: function(detail, data) {
         xmodel.set(detail, data ? data : []);
-        this.showTableHead($('#xthead'), detail.columns, this._ops);
-        this.showTableBody($('#xtbody'), detail.columns, xmodel.datas, this._ops, detail)
+        this.showTableHead($('#xthead'), detail.columns, detail._ops);
+        this.showTableBody($('#xtbody'), detail.columns, xmodel.datas, detail._ops, detail)
     },
     showTableBody:function(parent, columns, data, _ops, detail) {
         parent.empty();
@@ -284,6 +285,39 @@ var xpd = {//重用dialog相关element
     },
     submitPanel: function(detail, dlg, op, func) {
         doPost(dlg.segpath.urljoin(op.path), op, getDialogFormObj(dlg), func, {'flex-name': detail.flexName});
+    }
+};
+
+
+var xmkd = {
+    showDetailInternal(detail, data) {
+        let renderer = {
+            code(code, infostr, enscaped) {
+                let lang = hljs.getLanguage(infostr) ? infostr : 'plaintext';
+                let text = hljs.highlight(lang, code).value;
+                return `<pre class="pre" style="white-space:pre-wrap;word-break:normal;background-color:#f6f8fa;border-radius:4px;">${text}</pre>`;
+            },
+            table(header, body) {
+                return `<div class="table-responsive">
+                        <table class="table table-striped table-bordered table-responsive">
+                            <thead class="thead-light">${header}</thead>
+                            <tbody>${body}</tbody>
+                        </table>
+                        </div>`;
+            },
+            tablerow(content) {
+                return `<tr>${content}</tr>`;
+            },
+            tablecell(content, flags) {
+                if(flags.header) {
+                    return `<th>${content}</th>`
+                }
+                return `<td>${content}</td>`;
+            }
+        };
+        marked.use({renderer});
+        let text = marked(data);
+        $('#xcontent').html('<div class="card-body">{0}</div>'.format(text));  
     }
 };
 

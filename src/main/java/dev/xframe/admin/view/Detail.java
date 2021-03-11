@@ -19,6 +19,7 @@ public interface Detail {
     
 	int type_table = 1;//表格类详情页
 	int type_panel = 2;//单对象详情页
+	int type_markd = 3;//Markdown展示页,只需要ini
 	
     public Detail parseFrom(XSegment xseg, Class<?> declaring);
     
