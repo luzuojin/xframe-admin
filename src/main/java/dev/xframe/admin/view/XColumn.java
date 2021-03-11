@@ -21,6 +21,8 @@ public @interface XColumn {
 	
 	boolean collapse() default false;//type_list时 是否折叠
 	
+	boolean required() default false;//客户端提交表单时验证是否有值
+	
 	//Column类型
 	public static final int type_text = 0;	//文本
 	public static final int type_bool = 1;	//check radio

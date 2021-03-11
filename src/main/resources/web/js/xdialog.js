@@ -232,6 +232,11 @@ function dialogInputVal(model, key) {
 function getDialogFormObj(dlg) {
     var obj = {};
     for(let column of dlg.columns) {
+        let val = dlgInputVal(dlg.ident, column);
+        if(column.required && !val) {
+            xtoast.error('{0} is empty'.format(column.key))
+            return undefined;
+        }
         obj[column.key] = dlgInputVal(dlg.ident, column)
     }
     return obj;

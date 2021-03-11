@@ -7,13 +7,13 @@ import dev.xframe.admin.view.XColumn;
 
 public class User {
 
-	@XColumn(value="用户名", show=XColumn.xor_edit, primary=true)
+	@XColumn(value="用户名", show=XColumn.xor_edit, primary=true, required=true)
 	private String name;
 	@XColumn("手机")
 	private String phone;
 	@XColumn("邮箱")
 	private String email;
-	@XColumn(value="密码", show=XColumn.add, type=XColumn.type_pass)
+	@XColumn(value="密码", show=XColumn.add, type=XColumn.type_pass, required=true)
 	private String passw;
 	@XColumn(value="角色", enumKey=XEnumKeys.ROLE_LIST, type=XColumn.type_mult)
 	private int[] roles;

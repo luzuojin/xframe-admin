@@ -125,6 +125,7 @@ function doPost(path, op, data, func, _headers={}) {
     doPost0(path, op, data, doResp(func), _headers);   
 }
 function doPost0(path, op, data, func, _headers={}) {
+    if(!data)return;
     xlatestOp = op;
     $.ajax({
         type: httpTypes[op.type],
