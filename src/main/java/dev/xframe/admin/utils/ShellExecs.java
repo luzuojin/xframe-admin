@@ -21,17 +21,26 @@ import dev.xframe.utils.XStrings;
  */
 public class ShellExecs {
     
+    public static class Output {
+        public final int status;
+        public final String content;
+        public Output(int status, String content) {
+            this.status = status;
+            this.content = content;
+        }
+    }
+    
     public static class Local {
-        public static String exec(String cmd) {
+        public static Output exec(String cmd) {
             Process process = null;
             try {
                 process = Runtime.getRuntime().exec(cmd);
                 int status = process.waitFor();
-                return status == 0 ? 
+                return new Output(status, status == 0 ? 
                         readFrom(process.getInputStream()): 
-                        readFrom(process.getErrorStream());
+                        readFrom(process.getErrorStream()));
             } catch (IOException | InterruptedException e) {
-                return XStrings.getStackTrace(e);
+                return new Output(-1, XStrings.getStackTrace(e));
             } finally {
                 if(process != null) process.destroy();
             }
@@ -39,10 +48,10 @@ public class ShellExecs {
     }
     
     public static class Remote {
-        public static String exec(String host, String privateKey, String cmd) {
+        public static Output exec(String host, String privateKey, String cmd) {
             return SSH2.exec(host, null, privateKey, cmd);
         }
-        public static String exec(String host, String username, String password, String cmd) {
+        public static Output exec(String host, String username, String password, String cmd) {
             return SSH2.exec(host, username, password, cmd);
         }
     }
@@ -103,7 +112,7 @@ public class ShellExecs {
     }
     static class SSH2 {
         static JSch jsch = new JSch();
-        static String exec(final String host, final String username, final String password, final String command) {
+        static Output exec(final String host, final String username, final String password, final String command) {
             Session session = null;
             Channel channel = null;
             try {
@@ -127,10 +136,10 @@ public class ShellExecs {
                 
                 channel.connect();
                 
-                return readFrom(in);
+                return new Output(channel.getExitStatus(), readFrom(in));
             } catch (Throwable t) {
                 XLogger.error("SSH2.exec()", t);
-                return t.getMessage();
+                return new Output(-1, t.getMessage());
             } finally {
                 if(channel != null) channel.disconnect();
                 if(session != null) session.disconnect();
