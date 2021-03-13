@@ -34,11 +34,19 @@ let dlgInputVal= function(idkey, column){
     return func ? func(idkey, column) : dlgInputDom(idkey, column.key).val();
 };
 
-let addDlgInput= function(parent, xcolumn, idkey, value) {
-    let _htm = getFuncFrom(dlgHtmlFuncs, xcolumn.type)(idkey, xcolumn);
-    parent.append(dlgColumn.format(idkey, xcolumn.key, xcolumn.hint, _htm));
-    let _dom = dlgInputDom(idkey, xcolumn.key);
-    getFuncFrom(dlgMakeFuncs, xcolumn.type)(_dom, xcolumn, value);
+let tryAddDlgInput= function(parent, op, column, idkey, value) {
+    if(op.type == opTypes.add && !xcolumn.add(column)) return;
+    if(op.type >= opTypes.edt && !xcolumn.edel(column)) return;
+    addDlgInput(parent, op, column, idkey, value);
+    if (op.type == opTypes.del || (op.type == opTypes.edt && !xcolumn.edit(column))) {
+        dlgInputDom(idkey, column.key).attr("disabled", true);
+    }
+}
+let addDlgInput= function(parent, op, column, idkey, value) {
+    let _htm = getFuncFrom(dlgHtmlFuncs, column.type)(idkey, column);
+    parent.append(dlgColumn.format(idkey, column.key, column.hint, _htm));
+    let _dom = dlgInputDom(idkey, column.key);
+    getFuncFrom(dlgMakeFuncs, column.type)(_dom, op, column, value);
 }
 
 let dlgHtmlFuncs = {};
@@ -47,11 +55,11 @@ let dlgDataFuncs = {};
 
 //enum
 setFuncTo(dlgHtmlFuncs, [xTypes._enum, xTypes._mult],
-    function(id, c){//idkey, xcolumn
+    function(id, c){//idkey, column
         return dlgEnum.format(id, c.key, c.hint);
     });
 setFuncTo(dlgMakeFuncs, [xTypes._enum, xTypes._mult],
-    function(_d, c, v){//_domcument, xcolumn, value
+    function(_d, op, c, v){//_domcument, column, value
         xselect2(_d, c);
         if(v && v != 0) _d.val(v).trigger('change')
     });
@@ -62,7 +70,7 @@ setFuncTo(dlgHtmlFuncs, [xTypes._bool],
         return dlgBool.format(id, c.key);
     });
 setFuncTo(dlgMakeFuncs, [xTypes._bool],
-    function(_d, c, v){
+    function(_d, op, c, v){
         _d.change(function(){_d.val(this.checked);});
         if(v) _d.attr('checked', v).trigger('change');
     });
@@ -73,7 +81,7 @@ setFuncTo(dlgHtmlFuncs, [xTypes._area],
         return dlgArea.format(id, c.key, c.hint);
     });
 setFuncTo(dlgMakeFuncs, [xTypes._area],
-    function(_d, c, v){
+    function(_d, op, c, v){
         if(v) _d.val(v).trigger('change');
     });
 
@@ -83,7 +91,7 @@ setFuncTo(dlgHtmlFuncs, [xTypes._text, xTypes._pass, xTypes._datetime, xTypes._d
         return dlgText.format(id, c.key, c.hint, (c.type==xTypes._pass)?'password':'text')
     });
 setFuncTo(dlgMakeFuncs, [xTypes._text, xTypes._pass, xTypes._datetime, xTypes._date, xTypes._time],
-    function(_d, c, v){
+    function(_d, op, c, v){
         if(v) _d.val(v).trigger('change');
         if(c.type==xTypes._datetime) xdatepicker(_d);//time pick
         if(c.type==xTypes._date) xdatepicker(_d, xformatDate);//time pick
@@ -101,7 +109,7 @@ setFuncTo(dlgHtmlFuncs, [xTypes._file, xTypes._imag],
         return dlgFile.format(id, c.key, c.hint)
     });
 setFuncTo(dlgMakeFuncs, [xTypes._file, xTypes._imag],
-    function(_d, c, v){
+    function(_d, op, c, v){
         let _id = _d.attr('id');
         let _fv = function(_v) {
             fileLabelDom(_id).html(_v);
@@ -140,11 +148,11 @@ setFuncTo(dlgHtmlFuncs, [xTypes._model],
         return nestedHtml.format(id, c.key);
     });
 setFuncTo(dlgMakeFuncs, [xTypes._model],
-    function(_d, c, v) {
+    function(_d, op, c, v) {
         _d.empty();
         let nid = _d.attr('id');
         for(let col of c.columns) {
-            addDlgInput(_d, col, nid, xvalueByKey(v, col.key));
+            tryAddDlgInput(_d, op, col, nid, xvalueByKey(v, col.key));
         }
     });
 setFuncTo(dlgDataFuncs, [xTypes._model],
@@ -165,14 +173,14 @@ setFuncTo(dlgHtmlFuncs, [xTypes._list],
     });
 let _idxCache={};
 setFuncTo(dlgMakeFuncs, [xTypes._list],
-    function(_d, c, v) {
+    function(_d, op, c, v) {
         //make empty list element
         let makeElement = function(nid, _id, aplFunc, _v) {
             let _eid = '{0}_{1}'.format(nid, _id);
             let _e = $(`<div id="{0}" class="border-left border-bottom position-relative form-group text-sm">`.format(_eid));
             aplFunc(_e);
             for(let col of c.columns) {
-                addDlgInput(_e, col, _eid, xvalueByKey(_v, col.key));
+                tryAddDlgInput(_e, op, col, _eid, xvalueByKey(_v, col.key));
             }
             //minus btn
             let minusBtn = $(`<button type="button" class="position-absolute close" style="right:.5rem;bottom:.25rem;"><i class="fas fa-minus-circle fa-xs"></i></button>`);
@@ -223,10 +231,6 @@ dialog = {
 */
 function dialogTitle(dlg, op) {
     return '{0}&nbsp;/&nbsp;{1}'.format(dlg.segname, op.name)
-}
-
-function dialogInputVal(model, key) {
-    return model ? model[key] : undefined;
 }
 
 function getDialogFormObj(dlg) {
@@ -292,13 +296,7 @@ function showDialogForm0(parent, dlg, op, model, flxOp) {
     };
     parent.empty();
     for(let column of dlg.columns){
-        if(op.type == opTypes.add && !xcolumn.add(column)) continue;
-        if(op.type >= opTypes.edt && !xcolumn.edel(column)) continue;
-        let val = dialogInputVal(model, column.key);
-        addDlgInput(parent, column, dlg.ident, val);
-        if (op.type == opTypes.del || (model && !xcolumn.edit(column))) {
-            dlgInputDom(dlg.ident, column.key).attr("disabled", true);
-        }
+        tryAddDlgInput(parent, op, column, dlg.ident, xvalueByKey(model, column.key));
         if(inFlxCols(column)) xchange(dlgInputDom(dlg.ident, column.key), flxChange);
     }
 }
