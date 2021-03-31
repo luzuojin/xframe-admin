@@ -140,7 +140,7 @@ function doResp(func) {
     return function(resp, textStatus, xhr) {
         clrEnumCaches(xhr);
         if(resp.status == -1) {
-            xtoast.error(xOrElse(resp.text, '{0} 失败'.format(xlatestOp.name)));
+            xtoast.error(resp.text?resp.text:'{0} 失败'.format(xlatestOp.name));
         } else if(resp.status == -2) { //提示
             xtoast.info(resp.text)
             func(resp.data);
