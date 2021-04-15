@@ -3,13 +3,13 @@ package dev.xframe.admin.system.auth;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import dev.xframe.http.Request;
 import dev.xframe.inject.Configurator;
 import dev.xframe.inject.Inject;
 import dev.xframe.inject.Loadable;
-import dev.xframe.task.Task;
-import dev.xframe.task.TaskContext;
+import dev.xframe.task.ScheduledContext;
 import dev.xframe.utils.XStrings;
 import io.netty.handler.codec.http.HttpMethod;
 
@@ -19,8 +19,8 @@ public class AuthContext implements Loadable {
     private static final String TOKEN_KEY   = "x-token";
     private static final String REAL_IP_KEY = "X-Real-IP";
 
-	@Inject
-    private TaskContext taskCtx;
+    @Inject
+    private ScheduledContext scheduledCtx;
     
     private Map<String, UserPrivileges> tokenMap = new ConcurrentHashMap<>();
     
@@ -30,8 +30,7 @@ public class AuthContext implements Loadable {
     
     @Override
     public void load() {
-        taskCtx.setup(1);
-        taskCtx.regist(Task.period("token-expiry", 10, this::clearExpiryUser));
+        scheduledCtx.period(this::clearExpiryUser, 10, TimeUnit.MINUTES);
         
         addUnblockedPath(Unblocked.of("basic/profile", HttpMethod.POST));
     }
