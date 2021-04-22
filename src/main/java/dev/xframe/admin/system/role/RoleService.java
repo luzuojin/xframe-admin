@@ -48,7 +48,7 @@ public class RoleService {
 		Role ex = sysCtx.getRoles().stream().filter(r->r.getId()==role.getId()).findAny().orElse(null);
 		if(ex != null) {
 			ex.setAuthorities(role.getAuthorities());
-			ex.setReadOnly(role.getReadOnly());
+			ex.setOptions(role.getOptions());
 			sysRepo.saveRole(ex);
 			return ex;
 		}

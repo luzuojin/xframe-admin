@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS `T_ROLE` (
   `Id` int(11) NOT NULL PRIMARY KEY,
   `Name` varchar(64) NOT NULL,
   `Authorities` varchar(1024) NOT NULL,
-  `ReadOnly` tinyint(1) NOT NULL
+  `Options` varchar(32) NOT NULL
 ) DEFAULT CHARSET=utf8;
 
-INSERT INTO `T_ROLE` VALUES (1001, 'Admin', '_', 0);
+INSERT INTO `T_ROLE` VALUES (1001, 'Admin', '_', '7');
 
 
 CREATE TABLE IF NOT EXISTS `T_USER` (

@@ -5,15 +5,16 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import dev.xframe.admin.system.SystemContext;
 import dev.xframe.http.Request;
-import dev.xframe.inject.Configurator;
+import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;
 import dev.xframe.inject.Loadable;
 import dev.xframe.task.ScheduledContext;
 import dev.xframe.utils.XStrings;
 import io.netty.handler.codec.http.HttpMethod;
 
-@Configurator
+@Bean
 public class AuthContext implements Loadable {
     
     private static final String TOKEN_KEY   = "x-token";
@@ -21,6 +22,9 @@ public class AuthContext implements Loadable {
 
     @Inject
     private ScheduledContext scheduledCtx;
+    
+    @Inject
+    private SystemContext sysCtx;
     
     private Map<String, UserPrivileges> tokenMap = new ConcurrentHashMap<>();
     
@@ -75,7 +79,8 @@ public class AuthContext implements Loadable {
 
 	private String getXToken(Request req) {
 		String token = req.getHeader(TOKEN_KEY);
-		if(token == null) token = req.getParam(TOKEN_KEY);
+		if(token == null)
+		    token = req.getParam(TOKEN_KEY);
 		return token;
 	}
     
@@ -90,18 +95,22 @@ public class AuthContext implements Loadable {
         if(unblockedMatch(req.method(), path)) {
             return false;
         }
-        if(isLocalHost(req)) {
+        if(!isPrivilegePath(path) && isLocalHost(req)) {
             return false;
         }
         return !hasPrivilege(req.method(), path);
     }
     
+    private boolean isPrivilegePath(String path) {
+        return sysCtx.getPrivileges().stream().filter(p->p.getPath().equals(path)).findAny().isPresent();
+    }
+
     public boolean isLocalHost(Request req) {
         String remoteHost = getRemoteHost(req);
         if(remoteHost.startsWith("127.0.0.") ||
-           remoteHost.startsWith("10.") ||
-           remoteHost.startsWith("172.16.") ||
-           remoteHost.startsWith("192.168.")) {//本地
+            remoteHost.startsWith("10.") ||
+            remoteHost.startsWith("172.16.") ||
+            remoteHost.startsWith("192.168.")) {//本地
             return true;
         }
         return false;
@@ -117,12 +126,15 @@ public class AuthContext implements Loadable {
         }
         UserPrivileges p = userMap.get(username);
         if(p != null) {
-            if(method.equals(HttpMethod.GET)) {
-                if(p.readContains(path)) return true;
-            } else {
-                if(p.wholeContains(path)) return true;
-            }
             p.setLastActiveTime(System.currentTimeMillis());
+            if(HttpMethod.GET.equals(method))
+                return p.readable(path);
+            if(HttpMethod.DELETE.equals(method))
+                return p.deletable(path);
+            if(HttpMethod.PUT.equals(method))
+                return p.editable(path);
+            if(HttpMethod.POST.equals(method))
+                return p.creatable(path);
         }
         return false;
 	}

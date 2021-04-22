@@ -4,11 +4,11 @@ import dev.xframe.admin.conf.LogicException;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;
 import dev.xframe.http.service.config.HttpInterceptor;
-import dev.xframe.inject.Configurator;
+import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;
 import dev.xframe.inject.Ordered;
 
-@Configurator
+@Bean
 @Ordered(Integer.MAX_VALUE)//保证AuthInterceptor第一个执行
 public class AuthInterceptor implements HttpInterceptor {
     

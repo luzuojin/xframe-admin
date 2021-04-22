@@ -15,10 +15,10 @@ import dev.xframe.http.service.config.ErrorHandler;
 import dev.xframe.http.service.config.HttpInterceptor;
 import dev.xframe.http.service.config.RespEncoder;
 import dev.xframe.http.service.config.ServiceConfigSetter;
-import dev.xframe.inject.Configurator;
+import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;
 
-@Configurator
+@Bean
 public class RestConfigurator extends ServiceConfigSetter {
 	
     static final Logger logger = LoggerFactory.getLogger(RestConfigurator.class);

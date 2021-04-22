@@ -4,15 +4,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import dev.xframe.admin.system.privilege.Privilege;
-
 public class UserPrivileges implements Predicate<String> {
     
     private String username;
     
-    private Set<Privilege> wholePrivileges = new HashSet<>();
-    
-    private Set<Privilege> readPrivileges = new HashSet<>();
+    private Set<RolePrivileges> rolePrivileges = new HashSet<>();
     
     private long lastActiveTime;
     
@@ -25,26 +21,24 @@ public class UserPrivileges implements Predicate<String> {
         return username;
     }
 
-    public UserPrivileges add(Privilege privilege, boolean readOnly) {
-        if(privilege != null) {
-            readPrivileges.add(privilege);
-            if(!readOnly) {
-                wholePrivileges.add(privilege);
-            }
+    public UserPrivileges add(RolePrivileges rolePrivilege) {
+        if(rolePrivilege != null) {
+            rolePrivileges.add(rolePrivilege);
         }
         return this;
     }
     
-    public boolean readContains(String path) {
-        return readPrivileges.stream().filter(p->match(p, path)).findAny().isPresent();
+    public boolean readable(String path) {
+        return rolePrivileges.stream().filter(rp->rp.readable(path)).findAny().isPresent();
     }
-    
-    public boolean wholeContains(String path) {
-        return wholePrivileges.stream().filter(p->match(p, path)).findAny().isPresent();
+    public boolean creatable(String path) {
+        return rolePrivileges.stream().filter(rp->rp.creatable(path)).findAny().isPresent();
     }
-
-    private boolean match(Privilege p, String path) {
-        return p.getPath().equals(Privilege.WHOLE_PATH) || p.getPath().equals(path) || p.getPath().startsWith(path + "/") || path.startsWith(p.getPath() + "/");
+    public boolean editable(String path) {
+        return rolePrivileges.stream().filter(rp->rp.editable(path)).findAny().isPresent();
+    }
+    public boolean deletable(String path) {
+        return rolePrivileges.stream().filter(rp->rp.deletable(path)).findAny().isPresent();
     }
 
     public long getLastActiveTime() {
@@ -56,8 +50,8 @@ public class UserPrivileges implements Predicate<String> {
 	}
 
 	@Override
-	public boolean test(String path) {
-		return readContains(path);
+	public boolean test(String path) {//read
+		return readable(path);
 	}
 
 }

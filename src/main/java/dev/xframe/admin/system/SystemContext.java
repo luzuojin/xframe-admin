@@ -1,9 +1,11 @@
 package dev.xframe.admin.system;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dev.xframe.admin.system.auth.RolePrivileges;
 import dev.xframe.admin.system.auth.UserPrivileges;
 import dev.xframe.admin.system.privilege.Privilege;
 import dev.xframe.admin.system.role.Role;
@@ -25,6 +27,8 @@ public class SystemContext implements Loadable {
     private List<Role> roles;
     
     private List<Privilege> privileges = new ArrayList<>();
+    
+    private RolePrivileges basicRole;
     
     @Override
     public void load() {
@@ -49,6 +53,18 @@ public class SystemContext implements Loadable {
         basicCtx.registEnumValue(XEnumKeys.USER_LIST, ()->{
             return sysRepo.fetchUsers().stream().map(user->new VEnum(user.getName())).collect(Collectors.toList());
         });
+        
+        List<VEnum> roleOptions = Arrays.asList(
+                    new VEnum(String.valueOf(Role.op_all), "全"),
+                    new VEnum(String.valueOf(Role.op_add), "写"),
+                    new VEnum(String.valueOf(Role.op_edt), "改"),
+                    new VEnum(String.valueOf(Role.op_del), "删"),
+                    new VEnum(String.valueOf(Role.op_qry), "读"));
+        basicCtx.registEnumValue(XEnumKeys.ROLE_OPTIONS, ()-> roleOptions);
+        
+        basicRole = new RolePrivileges();
+        basicRole.setOptions(new int[] {Role.op_all});
+        basicRole.addPrivilege(new Privilege("Basic", "basic"));
     }
     
     void addPrivilege(Privilege p) {
@@ -67,13 +83,19 @@ public class SystemContext implements Loadable {
         UserPrivileges p = new UserPrivileges(user.getName());
         for (int role : user.getRoles()) {
             Role x = this.roles.stream().filter(r->r.getId() == role).findAny().orElse(null);
-            if(x != null) {
-                x.getAuthorities().forEach(a->p.add(getPrivilege(a), x.getReadOnly()));
-            }
+            if(x != null)
+                p.add(toRolePrivileges(x));
         }
+        p.add(basicRole);
         return p;
     }
-    
+    private RolePrivileges toRolePrivileges(Role x) {
+        RolePrivileges p = new RolePrivileges();
+        p.setOptions(x.getOptions());
+        x.getAuthorities().forEach(a->p.addPrivilege(getPrivilege(a)));
+        return p;
+    }
+
     public Role getRole(int role) {
         return roles.stream().filter(r->r.getId() == role).findAny().orElse(null);
     }
