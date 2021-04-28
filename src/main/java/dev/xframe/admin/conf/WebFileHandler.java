@@ -32,7 +32,7 @@ import dev.xframe.utils.XProperties;
 @Bean
 public class WebFileHandler implements Eventual, Service {
     
-    private static final String TitlePropKey  = "xframe.admin.titile";
+    private static final String TitlePropKey  = "xframe.admin.title";
     private static final String IconPropKey   = "xframe.admin.icon";
     private static final String IndexFileName = "index.html";
     private static final String DefaultTitle  = "XFrameAdmin";
@@ -74,7 +74,7 @@ public class WebFileHandler implements Eventual, Service {
                 this.root = xdir;
                 listRelativizeJarFiles(path, xdir).forEach(this::makeHandler);
                 this.func = this::makeRespFromClassPath;
-                this.index = new FileResponse.Binary(ContentType.HTML, readIndexHtml(WebFileHandler.class.getClassLoader().getResourceAsStream(IndexFileName)));
+                this.index = new FileResponse.Binary(ContentType.HTML, readIndexHtml(WebFileHandler.class.getClassLoader().getResourceAsStream(new File(root, IndexFileName).getPath())));
             } else {
                 this.root = new File(path, xdir).getPath();
                 XPaths.listRelativizeFiles(root).forEach(this::makeHandler);

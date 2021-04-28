@@ -3,6 +3,7 @@ package dev.xframe.admin.system.user;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dev.xframe.admin.conf.LogicException;
 import dev.xframe.admin.system.ClrEnumKeys;
 import dev.xframe.admin.system.SystemContext;
 import dev.xframe.admin.system.SystemRepo;
@@ -42,6 +43,9 @@ public class UserService {
 	}
 
 	private void validateUser(User user) {
+	    if(sysRepo.fetchUser(user.getName()) != null) {
+	        throw new LogicException("用户已经存在");
+	    }
     }
 	
 	private List<User> clearPass(List<User> users) {
@@ -71,20 +75,18 @@ public class UserService {
 
 	@HttpMethods.GET
 	public Object query(
-			@HttpArgs.Param @XColumn("姓名") String name,
-			@HttpArgs.Param @XColumn("手机") String phone,
-			@HttpArgs.Param @XColumn("邮箱") String email
+			@HttpArgs.Param @XColumn("姓名") String name
 			){
 	    List<User> datas = clearPass(sysRepo.fetchUsers());
 		if(!XStrings.isEmpty(name)) {
 			return datas.stream().filter(u->u.getName().contains(name)).collect(Collectors.toList());
 		}
-		if(!XStrings.isEmpty(phone)) {
-			return datas.stream().filter(u->u.getPhone().contains(phone)).collect(Collectors.toList());
-		}
-		if(!XStrings.isEmpty(email)) {
-			return datas.stream().filter(u->u.getEmail().contains(email)).collect(Collectors.toList());
-		}
+//		if(!XStrings.isEmpty(phone)) {
+//			return datas.stream().filter(u->u.getPhone().contains(phone)).collect(Collectors.toList());
+//		}
+//		if(!XStrings.isEmpty(email)) {
+//			return datas.stream().filter(u->u.getEmail().contains(email)).collect(Collectors.toList());
+//		}
 		return datas;
 	}
 	
