@@ -42,7 +42,7 @@ public class AuthContext implements Loadable {
     public void clearExpiryUser() {
         tokenMap.keySet().forEach(key->{
             UserPrivileges p = tokenMap.get(key);
-            if(System.currentTimeMillis() - p.getLastActiveTime() > 3600_000) {//1hours
+            if(System.currentTimeMillis() - p.getLastActiveTime() > TimeUnit.HOURS.toMillis(12)) {//1hours
                 tokenMap.remove(key);
             }
         });
@@ -56,10 +56,16 @@ public class AuthContext implements Loadable {
     }
 
     public String regist(UserPrivileges privileges) {
-        OpUser.set(privileges.getUsername());
+        String username = privileges.getUsername();
+        OpUser.set(username);
+        //del old token 
+        UserPrivileges ex = userMap.put(username, privileges);
+        if(ex != null && ex.getToken() != null && !OpUser.isLocalUser(username))//local user不顶号
+            tokenMap.remove(ex.getToken());
+        //add new token
         String token = UUID.randomUUID().toString();
+        privileges.setToken(token);
         tokenMap.put(token, privileges);
-        userMap.put(privileges.getUsername(), privileges);
         return token;
     }
     

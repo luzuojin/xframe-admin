@@ -12,9 +12,19 @@ public class UserPrivileges implements Predicate<String> {
     
     private long lastActiveTime;
     
+    private String token;
+    
     public UserPrivileges(String username) {
         this.username = username;
         this.lastActiveTime = System.currentTimeMillis();
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getUsername() {

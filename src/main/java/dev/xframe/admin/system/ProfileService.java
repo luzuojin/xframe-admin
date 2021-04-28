@@ -2,6 +2,7 @@ package dev.xframe.admin.system;
 
 import dev.xframe.admin.conf.LogicException;
 import dev.xframe.admin.system.auth.AuthContext;
+import dev.xframe.admin.system.auth.OpUser;
 import dev.xframe.admin.system.user.User;
 import dev.xframe.admin.view.VLogin;
 import dev.xframe.admin.view.VUser;
@@ -14,8 +15,6 @@ import dev.xframe.inject.Inject;
 @Rest("basic/profile")
 public class ProfileService {
     
-    static final String LocalUserName = "local";
-	
 	@Inject
 	private AuthContext authCtx;
 	@Inject
@@ -28,13 +27,14 @@ public class ProfileService {
         User user = sysRepo.fetchUser(data.getName());
         if(user == null) {
             throw new LogicException("用户不存在");
-        } else if(LocalUserName.equals(user.getName())) {//内网用户,只在内网ip访问时生效(admin权限),可删除该用户
+        } else if(OpUser.isLocalUser(user.getName())) {//内网用户,只在内网ip访问时生效(admin权限),可删除该用户
             if(!authCtx.isLocalHost(req)){
                 throw new LogicException("非内网访问");
             }
         } else if(!user.getPassw().equals(data.getPassw())) {
             throw new LogicException("密码错误");
         }
+        //处理token/权限
         return new VUser(user.getName(), authCtx.regist(sysCtx.getPrivileges(user)));
     }
 
