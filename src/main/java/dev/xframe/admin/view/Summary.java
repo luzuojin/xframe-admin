@@ -1,6 +1,7 @@
 package dev.xframe.admin.view;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,12 +73,12 @@ public class Summary {
                 Chapter chapter = chapters.get(pathes[0]);//第一个为chapter.path
                 //中间若有为flexable path, 动态列表栏
                 String segPath = pathes[pathes.length-1];//最后一个为segment.path
-				Segment segment = new Segment(xseg.name(), segPath, parseDetail(xseg, clazz));
+				Segment segment = new Segment(xseg.name(), segPath, xseg.order(), parseDetail(xseg, clazz));
                 chapter.getSegments().add(segment);
             }
         }
         
-        this.setChapters(chapters.values().stream().sorted().collect(Collectors.toList()));
+        this.setChapters(chapters.values().stream().peek(c->Collections.sort(c.getSegments())).sorted().collect(Collectors.toList()));
 	}
 
 	void parseNavigable(Class<?> clazz, Chapter chapter) {

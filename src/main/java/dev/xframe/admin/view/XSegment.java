@@ -22,5 +22,7 @@ public @interface XSegment {
 	boolean padding() default false;//Option.add时是否把qry表单中的字段用来填充
 	//for panel detail
 	String desc() default "";//description
+	//order[large---small]
+	int order() default 10;
 
 }

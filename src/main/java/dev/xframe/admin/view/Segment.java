@@ -4,11 +4,8 @@ public class Segment extends Navi {
 	
 	protected Detail detail;
 	
-	public Segment(String name, String path) {
-		super(name, path);
-	}
-	public Segment(String name, String path, Detail detail) {
-		this(name, path);
+	public Segment(String name, String path, int order, Detail detail) {
+		super(name, path, order);
 		this.detail = detail;
 	}
 	

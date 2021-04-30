@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class Chapter extends Navi implements Comparable<Chapter> {
-	
-	private int order;
+public class Chapter extends Navi {
 	
 	private Navigable navigable = Navigable.NIL;
 	private List<Segment> segments = new ArrayList<>();
@@ -17,8 +15,7 @@ public class Chapter extends Navi implements Comparable<Chapter> {
 	}
 	
 	public Chapter(String name, String path, int order) {
-		super(name, path);
-		this.order = order;
+		super(name, path, order);
 	}
 	
 	public Chapter(XChapter xc, Navigable navigable) {
@@ -54,11 +51,6 @@ public class Chapter extends Navi implements Comparable<Chapter> {
         }
         return c;
     }
-
-	@Override
-	public int compareTo(Chapter o) {
-		return Integer.compare(o.order, this.order);
-	}
 
 	public void fix(Navigable navigable) {
 		this.navigable = navigable;

@@ -12,6 +12,7 @@ public @interface XChapter {
 	String path();
 	String name();
 	
+	//order[large---small]
 	int order() default 10;
 
 }

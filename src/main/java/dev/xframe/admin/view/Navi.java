@@ -1,13 +1,18 @@
 package dev.xframe.admin.view;
 
-public class Navi {
+public class Navi implements Comparable<Navi> {
 
 	protected String name;
 	protected String path;
+	protected int order;
 	
 	public Navi(String name, String path) {
+	    this(name, path, 10);
+	}
+	public Navi(String name, String path, int order) {
 		this.name = name;
 		this.path = path;
+		this.order = order;
 	}
 	
 	public String getName() {
@@ -23,4 +28,9 @@ public class Navi {
 		this.path = path;
 	}
 
+	@Override
+	public int compareTo(Navi o) {
+	    return Integer.compare(o.order, this.order);
+	}
+	
 }
