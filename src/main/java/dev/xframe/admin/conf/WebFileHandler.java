@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -30,7 +30,7 @@ import dev.xframe.utils.XProperties;
 
 
 @Bean
-public class WebFileHandler implements Eventual, Service {
+public class WebFileHandler implements Eventual {
     
     private static final String TitlePropKey  = "xframe.admin.title";
     private static final String IconPropKey   = "xframe.admin.icon";
@@ -44,25 +44,20 @@ public class WebFileHandler implements Eventual, Service {
     private AuthContext authCtx;
     
     private Map<String, Response> caches = new HashMap<>();
-    
-    private Function<Request, Response> func;
-    
+
     private String root;
     
+    private boolean isDirectory;
     
-    private Response index;
-    
-    @Override
-    public Response exec(Request req) {
-        return func.apply(req);
-    }
-    
-    private boolean isIndexHtml(Request req) {
-        return IndexFileName.equals(req.xpath());
-    }
-
-    private Response indexResp() {
-        return index;
+    static class WebFileService implements Service {
+        final Supplier<Response> func;
+        WebFileService(Supplier<Response> func) {
+            this.func = func;
+        }
+        @Override
+        public Response exec(Request req) throws Exception {
+            return func.get();
+        }
     }
     
     @Override
@@ -71,21 +66,33 @@ public class WebFileHandler implements Eventual, Service {
             String path = XPaths.toPath(WebFileHandler.class.getProtectionDomain().getCodeSource().getLocation());
             String xdir = "web/";
             if(path.endsWith(".jar")) {
+                this.isDirectory = false;
                 this.root = xdir;
                 listRelativizeJarFiles(path, xdir).forEach(this::makeHandler);
-                this.func = this::makeRespFromClassPath;
-                this.index = new FileResponse.Binary(ContentType.HTML, readIndexHtml(WebFileHandler.class.getClassLoader().getResourceAsStream(new File(root, IndexFileName).getPath())));
             } else {
+                this.isDirectory = true;
                 this.root = new File(path, xdir).getPath();
                 XPaths.listRelativizeFiles(root).forEach(this::makeHandler);
-                this.func = this::makeRespFromDirectory;
-                this.index = new FileResponse.Binary(ContentType.HTML, readIndexHtml(new FileInputStream(new File(root, IndexFileName))));
             }
+            makeIndexHtmlHandler();
         } catch (Exception e) {
             XCaught.throwException(e);
         }
     }
 
+    private void makeIndexHtmlHandler() throws IOException {
+        if(XProperties.get(TitlePropKey) != null || XProperties.get(IconPropKey) != null) {
+            String filePath = new File(root, IndexFileName).getPath();
+            InputStream input = isDirectory ? new FileInputStream(filePath) : WebFileHandler.class.getClassLoader().getResourceAsStream(filePath);
+            byte[] indexBytes = readIndexHtml(input);
+            makeHandler1(IndexFileName, ()->new FileResponse.Binary(ContentType.HTML, indexBytes));
+            //icon file handler
+            String icon = XProperties.get(IconPropKey);
+            if(icon != null) {
+                makeHandler0(icon, icon, false);
+            }
+        }
+    }
     private byte[] readIndexHtml(InputStream input) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int b;
@@ -97,29 +104,26 @@ public class WebFileHandler implements Eventual, Service {
         content = content.replace(DefaultIcon, XProperties.get(IconPropKey, DefaultIcon));
         return content.getBytes();
     }
-
+    //relative path
     private void makeHandler(String p) {
-        String path = p.replace("\\", "/");//windows path to url
-        serviceCtx.registService(path, this);
-        authCtx.addUnblockedPath(path);
+        makeHandler0(p, new File(root, p).getPath(), isDirectory);
+    }
+    //absolute path
+    private void makeHandler0(String uriPath, String filePath, boolean isDirectory) {
+        makeHandler1(uriPath, isDirectory ? ()->makeRespFromDirectory(filePath) : ()->makeRespFromClassPath(filePath));
+    }
+    //file path to http uri path
+    private void makeHandler1(String uriPath, Supplier<Response> func) {
+        String uri = uriPath.replace("\\", "/");//windows path to url
+        serviceCtx.registService(uri, new WebFileService(func), (pp, s1, s2)->{});
+        authCtx.addUnblockedPath(uri);
     }
     
-    private Response makeRespFromDirectory(Request req) {
-        if(isIndexHtml(req)) {
-            return indexResp();
-        }
-        return new FileResponse.Sys(getReqFile(req));
+    private Response makeRespFromDirectory(String path) {
+        return new FileResponse.Sys(new File(path));
     }
 
-    private File getReqFile(Request req) {
-        return new File(root, req.path());
-    }
-    
-    private Response makeRespFromClassPath(Request req) {
-        if(isIndexHtml(req)) {
-            return indexResp();
-        }
-    	String path = getReqFile(req).getPath();
+    private Response makeRespFromClassPath(String path) {
     	Response resp = caches.get(path);
     	if(resp == null) {
     		synchronized (this) {
