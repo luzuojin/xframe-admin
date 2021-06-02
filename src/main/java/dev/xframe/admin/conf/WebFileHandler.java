@@ -110,13 +110,13 @@ public class WebFileHandler implements Eventual {
     }
     //absolute path
     private void makeHandler0(String uriPath, String filePath, boolean isDirectory) {
-        makeHandler1(uriPath, isDirectory ? ()->makeRespFromDirectory(filePath) : ()->makeRespFromClassPath(filePath));
+        final String uri = uriPath.replace("\\", "/");  //windows path to url
+        final String file = filePath.replace("\\", "/");//jar file used '/'
+        makeHandler1(uri, isDirectory ? ()->makeRespFromDirectory(file) : ()->makeRespFromClassPath(file));
     }
-    //file path to http uri path
     private void makeHandler1(String uriPath, Supplier<Response> func) {
-        String uri = uriPath.replace("\\", "/");//windows path to url
-        serviceCtx.registService(uri, new WebFileService(func), (pp, s1, s2)->{});
-        authCtx.addUnblockedPath(uri);
+        serviceCtx.registService(uriPath, new WebFileService(func), (pp, s1, s2)->{});
+        authCtx.addUnblockedPath(uriPath);
     }
     
     private Response makeRespFromDirectory(String path) {
