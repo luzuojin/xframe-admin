@@ -25,7 +25,7 @@ public class FileTransferHandler {
             Path target = Files.move(tmpFile.toPath(), Paths.get(StoreProps.getDir(), originName), StandardCopyOption.ATOMIC_MOVE);
             return target.toFile();
         } catch (IOException e) {
-            return XCaught.throwException(e);
+            throw XCaught.throwException(e);
         }
     }
 

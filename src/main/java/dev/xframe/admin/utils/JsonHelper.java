@@ -15,7 +15,7 @@ public class JsonHelper {
             Class<?> clazz = clzName != null ? Class.forName(clzName) : FastJsonBridge.class;
             bridge = XReflection.newInstance(clazz);
         } catch (ClassNotFoundException e) {
-            throw XCaught.wrapException(e);
+            throw XCaught.throwException(e);
         }
     }
     

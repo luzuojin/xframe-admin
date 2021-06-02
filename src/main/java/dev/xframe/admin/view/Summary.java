@@ -91,7 +91,7 @@ public class Summary {
 	    try {
             return xseg.detail().newInstance().parseFrom(xseg, declaring);
         } catch (Exception e) {
-            return XCaught.throwException(e);
+            throw XCaught.throwException(e);
         }
 	}
 	

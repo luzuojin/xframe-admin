@@ -54,7 +54,7 @@ public class BasicService {
             out.close();
             return file;
         } catch (IOException e) {
-            return XCaught.throwException(e);
+            throw XCaught.throwException(e);
         }
     }
 

@@ -24,7 +24,7 @@ public class XmlBuilder {
             emt = dom.createElement(tag);
             dom.appendChild(emt);
         } catch (Exception e) {
-            throw XCaught.wrapException(e);
+            throw XCaught.throwException(e);
         }
     }
     private XmlBuilder(Document doc, Element emt) {
@@ -65,7 +65,7 @@ public class XmlBuilder {
             tr.transform(new DOMSource(dom), new StreamResult(out));
             return out.toByteArray();
         } catch (Exception e) {
-            return XCaught.throwException(e);
+            throw XCaught.throwException(e);
         }
     }
 }

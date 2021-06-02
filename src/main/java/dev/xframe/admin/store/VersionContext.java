@@ -54,7 +54,7 @@ public class VersionContext implements Loadable  {
 	    if(v == -1) {
 	    	throw new IllegalArgumentException("History versions error");
 	    }
-	    XLogger.info("Current version: {}", Version.toStr(v));
+	    XLogger.info("Current {} version: {}", key, Version.toStr(v));
 	    if(version.getVersion() > v) {
 	    	readScripts(version.getSqlPath())
 	    	    .forEach(script->runScript(key, script));

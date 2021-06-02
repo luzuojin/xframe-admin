@@ -32,7 +32,7 @@ public class Markd extends Classic {
             while((b = in.read()) != -1) out.write(b);
             return out.toString("utf8");
         } catch (IOException e) {
-            return XCaught.throwException(e);
+            throw XCaught.throwException(e);
         }
     }
 }
