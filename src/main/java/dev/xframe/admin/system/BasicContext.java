@@ -45,7 +45,7 @@ public class BasicContext implements Loadable {
 		summary.setName("XFrameAdmin");
 		summary.setIcon("img/xframe.png");
 		
-		summary.parseFrom(Codes.getDeclaredClasses());
+		summary.parseFrom(Codes.getScannedClasses());
 	}
 	
 	public List<Chapter> getChapters() {
