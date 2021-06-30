@@ -65,7 +65,7 @@ function xenum(key) {
         let xenumData = $.parseJSON($.ajax({
             type: "GET",
             url: "{0}/{1}?key={2}".format(xurl, xpaths.xenum, key),
-            headers: {"x-token": xtoken()},
+            headers: {"X-Token": xtoken()},
             cache: false,
             async: false
         }).responseText).data;
@@ -113,7 +113,7 @@ function doGet0(path, func) {
     $.ajax({
         type: 'get',
         url: '{0}/{1}'.format(xurl, path),
-        headers: {"x-token": xtoken()},
+        headers: {"X-Token": xtoken()},
         dataType: 'json',
         success: func
     });
@@ -131,7 +131,7 @@ function doPost0(path, op, data, func, _headers={}) {
         type: httpTypes[op.type],
         url: '{0}/{1}'.format(xurl, path),
         data: JSON.stringify(data),
-        headers: Object.assign({"x-token": xtoken()}, _headers),
+        headers: Object.assign({"X-Token": xtoken()}, _headers),
         dataType: 'json',
         success: func
     });

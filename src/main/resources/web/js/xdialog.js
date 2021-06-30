@@ -114,7 +114,7 @@ setFuncTo(dlgMakeFuncs, [xTypes._file, xTypes._imag],
         let _fv = function(_v) {
             fileLabelDom(_id).html(_v);
             if(c.type == xTypes._imag)
-                filePreviewDom(_id).html(dlgImag.format('{0}/{1}?name={2}&x-token={3}'.format(xurl, xpaths.preview, _v, xtoken())));
+                filePreviewDom(_id).html(dlgImag.format('{0}/{1}?name={2}&X-Token={3}'.format(xurl, xpaths.preview, _v, xtoken())));
         }
         if(v) _fv(v);
 
@@ -126,7 +126,7 @@ setFuncTo(dlgMakeFuncs, [xTypes._file, xTypes._imag],
             $.ajax({
                 url: '{0}/{1}'.format(xurl, xpaths.upload),
                 type: 'post',
-                headers: {"x-token": xtoken()},
+                headers: {"X-Token": xtoken()},
                 data: fd,
                 dataType: 'json',
                 contentType: false,

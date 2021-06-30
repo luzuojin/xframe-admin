@@ -51,6 +51,12 @@ var xmodel = {
         return this.pkeys.length > 0;
     },
     add: function(data) {
+        for(idx in this.datas) {
+            if(this.eq(idx, data)) {
+                this.datas[idx] = data;
+                return
+            }
+        }//not exists
         this.datas.push(data);
     },
     del: function(data) {
