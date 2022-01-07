@@ -8,7 +8,9 @@ public class NestedObj {
 	private int nestId;
 	@XColumn("sname")
 	private String nestName;
-	
+	@XColumn("smail")
+	private String email;
+
 	public NestedObj() {
 	}
 	
@@ -33,4 +35,11 @@ public class NestedObj {
 		this.nestName = nestName;
 	}
 
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
 }

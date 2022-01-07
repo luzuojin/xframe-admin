@@ -20,6 +20,8 @@ public @interface XColumn {
 	boolean primary() default false;//用来修改/删除时匹配前端cache用
 	
 	boolean collapse() default false;//type_list时 是否折叠
+
+	boolean compact() default false; //type_list时 是否显示为一行(只对nest object columns为2~3时生效)
 	
 	boolean required() default false;//客户端提交表单时验证是否有值
 	

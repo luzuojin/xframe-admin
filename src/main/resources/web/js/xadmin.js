@@ -216,7 +216,8 @@ function xselect2(e, xinput, cacheEnable=false) {
                 data: d,
                 multiple: m,
                 minimumInputLength: (d.length > 100 ? 2 : 0),
-                minimumResultsForSearch: 10
+                minimumResultsForSearch: 10,
+                allowClear: !cacheEnable    //碰巧 开启cache的select框 一般都不需要clear操作
             });
     e.val('').trigger('change');//设置默认不选择
     //多选 无记忆

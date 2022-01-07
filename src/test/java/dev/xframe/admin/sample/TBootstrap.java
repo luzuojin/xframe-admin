@@ -10,7 +10,7 @@ public class TBootstrap {
             .withName("xframe-admin")
             .include("dev.xframe.*")
             .exclude("dev.xframe.test.*;dev.xframe.jdbc.*")
-            .withHttp(XProperties.getAsInt("port", 8001))
+            .withHttp(XProperties.getAsInt("port", 8003))
             .startup();
     }
 

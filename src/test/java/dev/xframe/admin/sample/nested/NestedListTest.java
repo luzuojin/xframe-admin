@@ -1,9 +1,9 @@
 package dev.xframe.admin.sample.nested;
 
+import dev.xframe.admin.view.XColumn;
+
 import java.util.Arrays;
 import java.util.List;
-
-import dev.xframe.admin.view.XColumn;
 
 public class NestedListTest {
 	
@@ -11,7 +11,7 @@ public class NestedListTest {
 	private int id;
 	@XColumn("Name")
 	private String name;
-	@XColumn(value="Nest", type=XColumn.type_list)
+	@XColumn(value="Nest", type=XColumn.type_list, compact=true)
 	private List<NestedObj> nest;
 	@XColumn("Desc")
 	private String desc;

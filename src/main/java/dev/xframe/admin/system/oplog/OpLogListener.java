@@ -24,7 +24,8 @@ public class OpLogListener implements HttpListener {
         if(!method.equals(HttpMethod.GET) && !method.equals(HttpMethod.OPTIONS)) {
             String path = req.xpath();
             if(!path.startsWith("basic/upload")) {
-                String params = XStrings.newStringUtf8(req.content());
+                byte[] content = req.content();
+                String params = content.length > 1024 ? "long message" : XStrings.newStringUtf8(content);
                 String host = XStrings.orElse(req.getHeader("x-host"), req.remoteHost());
 
                 XLogger.info("[{}] [{}] [{}] [{}] [{}]", user, host, method.name(), path, params);

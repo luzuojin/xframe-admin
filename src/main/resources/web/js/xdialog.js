@@ -5,6 +5,15 @@ let dlgColumn= `
               <div class="col-sm-10">{3}</div>
             </div>
             `;
+let dlgColumnCompact2= `
+              <label class="col-sm-2 col-form-label" for="dinput_{0}_{1}"><p class="float-right">{2}</p></label>
+              <div class="col-sm-4">{3}</div>
+            `;
+let dlgColumnCompact3= `
+              <label class="col-sm-1 col-form-label" for="dinput_{0}_{1}"><p class="float-right">{2}</p></label>
+              <div class="col-sm-3">{3}</div>
+            `;
+
 let dlgText= `<input id="dinput_{0}_{1}" class="form-control" placeholder="{2}" type="{3}">`;
 let dlgArea= `<textarea id="dinput_{0}_{1}" class="form-control" placeholder="{2}" rows="8"/>`;
 let dlgEnum= `<select id="dinput_{0}_{1}" class="form-control select2" data-placeholder="{2}" style="width:100%"></select>`;
@@ -34,17 +43,17 @@ let dlgInputVal= function(idkey, column){
     return func ? func(idkey, column) : dlgInputDom(idkey, column.key).val();
 };
 
-let tryAddDlgInput= function(parent, op, column, idkey, value) {
+let tryAddDlgInput= function(parent, op, column, idkey, value, _dlgc=dlgColumn) {
     if(op.type == opTypes.add && !xcolumn.add(column)) return;
     if(op.type >= opTypes.edt && !xcolumn.edel(column)) return;
-    addDlgInput(parent, op, column, idkey, value);
+    addDlgInput(parent, op, column, idkey, value, _dlgc);
     if (op.type == opTypes.del || (op.type == opTypes.edt && !xcolumn.edit(column))) {
         dlgInputDom(idkey, column.key).attr("disabled", true);
     }
 }
-let addDlgInput= function(parent, op, column, idkey, value) {
+let addDlgInput= function(parent, op, column, idkey, value, _dlgc) {
     let _htm = getFuncFrom(dlgHtmlFuncs, column.type)(idkey, column);
-    parent.append(dlgColumn.format(idkey, column.key, column.hint, _htm));
+    parent.append(_dlgc.format(idkey, column.key, column.hint, _htm));
     let _dom = dlgInputDom(idkey, column.key);
     getFuncFrom(dlgMakeFuncs, column.type)(_dom, op, column, value);
 }
@@ -168,19 +177,29 @@ setFuncTo(dlgDataFuncs, [xTypes._model],
 //nested
 setFuncTo(dlgHtmlFuncs, [xTypes._list],
     function(id, c) {
-        let nestedHtm = `<button id="dinput_{0}_{1}" type="button" style="border: dashed 1px #dee2e6;" class="form-group form-control">+</button>`;
+        let nestedHtm = `<div id="dinput_{0}_{1}" type="button" style="border: dashed 1px #dee2e6;" class="form-group form-control"><button id="dinput_{0}_{1}_btn" type="button" class="btn btn-block p-0">+</button></div>`;
         return nestedHtm.format(id, c.key);
     });
 let _idxCache={};
 setFuncTo(dlgMakeFuncs, [xTypes._list],
     function(_d, op, c, v) {
+        let compact = c.compact && (c.columns.length == 2 || c.columns.length == 3);
         //make empty list element
         let makeElement = function(nid, _id, aplFunc, _v) {
             let _eid = '{0}_{1}'.format(nid, _id);
             let _e = $(`<div id="{0}" class="border-left border-bottom position-relative form-group text-sm">`.format(_eid));
             aplFunc(_e);
-            for(let col of c.columns) {
-                tryAddDlgInput(_e, op, col, _eid, xvalueByKey(_v, col.key));
+            if(compact) {
+                let _cdiv = $(`<div class="form-group row"></div>`);
+                _e.append(_cdiv);
+                let _csub = c.columns.length == 2 ? dlgColumnCompact2 : dlgColumnCompact3;
+                for(let col of c.columns) {
+                    tryAddDlgInput(_cdiv, op, col, _eid, xvalueByKey(_v, col.key), _csub);
+                }
+            } else {
+                for(let col of c.columns) {
+                    tryAddDlgInput(_e, op, col, _eid, xvalueByKey(_v, col.key));
+                }
             }
             //minus btn
             let minusBtn = $(`<button type="button" class="position-absolute close" style="right:.5rem;bottom:.25rem;"><i class="fas fa-minus-circle fa-xs"></i></button>`);
@@ -189,15 +208,17 @@ setFuncTo(dlgMakeFuncs, [xTypes._list],
             return _e;
         };
         let nid = _d.attr('id');
-        xclick(_d, ()=>makeElement(nid, (++_idxCache[nid]), (_x)=>_d.before(_x)));
         _idxCache[nid] = 0;
-        if(!v) return
-        let _l;
-        for(let _v of v) {
-            let aplFunc = _l ? (_x)=>_l.after(_x) : (_x)=>_d.before(_x);
-            let _e = makeElement(nid, _v._id, aplFunc, _v);
-            _l = _e;
-            _idxCache[nid] = _v._id;
+        xclick($('#{0}_btn'.format(nid)), ()=>makeElement(nid, (++_idxCache[nid]), (_x)=>_d.before(_x)));
+        if(v) {
+            let _l;
+            let _idFix = 0;
+            for(let _v of v) {
+                let aplFunc = _l ? (_x)=>_l.after(_x) : (_x)=>_d.before(_x);
+                if(!_v._id) _v._id = ++_idFix; else _idFix = Math.max(_v._id, _idFix);
+                _l = makeElement(nid, _v._id, aplFunc, _v);
+                _idxCache[nid] = _v._id;
+            }
         }
     });
 setFuncTo(dlgDataFuncs, [xTypes._list],

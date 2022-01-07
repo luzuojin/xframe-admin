@@ -11,6 +11,7 @@ public class Column {
     private int show;
     private boolean primary;
     private boolean collapse;
+    private boolean compact;
     private boolean required;
 
     static int byJavaType(int xtype, Class<?> jtype) {
@@ -24,15 +25,15 @@ public class Column {
     }
 
     public Column(String key) {
-        this(key, firstToUpperCase(key), XColumn.type_text, "", XColumn.full, false, false, false);
+        this(key, firstToUpperCase(key), XColumn.type_text, "", XColumn.full, false, false, false, false);
     }
     public Column(String key, XColumn xc, Class<?> jType) {
         this(key, xc, byJavaType(xc.type(), jType));
     }
     public Column(String key, XColumn xc, int xcType) {
-        this(key, XStrings.orElse(xc.value(), firstToUpperCase(key)), xcType, xc.enumKey(), xc.show(), xc.primary(), xc.collapse(), xc.required());
+        this(key, XStrings.orElse(xc.value(), firstToUpperCase(key)), xcType, xc.enumKey(), xc.show(), xc.primary(), xc.collapse(), xc.compact(), xc.required());
     }
-    public Column(String key, String hint, int type, String enumKey, int show, boolean primary, boolean collapse, boolean required) {
+    public Column(String key, String hint, int type, String enumKey, int show, boolean primary, boolean collapse, boolean compact, boolean required) {
         this.key = key;
         this.hint = hint;
         this.type = type;
@@ -40,6 +41,7 @@ public class Column {
         this.show = show;
         this.primary = primary;
         this.collapse = collapse;
+        this.compact = compact;
         this.required = required;
 
         if(!XStrings.isEmpty(enumKey) && this.type == 0)
@@ -93,5 +95,11 @@ public class Column {
     }
     public void setRequired(boolean required) {
         this.required = required;
+    }
+    public boolean getCompact() {
+        return compact;
+    }
+    public void setCompact(boolean compact) {
+        this.compact = compact;
     }
 }
