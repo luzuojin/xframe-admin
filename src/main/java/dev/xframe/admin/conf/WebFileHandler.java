@@ -1,19 +1,5 @@
 package dev.xframe.admin.conf;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
 import dev.xframe.admin.system.auth.AuthContext;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;
@@ -27,6 +13,20 @@ import dev.xframe.inject.Inject;
 import dev.xframe.utils.XCaught;
 import dev.xframe.utils.XPaths;
 import dev.xframe.utils.XProperties;
+import dev.xframe.utils.XStrings;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 
 @Bean
@@ -82,9 +82,9 @@ public class WebFileHandler implements Eventual {
 
     private void makeIndexHtmlHandler() throws IOException {
         if(XProperties.get(TitlePropKey) != null || XProperties.get(IconPropKey) != null) {
-            String filePath = new File(root, IndexFileName).getPath();
-            InputStream input = isDirectory ? new FileInputStream(filePath) : WebFileHandler.class.getClassLoader().getResourceAsStream(filePath);
-            byte[] indexBytes = readIndexHtml(input);
+            File file = new File(root, IndexFileName);
+            InputStream input = isDirectory ? new FileInputStream(file) : WebFileHandler.class.getClassLoader().getResourceAsStream(toInsidePath(file.getPath()));
+            byte[] indexBytes = parseIndexHtml(input);
             makeHandler1(IndexFileName, ()->new FileResponse.Binary(ContentType.HTML, indexBytes));
             //icon file handler
             String icon = XProperties.get(IconPropKey);
@@ -93,13 +93,8 @@ public class WebFileHandler implements Eventual {
             }
         }
     }
-    private byte[] readIndexHtml(InputStream input) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int b;
-        while((b = input.read()) != -1) {
-            out.write(b);
-        }
-        String content = out.toString();
+    private byte[] parseIndexHtml(InputStream input) {
+        String content = XStrings.readFrom(input);
         content = content.replace(DefaultTitle, XProperties.get(TitlePropKey, DefaultTitle));
         content = content.replace(DefaultIcon, XProperties.get(IconPropKey, DefaultIcon));
         return content.getBytes();
@@ -110,10 +105,15 @@ public class WebFileHandler implements Eventual {
     }
     //absolute path
     private void makeHandler0(String uriPath, String filePath, boolean isDirectory) {
-        final String uri = uriPath.replace("\\", "/");  //windows path to url
-        final String file = filePath.replace("\\", "/");//jar file used '/'
+        final String uri = toInsidePath(uriPath);  //windows path to url
+        final String file = toInsidePath(filePath);//jar file used '/'
         makeHandler1(uri, isDirectory ? ()->makeRespFromDirectory(file) : ()->makeRespFromClassPath(file));
     }
+
+    private String toInsidePath(String path) {
+        return path.replace("\\", "/");
+    }
+
     private void makeHandler1(String uriPath, Supplier<Response> func) {
         serviceCtx.registService(uriPath, new WebFileService(func), (pp, s1, s2)->{});
         authCtx.addUnblockedPath(uriPath);
