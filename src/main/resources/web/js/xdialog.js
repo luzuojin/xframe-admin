@@ -1,16 +1,16 @@
 //html
 let dlgColumn= `
             <div class="form-group row">
-              <label class="col-sm-2 col-form-label" for="dinput_{0}_{1}"><p class="float-right">{2}</p></label>
+              <label class="col-sm-2 col-form-label" xfor="dinput_{0}_{1}"><p class="float-right">{2}</p></label>
               <div class="col-sm-10">{3}</div>
             </div>
             `;
 let dlgColumnCompact2= `
-              <label class="col-sm-2 col-form-label" for="dinput_{0}_{1}"><p class="float-right">{2}</p></label>
+              <label class="col-sm-2 col-form-label" xfor="dinput_{0}_{1}"><p class="float-right">{2}</p></label>
               <div class="col-sm-4">{3}</div>
             `;
 let dlgColumnCompact3= `
-              <label class="col-sm-1 col-form-label" for="dinput_{0}_{1}"><p class="float-right">{2}</p></label>
+              <label class="col-sm-1 col-form-label" xfor="dinput_{0}_{1}"><p class="float-right">{2}</p></label>
               <div class="col-sm-3">{3}</div>
             `;
 
@@ -20,14 +20,14 @@ let dlgEnum= `<select id="dinput_{0}_{1}" class="form-control select2" data-plac
 let dlgBool= `
             <div class="form-control custom-control custom-switch custom-switch-on-primary">
               <input id="dinput_{0}_{1}" type="checkbox" class="custom-control-input" value="false">
-              <label class="custom-control-label" for="dinput_{0}_{1}" style="margin-left:7.5px;"/>
+              <label class="custom-control-label" xfor="dinput_{0}_{1}" style="margin-left:7.5px;"/>
             </div>
             `;
 let dlgImag=`<img class="col-sm-2 img-thumbnail" src="{0}">`;
 let dlgFile=`
             <div class="custom-file">
               <input type="file" class="custom-file-input" id="dinput_{0}_{1}">
-              <label class="custom-file-label" id="dinput_{0}_{1}_label" for="dinput_{0}_{1}"></label>
+              <label class="custom-file-label" id="dinput_{0}_{1}_label" xfor="dinput_{0}_{1}"></label>
             </div>
             <div id="dinput_{0}_{1}_preview"/>
             `;
@@ -177,7 +177,8 @@ setFuncTo(dlgDataFuncs, [xTypes._model],
 //nested
 setFuncTo(dlgHtmlFuncs, [xTypes._list],
     function(id, c) {
-        let nestedHtm = `<div id="dinput_{0}_{1}" type="button" style="border: dashed 1px #dee2e6;" class="form-group form-control"><button id="dinput_{0}_{1}_btn" type="button" class="btn btn-block p-0">+</button></div>`;
+        let nestedHtm = `<button id="dinput_{0}_{1}" type="button" style="border: dashed 1px #dee2e6;" class="form-group form-control">+</button>`;
+//        let nestedHtm = `<div id="dinput_{0}_{1}" type="button" style="border: dashed 1px #dee2e6;" class="form-group form-control"><button id="dinput_{0}_{1}_btn" type="button" class="btn btn-block p-0">+</button></div>`;
         return nestedHtm.format(id, c.key);
     });
 let _idxCache={};
@@ -209,7 +210,8 @@ setFuncTo(dlgMakeFuncs, [xTypes._list],
         };
         let nid = _d.attr('id');
         _idxCache[nid] = 0;
-        xclick($('#{0}_btn'.format(nid)), ()=>makeElement(nid, (++_idxCache[nid]), (_x)=>_d.before(_x)));
+        xclick(_d, ()=>makeElement(nid, (++_idxCache[nid]), (_x)=>_d.before(_x)));
+//        xclick($('#{0}_btn'.format(nid)), ()=>makeElement(nid, (++_idxCache[nid]), (_x)=>_d.before(_x)));
         if(v) {
             let _l;
             let _idFix = 0;
