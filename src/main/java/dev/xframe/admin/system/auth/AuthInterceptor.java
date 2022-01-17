@@ -18,6 +18,7 @@ public class AuthInterceptor implements HttpInterceptor {
     public Response intercept(Request req) {
         //设置ThreadLocal变量
         OpUser.set(authCtx.getAuthUsername(req));
+        OpHost.set(AuthContext.getRemoteHost(req));
 
         if(authCtx.isReqIllegal(req)) {
             throw new LogicException("Permission deny!");

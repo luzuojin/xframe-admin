@@ -6,14 +6,14 @@ public class OpUser {
     
     public static final String LocalUserName = "local";
     
-    private static XThreadLocal<String> opuser = new XThreadLocal<>();
+    private static XThreadLocal<String> OpUser = new XThreadLocal<>();
     
     public static void set(String username) {
-        opuser.set(username);
+        OpUser.set(username);
     }
     
     public static String get() {
-        return opuser.get();
+        return OpUser.get();
     }
     
     public static boolean isLocalUser(String username) {
