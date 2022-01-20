@@ -506,6 +506,9 @@ class Column {
     equals(other) {
         return this.key == other.key;
     }
+    pid() {
+        return this.parent.pid() + "_" + this.key;
+    }
 
     getValFrom(data) {
         let val = data[this.key];
@@ -513,9 +516,6 @@ class Column {
             return xenumText(this.enumKey, val);
         }
         return xvalue(val);
-    }
-    getFormVal() {
-        return dlgInputVal(this.parent.pid(), this);
     }
 
     onValChanged(val) {
@@ -540,17 +540,157 @@ class Column {
     addToTable(_parent, val) {
         return _parent.append(val);
     }
-    addToForm(_parent, op, val) {
-        tryAddDlgInput(_parent, op, this, op.pid(), val);
-        xchange(this.formDom(op), ()=>this.onValChanged(this.getFormVal()));
+
+    /*--------------------------*/
+    /*-----for show in form-----*/
+    /*--------------------------*/
+    getFormVal() {  //dlgDataFunc
+        return this.getFormValDom().val();
     }
-    formDom(op) {
-        return dlgInputDom(op.pid(), this.key);
+    getFormValDom() {
+        return $("#dinput_{0}".format(this.pid()));
+    }
+    addToForm(_parent, val) {
+        this.addToForm0(_parent, this.parent, val)
+    }
+    addToForm0(_parent, op, val) {
+        if(op.type == opTypes.add && !xcolumn.add(this)) return;
+        if(op.type >= opTypes.edt && !xcolumn.edel(this)) return;
+        this.doAddToForm(_parent, val);
+        //disabled
+        if (op.type == opTypes.del || (op.type == opTypes.edt && !xcolumn.edit(this))) {
+            this.getFormValDom().attr("disabled", true);
+            return
+        }
+        xchange(this.getFormValDom(), ()=>this.onValChanged(this.getFormVal()));
+    }
+    doAddToForm(_parent, val) {
+        let _dom = $(this.getColBoxHtm().format(this.hint, this.makeFormValHtm()));
+        _parent.append(_dom);
+        this.setValToFormDom(this.getFormValDom(), val);
+    }
+    getColBoxHtm() {
+        return `<div class="form-group row">
+                    <label class="col-sm-2 col-form-label"><p class="float-right">{0}</p></label>
+                    <div class="col-sm-10">{1}</div>
+                </div>`;
+    }
+    makeFormValHtm() {    //dlgHtmFunc
+        return `<input id="dinput_{0}" class="form-control" placeholder="{1}" type="{2}">`.format(this.pid(), this.hint, 'text');
+    }
+    setValToFormDom(dom, val) {//dlgMakeFunc
+        if(val) dom.val(val).trigger('change')
     }
 }
 
+class AreaColumn extends Column {
+    static _ = Column.regist([xTypes._area], this);
+    makeFormValHtm() {    //dlgHtmFunc
+        return `<textarea id="dinput_{0}" class="form-control" placeholder="{1}" rows="8"/>`.format(this.pid(), this.hint);
+    }
+}
+class PasswordColumn extends Column {
+    static _ = Column.regist([xTypes._pass], this);
+    makeFormValHtm() {    //dlgHtmFunc
+        return `<input id="dinput_{0}" class="form-control" placeholder="{1}" type="{2}">`.format(this.pid(), this.hint, 'password');
+    }
+    getFormVal() {  //dlgDataFunc
+        return $.md5(super.getFormVal());
+    }
+}
+class DateTimeColumn extends Column {
+    static _ = Column.regist([xTypes._datetime], this);
+    setValToFormDom(dom, val) {//dlgMakeFunc
+        super.setValToFormDom(dom, val);
+        xdatepicker(dom)
+    }
+}
+class DateColumn extends Column {
+    static _ = Column.regist([xTypes._date], this);
+    setValToFormDom(dom, val) {//dlgMakeFunc
+        super.setValToFormDom(dom, val);
+        xdatepicker(dom, xformatDate)
+    }
+}
+class TimeColumn extends Column {
+    static _ = Column.regist([xTypes._time], this);
+    setValToFormDom(dom, val) {//dlgMakeFunc
+        super.setValToFormDom(dom, val);
+        xdatepicker(dom, xformatTime)
+    }
+}
+class EnumColumn extends Column {
+    static _ = Column.regist([xTypes._enum, xTypes._mult], this);
+    makeFormValHtm() {
+        return `<select id="dinput_{0}" class="form-control select2" data-placeholder="{1}" style="width:100%"></select>`.format(this.pid(), this.hint);
+    }
+    setValToFormDom(dom, val) {
+        xselect2(dom, this);
+        if(val && val != 0) dom.val(val).trigger('change')
+    }
+}
+class BoolColumn extends Column {
+    static _ = Column.regist([xTypes._time], this);
+    makeFormValHtm() {
+        return `<div class="form-control custom-control custom-switch custom-switch-on-primary">
+                    <input id="dinput_{0}" type="checkbox" class="custom-control-input" value="false">
+                    <label class="custom-control-label" xfor="dinput_{0}" style="margin-left:7.5px;"/>
+                </div>`.format(this.pid());
+    }
+    setValToFormDom(dom, val) {
+        dom.change(function(){dom.val(this.checked);});//this:changed event
+        if(val) dom.attr('checked', val).trigger('change');
+    }
+}
+class FileColumn extends Column {
+    static _ = Column.regist([xTypes._file], this);
+    makeFormValHtm() {
+        return `
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="dinput_{0}">
+                    <label class="custom-file-label" id="dinput_{0}_label" xfor="dinput_{0}"></label>
+                </div>
+                <div id="dinput_{0}_preview"/>`.format(this.pid());
+    }
+    setValToFormDom(dom, val) {
+        let _fv = _v => {
+            $('#dinput_{0}_label'.format(this.pid())).html(_v);
+            this.filePreview(_v);
+        }
+        if(val) _fv(val);
+
+        xchange(dom, function(evt){
+            let fi = evt.target.files[0];
+            if(!fi) return;//cancel
+            let fd = new FormData();
+            fd.append('file', fi);
+            $.ajax({
+                url: '{0}/{1}'.format(xurl, xpaths.upload),
+                type: 'post',
+                headers: {"X-Token": xtoken()},
+                data: fd,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function(resp){_fv(resp.data);}
+            });
+        });
+    }
+    getFormVal() {
+        return $('#dinput_{0}_label'.format(this.pid())).html();
+    }
+    filePreview(val) {}
+}
+class ImagColumn extends Column {
+    static _ = Column.regist([xTypes._imag], this);
+    filePreview(val) {
+        $("dinput_{0}_preview".format(this.pid())).html(`<img class="col-sm-2 img-thumbnail" src="{0}">`.format('{0}/{1}?name={2}&X-Token={3}'.format(xurl, xpaths.preview, val, xtoken())));
+    }
+}
+
+
 class NestColumn extends Column {
-    static _ = Column.regist([xTypes._model, xTypes._list], this);
+    static _ = Column.regist([xTypes._model], this);
 
     addToTable(_parent, val) {
         let _ntable = $(`<table class="table table-bordered table-hover table-sm text-sm mb-0"></table>`);
@@ -568,6 +708,77 @@ class NestColumn extends Column {
         TableDetail.showTableHead(_nthead, this.columns);
         TableDetail.showTableBody(_ntbody, this.columns, this.type==xTypes._model?[val]:val)
     }
+    makeFormValHtm() {
+        return `<div id="dinput_{0}" class="border-left border-bottom text-sm"></div>`.format(this.pid());
+    }
+    setValToFormDom(dom, val) {
+        dom.empty();
+        this.columns.forEach(col => {
+            col.addToForm0(dom, this.parent, xvalueByKey(val, col.key));
+        });
+    }
+    getFormVal() {
+        return Column.getVals(this.columns, col=>col.getFormVal());
+    }
+}
+class IndexedNestColumn extends Column {
+    static of(_origin, _index, _compact) {
+        let c = Object.assign(Object.create(_origin), _origin);
+        c._origin = _origin;
+        c._index  = _index;
+        c._compact = _compact;
+        c.pid = function() {
+            return this._origin.pid() + "_" + this._index;
+        };
+        c.getColBoxHtm = function() {
+            if(this._compact == 2)
+                return  `<label class="col-sm-2 col-form-label"><p class="float-right">{0}</p></label><div class="col-sm-4">{1}</div>`;
+            if(this._compact == 3)
+                return `<label class="col-sm-1 col-form-label" ><p class="float-right">{0}</p></label><div class="col-sm-3">{1}</div>`;
+            return `<label class="col-sm-2 col-form-label"><p class="float-right">{0}</p></label><div class="col-sm-10">{1}</div>`;
+        };
+        return c;
+    }
+}
+class ListColumn extends NestColumn {
+    static _ = Column.regist([xTypes._list], this);
+    _cIndex;
+    makeFormValHtm() {
+        return `<button id="dinput_{0}" type="button" style="border: dashed 1px #dee2e6;" class="form-group form-control">+</button>`.format(this.pid());
+    }
+    setValToFormDom(_d, v) {
+        let compact = this.compact ? this.columns.length : -1;
+        //make empty list element
+        let makeElement = (index, aplFunc, _v) => {
+            let _outer = $(`<div id="{0}_{1}" class="border-left border-bottom position-relative form-group text-sm">`.format(this.pid(), index));
+            aplFunc(_outer);
+
+            let _inner = $(`<div class="form-group row"></div>`);
+            _outer.append(_inner);
+            this.columns.forEach(col=>{
+                IndexedNestColumn.of(col, index, compact).addToForm0(_inner, this.parent, xvalueByKey(_v, col.key));
+            });
+            //minus btn
+            let minusBtn = $(`<button type="button" class="position-absolute close" style="right:.5rem;bottom:.25rem;"><i class="fas fa-minus-circle fa-xs"></i></button>`);
+            xclick(minusBtn, ()=>minusBtn.parent().remove());
+            _outer.append(minusBtn);
+            return _outer;
+        };
+        this._cIndex = 0;
+        xclick(_d, ()=>makeElement((++this._cIndex), _x=>_d.before(_x)));
+        if(v) {
+            let _l;
+            for(let _v of v) {
+                let aplFunc = _l ? (_x)=>_l.after(_x) : (_x)=>_d.before(_x);
+                if(!_v._id) {
+                    _v._id = ++this._cIndex
+                } else {
+                    this._cIndex = Math.max(_v._id, this._cIndex);
+                }
+                _l = makeElement(_v._id, aplFunc, _v);
+            }
+        }
+    }
 }
 
 
@@ -577,8 +788,7 @@ class NestColumn extends Column {
 class OptionForm {
     option;
     data;
-    flxop;
-    constructor(option, data, flxop){
+    constructor(option, data){
         this.option = option;
         this.data = data;
     }
@@ -596,7 +806,7 @@ class OptionForm {
         let _pdom = this._pdom = xOrElse(_parent, this._pdom);
         _pdom.empty();
         this.option.columns().forEach(col=>{
-            col.addToForm(_pdom, this.option, this.data[col.key]);
+            col.addToForm(_pdom, xvalueByKey(this.data, col.key));
         });
     }
     getFormData() {
