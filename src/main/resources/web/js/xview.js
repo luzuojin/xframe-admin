@@ -236,13 +236,9 @@ class Detail extends Node {
     show() {
         let ini = this.getOption(opTypes.ini);
         if(ini) {
-            doGet(this.uri().urljoin(ini.path), _data => {
-                this.setData(_data);
-                this.showContent();
-            });
+            ini.doGet({}, _data => this.setData(_data).showContent());
         } else {
-            this.setData();
-            this.showContent();
+            this.setData().showContent();
         }
     }
     showContent() {}
@@ -298,7 +294,7 @@ class TableDetail extends Detail {
                 column.addToQueryBox($('#xboxhead'));
             }
             $('#xboxhead').append(`<button id="qrybtn_{0}_{1}" type="button" class="btn bg-gradient-info float-left" style="margin-left:7.5px;margin-right:7.5px;">{2}</button>`.format(_id, _tr, op.name));
-            xclick($("#qrybtn_{0}_{1}".format(_id, _tr)), ()=>doGet('{0}?{1}'.format(this.uri(), $.param(this.getQueryParams())), resp=>this.setData(resp).showContent0()));
+            xclick($("#qrybtn_{0}_{1}".format(_id, _tr)), ()=>op.doGet(this.getQueryParams(), resp=>this.setData(resp).showContent0()));
             this.qryOp = op;
         }
 
@@ -386,7 +382,7 @@ class PanelDetail extends Detail {
         }
     }
     submit(op, data) {
-        doPost(this.uri().urljoin(op.path), op, data, resp => this.setData(resp).showContent(), {'flex-name': this.flexName});
+        op.doPost(data, resp=>this.setData(resp).showContent(), {'flex-name': this.flexName});
     }
     onColValChanged(col, val) {}
 }
@@ -457,6 +453,7 @@ class Option extends Node {
             flexOption.doGet(Column.getVals([col], _=>val), resp=>{
                 if(resp.struct) {
                     this.parent.setStruct(resp.struct);
+                    this.flexName = resp.struct.flexName;
                     delete this.columns;//有结构变化
                 }
                 //合并数据&刷新form
@@ -465,8 +462,11 @@ class Option extends Node {
             });
         }
     }
-    doGet(params, func) {
-        doGet('{0}?{1}'.format(this.uri(), ($.param(params))), func);
+    doPost(data, func, _headers) {
+        doPost(this.uri(), this, data, func, xOrElse(_headers, {'flex-name': this.flexName}));
+    }
+    doGet(data, func) {
+        doGet('{0}?{1}'.format(this.uri(), $.param(data)), func);
     }
     onClick(data) {
         (this._form = new OptionForm(this, data)).show();
@@ -603,10 +603,10 @@ class OptionForm {
         return Column.getVals(this.option.columns(), col=>col.getFormVal());
     }
     submit() {
-        doPost(this.option.uri(), this.option, this.getFormData(), resp=>{
+        this.option.doPost(this.getFormData(), resp=>{
             $('#xdialog').modal('hide');
             this.data = resp;   //change data
             this.option.parent.onDataChanged(this.option, resp);
-        }, {'flex-name': this.option.flexName});
+        });
     }
 }
