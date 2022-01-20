@@ -106,25 +106,24 @@ class Segment extends Navi {
                 </li>
                 `.format(this.pid(), this.name);
         this.parent.dom().append(htm);
-        xclick(this.dom(), ()=>this.showContent())
-    }
-    showContent() {
-        this.active(this);
-        this.initContainer();
-        this.children[0].show();    //detail.show
+        xclick(this.dom(), ()=> {
+            this.active(this);
+            this.showContent()
+        });
     }
     initContainer() {
         $('#xcontent').empty();
-        let htm = `
-                    <div class="card-header">
-                      <div class="row">
-                        <div id="xboxhead" class="clearfix w-100"></div>
-                      </div>
-                    </div>
-                    <div id="xboxbody" class="card-body">
-                    </div>
-                    `;
-        $('#xcontent').append(htm);
+        $('#xcontent').append(`<div class="card-header">
+                                <div class="row">
+                                    <div id="xboxhead" class="clearfix w-100"></div>
+                                </div>
+                               </div>
+                               <div id="xboxbody" class="card-body">
+                               </div>`);
+    }
+    showContent() {
+        this.initContainer();
+        this.children[0].show();    //detail.show
     }
     deactive(seg) {
         if(seg) seg.dom().removeClass('active');
@@ -145,10 +144,6 @@ class Tab extends Segment {
     static of(parent, jNavi) {
         return new Tab(parent, jNavi.name, jNavi.path);
     }
-    showContent() {
-        this.initContainer();
-        this.showTabContent(this.latestTabSeg ? this.latestTabSeg : this.children[0]);
-    }
     tabDom(seg) {
         return $("#vsegtab_{0}".format(seg.pid()));
     }
@@ -162,6 +157,10 @@ class Tab extends Segment {
             //onClick show content
             xclick(this.tabDom(seg), ()=>this.showTabContent(seg));
         }
+    }
+    showContent() {
+        this.initContainer();
+        this.showTabContent(this.latestTabSeg ? this.latestTabSeg : this.children[0]);
     }
     tabDeactive(seg) {
         if(!seg) return;
@@ -203,14 +202,24 @@ class Detail extends Node {
         d.desc = jDetail.desc;
         d.padding = jDetail.padding;
         d.flexName = jDetail.flexName;
-        d.children = jDetail.columns.map(jColumn=>Column.of(d, jColumn));
-        d.columns = d.children;
+        d.children = d.columns = jDetail.columns.map(jColumn=>Column.of(d, jColumn));
         d.options = jDetail.options.map(jOption=>Option.of(d, jOption));
+        d.flexOption = d.getOption(opTypes.flx);
         return d;
     }
     setData(data) {
-        this.data = data;
+        if(data && data.struct) {//flex
+            this.data = data.data;
+            this.setStruct(data.struct);
+        } else {
+            this.data = data;
+        }
         return this;
+    }
+    setStruct(struct) {
+        let cols = struct.columns.map(jCol=>Column.of(this, jCol));
+        Object.assign(this.columns, cols, {length:cols.length});
+        this.flexName = struct.flexName;
     }
     uri() {
         return this.parent.uri();
@@ -225,23 +234,19 @@ class Detail extends Node {
         return this.options.filter(e=>e.type==opType);
     }
     show() {
-        this.segpath = this.parent.uri();
-//        showDetail(this);
         let ini = this.getOption(opTypes.ini);
         if(ini) {
             doGet(this.uri().urljoin(ini.path), _data => {
-                this.data = _data;
+                this.setData(_data);
                 this.showContent();
             });
         } else {
+            this.setData();
             this.showContent();
         }
     }
-    showContent() {
-        showDetail(this);
-    }
-
-    onDataChanged(op, data) {}
+    showContent() {}
+    onDataChanged(op, data) {this.data = data;}
     onColValChanged(col, val) {}
 }
 
@@ -251,16 +256,25 @@ class Detail extends Node {
 class TableDetail extends Detail {
     static _ = Detail.regist(1, this);
     constructor(parent) {super(parent);}
-
+    //change cached data(s)
     onDataChanged(op, data) {
         if(op.type == opTypes.qry || Array.isArray(data)) {
-            xmodel.set(detail, data);
-        }else if(data){
-            if(op.type == opTypes.add) xmodel.add(data);
-            if(op.type == opTypes.edt) xmodel.edt(data);
-            if(op.type == opTypes.del) xmodel.del(data);
+            this.setData(data);
+        } else if(data){
+            let pks = this.columns.filter(col=>col.primary).map(col=>col.key);
+            let idx = pks.length==0?-1:this.data.findIndex(dat=>!pks.some(pk=>data[pk]!=dat[pk]));//! not equals
+            if(idx == -1) {
+                if(op.type == opTypes.add) this.data.push(data);
+            } else {
+                if(op.type == opTypes.add) this.data[idx] = data;
+                if(op.type == opTypes.edt) this.data[idx] = data;
+                if(op.type == opTypes.del) this.data.splice(idx, 1);
+            }
         }
         this.showContent0();
+    }
+    setData(data) {
+        return super.setData(xOrElse(data, []));
     }
     showContent() {
         $('#xboxhead').empty();
@@ -268,31 +282,34 @@ class TableDetail extends Detail {
         $('#xboxbody').append(`<table id="xtable" class="table table-bordered table-hover"><thead id="xthead"></thead><tbody id="xtbody"></tbody></table>`);
 
         this.showQueryBox();
-        xmodel.set(this, this.data ? this.data : []);
         this.showContent0();
     }
     showContent0() {
-        this.data = xmodel.datas;
-        TableDetail.showTableHead($('#xthead'), this.columns, !!this.getOptions(opTypes.edt) || !!this.getOptions(opTypes.del));
-        TableDetail.showTableBody($('#xtbody'), this.columns, this.data, this.options);
+        let trOptions = this.options.filter(e=>e.type==opTypes.del||e.type==opTypes.edt);
+        TableDetail.showTableHead($('#xthead'), this.columns, trOptions.length>0);
+        TableDetail.showTableBody($('#xtbody'), this.columns, this.data, trOptions);
     }
     showQueryBox() {
         let _tr = 0;
         //box head
         for(let op of this.getOptions(opTypes.qry)) {
             let _id = op.pid();
-            for(let column of op.columns) {
+            for(let column of op.children) {
                 column.addToQueryBox($('#xboxhead'));
             }
             $('#xboxhead').append(`<button id="qrybtn_{0}_{1}" type="button" class="btn bg-gradient-info float-left" style="margin-left:7.5px;margin-right:7.5px;">{2}</button>`.format(_id, _tr, op.name));
-            xclick($("#qrybtn_{0}_{1}".format(_id, _tr)), ()=>doGet('{0}?{1}'.format(this.uri(), $.param(this.getQueryParams())), resp=>this.setData(resp).showContent()));
+            xclick($("#qrybtn_{0}_{1}".format(_id, _tr)), ()=>doGet('{0}?{1}'.format(this.uri(), $.param(this.getQueryParams())), resp=>this.setData(resp).showContent0()));
             this.qryOp = op;
+        }
+
+        for(let op of this.getOptions(opTypes.add)) {
+            let _id = op.pid();
+            $('#xboxhead').append(`<button id="addbtn_{0}_{1}" type="button" class="btn bg-gradient-success float-right" style="margin-left:7.5px;margin-right:7.5px;">{2}</button>`.format(_id, _tr, op.name));
+            xclick($("#addbtn_{0}_{1}".format(op.pid(), _tr)), ()=>op.onClick(this.padding?this.getQueryParams():{}));
         }
     }
     getQueryParams() {
-        let obj = {};
-        this.qryOp.columns.forEach(e=>obj[e.key]=e.getQueryVal());
-        return obj;
+        return Column.getVals(this.qryOp.children, col=>col.getQueryVal());
     }
     static showTableHead(_pdom, columns, hasOps=false) {
         let _tabletr = $(`<tr id='xtr_{0}'/>`.format(0));
@@ -322,36 +339,20 @@ class TableDetail extends Detail {
                 }
             }
             //options td
-            if(options) {
+            if(options && options.length>0) {
                 let _tabletd = $(`<td id='xtd_{0}_{1}' class='align-middle text-right'></td>`.format(_tr, (++_td)));
                 _tabletr.append(_tabletd);
                 for(let op of options.filter(e=>e.type==opTypes.edt)) {
                     _tabletd.append(`<button id="edtbtn_{0}_{1}" type="button" class="btn btn-sm btn-outline-info" style="margin-right:5px">{2}</button>`.format(op.pid(), _tr, op.name));
-                    xclick($("#edtbtn_{0}_{1}".format(op.pid(), _tr)), ()=>new OptionForm(op, model).show());
+                    xclick($("#edtbtn_{0}_{1}".format(op.pid(), _tr)), ()=>op.onClick(model));
                 }
                 for(let op of options.filter(e=>e.type==opTypes.del)) {
                     _tabletd.append(`<button id="delbtn_{0}_{1}" type="button" class="btn btn-sm btn-outline-danger">{2}</button>`.format(op.pid(), _tr, op.name));
-                    xclick($("#delbtn_{0}_{1}".format(op.pid(), _tr)), ()=>new OptionForm(op, model).show());
+                    xclick($("#delbtn_{0}_{1}".format(op.pid(), _tr)), ()=>op.onClick(model));
                 }
             }
         }
     }
-}
-
-function showDialogFunc(detail, op, model, refreshDetail) {//model or supplier function
-    return function() {
-        let _model = ('function'===typeof(model)) ? model(detail) : model;
-        showDialog(detailToDlg(detail), op, _model, function(data){
-            if(op.type == opTypes.qry || Array.isArray(data)) {
-                xmodel.set(detail, data);
-            }else if(data){
-                if(op.type == opTypes.add) xmodel.add(data);
-                if(op.type == opTypes.edt) xmodel.edt(data);
-                if(op.type == opTypes.del) xmodel.del(data);
-            }
-            refreshDetail(detail, xmodel.datas);
-        }, getOption(detail, opTypes.flx));
-    };
 }
 
 class PanelDetail extends Detail {
@@ -368,17 +369,19 @@ class PanelDetail extends Detail {
         $('#xboxhead').append(`<div class="col-sm-8 m-auto h-100 h5">{0}</div>`.format(this.desc));
         //body form
         $('#xboxbody').append(`<form id="xpanel_form" class="form-horizontal"/>`);
-        let _form = new OptionForm(Option.of(this, {}), data);
-        _form.showContent0($('#xpanel_form'));
+        //form option
+        let formOption = Option.of(this, {})
+        formOption._form = new OptionForm(formOption, data)
+        formOption._form.showContent($('#xpanel_form'));
         //add button row
         $('#xboxbody').append(`<div id="xpanel_btnrow" class="form-group row"></div>`);
         for(let op of this.options) {
             if(op.type == opTypes.del) {
                 $('#xpanel_btnrow').append(`<div class="col-sm-2 m-auto"><button id="xpanel_delbtn_{0}" type="button" class="btn btn-block bg-danger">{1}</button></div>`.format(op.path, op.name));
-                xclick($('#xpanel_delbtn_{0}'.format(op.path)), ()=>this.submit(op, _form.getFormData()));
+                xclick($('#xpanel_delbtn_{0}'.format(op.path)), ()=>this.submit(op, formOption._form.getFormData()));
             } else if(op.type == opTypes.edt) {
                 $('#xpanel_btnrow').append(`<div class="col-sm-2 m-auto"><button id="xpanel_edtbtn_{0}" type="button" class="btn btn-block bg-info">{1}</button></div>`.format(op.path, op.name));
-                xclick($('#xpanel_edtbtn_{0}'.format(op.path)), ()=>this.submit(op, _form.getFormData()));
+                xclick($('#xpanel_edtbtn_{0}'.format(op.path)), ()=>this.submit(op, formOption._form.getFormData()));
             }
         }
     }
@@ -426,20 +429,47 @@ class MarkdDetail extends Detail {
 /*-----------------------------*/
 /*-----------columns-----------*/
 /*-----------------------------*/
-class Option {
-    parent; //detail
+class Option extends Node {
     static of(parent, jOption) {
         let c = new Option(parent);
         Object.assign(c, jOption);
         c.parent = parent;
-        c.columns = (jOption.inputs && jOption.inputs.length>0 ? jOption.inputs : parent.columns).map(jCol=>Column.of(c, jCol));//复制成Option独有
+        if(jOption.inputs)
+            c.children = jOption.inputs.map(jCol=>Column.of(c, jCol));//复制成Option独有
         return c;
+    }
+    hasChild(col) {
+        return this.children && this.children.some(e=>e.key==col.key);
+    }
+    columns() {
+        return this.children && this.children.length > 0 ? this.children : this.parent.columns.map(col=>Column.of(this, col));
     }
     uri() {
         return this.path ? this.parent.uri().urljoin(this.path) : this.parent.uri();
     }
     pid() {
         return this.path ? (this.parent.pid() + "_" + this.path) : this.parent.pid();
+    }
+    onColValChanged(col, val) {
+        //do flex??
+        let flexOption = this.parent.flexOption;
+        if(flexOption && flexOption.hasChild(col) && val) {
+            flexOption.doGet(Column.getVals([col], _=>val), resp=>{
+                if(resp.struct) {
+                    this.parent.setStruct(resp.struct);
+                    delete this.columns;//有结构变化
+                }
+                //合并数据&刷新form
+                Object.assign(this._form.data, this._form.getFormData(), xOrElse(resp.data, {}));
+                this._form.showContent();
+            });
+        }
+    }
+    doGet(params, func) {
+        doGet('{0}?{1}'.format(this.uri(), ($.param(params))), func);
+    }
+    onClick(data) {
+        (this._form = new OptionForm(this, data)).show();
     }
 }
 
@@ -461,8 +491,20 @@ class Column {
         Object.assign(c, jColumn);
         c.parent = parent;
         if(jColumn.columns)
-            c.columns = jColumn.columns.map(jCol=>Column.of(parent, jCol));
+            c.columns = jColumn.columns.map(jCol=>Column.of(c, jCol));
         return c;
+    }
+
+    static getVals(columns, valFunc) {
+        let obj = {};
+        columns.forEach(col=>{
+            obj[col.key] = valFunc(col);
+        });
+        return obj;
+    }
+
+    equals(other) {
+        return this.key == other.key;
     }
 
     getValFrom(data) {
@@ -498,10 +540,17 @@ class Column {
     addToTable(_parent, val) {
         return _parent.append(val);
     }
+    addToForm(_parent, op, val) {
+        tryAddDlgInput(_parent, op, this, op.pid(), val);
+        xchange(this.formDom(op), ()=>this.onValChanged(this.getFormVal()));
+    }
+    formDom(op) {
+        return dlgInputDom(op.pid(), this.key);
+    }
 }
 
 class NestColumn extends Column {
-    static _ = Column.regist([80, 81], this);
+    static _ = Column.regist([xTypes._model, xTypes._list], this);
 
     addToTable(_parent, val) {
         let _ntable = $(`<table class="table table-bordered table-hover table-sm text-sm mb-0"></table>`);
@@ -528,7 +577,8 @@ class NestColumn extends Column {
 class OptionForm {
     option;
     data;
-    constructor(option, data){
+    flxop;
+    constructor(option, data, flxop){
         this.option = option;
         this.data = data;
     }
@@ -538,32 +588,25 @@ class OptionForm {
     show() {
         $('#xdialog_title').empty();
         $('#xdialog_title').append(this.title())
-        this.showContent();
+        this.showContent($('#xdialog_form'));
         xclick($('#xdialog_submit'), ()=>this.submit())
         $('#xdialog').modal('show');
     }
-    showContent() {
-        this.showContent0($('#xdialog_form'));
-    }
-    showContent0(_parent) {
-        _parent.empty();
-        for(let column of this.option.columns){
-            tryAddDlgInput(_parent, this.option, column, this.option.pid(), column.getValFrom(this.data));
-        }
+    showContent(_parent) {
+        let _pdom = this._pdom = xOrElse(_parent, this._pdom);
+        _pdom.empty();
+        this.option.columns().forEach(col=>{
+            col.addToForm(_pdom, this.option, this.data[col.key]);
+        });
     }
     getFormData() {
-        var obj = {};
-        for(let column of this.option.columns) {
-            obj[column.key] = column.getFormVal();
-        }
-        return obj;
+        return Column.getVals(this.option.columns(), col=>col.getFormVal());
     }
     submit() {
-        doPost(this.option.uri(), this.option, this.getFormData(), resp=>this.onSubmitResp(resp), {'flex-name': this.option.flexName});
-    }
-    onSubmitResp(resp) {
-        $('#xdialog').modal('hide');
-        this.data = resp;
-        this.option.parent.onDataChanged(this.option, resp);
+        doPost(this.option.uri(), this.option, this.getFormData(), resp=>{
+            $('#xdialog').modal('hide');
+            this.data = resp;   //change data
+            this.option.parent.onDataChanged(this.option, resp);
+        }, {'flex-name': this.option.flexName});
     }
 }
