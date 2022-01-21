@@ -344,8 +344,7 @@ class TableDetail extends Detail {
         _pdom.empty();
         let _tr = 0;
         for(let model of data) {
-            model._id = (++ _tr);
-            let _tabletr = $(`<tr id='xtr_{0}'/>`.format(_tr));
+            let _tabletr = $(`<tr id='xtr_{0}'/>`.format(++_tr));
             _pdom.append(_tabletr)
             var _td = 0;
             for(let column of columns){
@@ -797,7 +796,7 @@ class BoolColumn extends Column {
     makeFormValHtm() {
         return `<div class="form-control custom-control custom-switch custom-switch-on-primary">
                     <input id="dinput_{0}" type="checkbox" class="custom-control-input" value="false">
-                    <label class="custom-control-label" xfor="dinput_{0}" style="margin-left:7.5px;"/>
+                    <label class="custom-control-label" style="margin-left:7.5px;"/>
                 </div>`.format(this.pid());
     }
     setValToFormDom(dom, val) {
@@ -808,10 +807,9 @@ class BoolColumn extends Column {
 class FileColumn extends Column {
     static _ = Column.regist([xTypes._file], this);
     makeFormValHtm() {
-        return `
-                <div class="custom-file">
+        return `<div class="custom-file">
                     <input type="file" class="custom-file-input" id="dinput_{0}">
-                    <label class="custom-file-label" id="dinput_{0}_label" xfor="dinput_{0}"></label>
+                    <label class="custom-file-label" id="dinput_{0}_label"></label>
                 </div>
                 <div id="dinput_{0}_preview"/>`.format(this.pid());
     }
@@ -844,7 +842,7 @@ class FileColumn extends Column {
     }
     filePreview(val) {}
 }
-class ImagColumn extends Column {
+class ImagColumn extends FileColumn {
     static _ = Column.regist([xTypes._imag], this);
     filePreview(val) {
         $("#dinput_{0}_preview".format(this.pid())).html(`<img class="col-sm-2 img-thumbnail" src="{0}">`.format('{0}/{1}?name={2}&X-Token={3}'.format(xurl, xpaths.preview, val, xtoken())));
@@ -860,10 +858,10 @@ class NestColumn extends Column {
     addToTable(_parent, val) {
         let _ntable = $(`<table class="table table-bordered table-hover table-sm text-sm mb-0"></table>`);
         let _nthead = this.collapse
-            ? $(`<thead data-toggle="collapse" data-target="#collaspse_{0}" aria-controls="xst_{0}" aria-expanded="true"></thead>`.format(_parent.attr("id")))
+            ? $(`<thead data-toggle="collapse" data-target="#collaspse_{0}" aria-controls="collaspse_{0}" aria-expanded="true"></thead>`.format(_parent.attr("id")))
             : $(`<thead></thead>`);
         let _ntbody = this.collapse
-            ? $(`<tbody id="collaspse_{0}_" class="collapse"></tbody>`.format(_parent.attr("id")))
+            ? $(`<tbody id="collaspse_{0}" class="collapse"></tbody>`.format(_parent.attr("id")))
             : $(`<tbody></tbody>`);
 
         _parent.append(_ntable);
@@ -888,12 +886,13 @@ class NestColumn extends Column {
 }
 class IndexedNestColumn extends Column {
     static of(_origin, _index, _compact) {
-        let c = Object.assign(Object.create(_origin), _origin);
+        //prototypeOf(get class.prototype) create(copy prototype), assign(copy fields)
+        let c = Object.assign(Object.create(Object.getPrototypeOf(_origin)), _origin);
         c._origin = _origin;
         c._index  = _index;
         c._compact = _compact;
         c.pid = function() {
-            return this._origin.pid() + "_" + this._index;
+            return this._origin.parent.pid() + "_" + this._index + "_" + this._origin.key;
         };
         c.getColBoxHtm = function() {
             if(this._compact == 2)
@@ -916,22 +915,22 @@ class ListColumn extends NestColumn {
     }
     setValToFormDom(_dom, _val) {
         let compact = this.getCompact();
-        //make empty list element
-        let makeElement = (index, aplFunc, _v) => {
-            let _outer = $(`<div id="dnest_{0}_{1}" class="border-left border-bottom position-relative form-group text-sm">`.format(this.pid(), index));
-            aplFunc(_outer);
-
+        this._cIndex = 0;   //reset index
+        let makeElement = _v => {//make element
+            let _outer = $(`<div id="dnest_{0}_{1}" class="border-left border-bottom position-relative form-group text-sm">`.format(this.pid(), ++this._cIndex));
+            _dom.before(_outer);
+            
             if(compact != -1) {
                 let _inner = $(`<div class="form-group row"></div>`);
                 _outer.append(_inner);
                 this.columns.forEach(col=>{    
-                    IndexedNestColumn.of(col, index, compact).addToForm0(_inner, this.parent, xvalueByKey(_v, col.key));
+                    IndexedNestColumn.of(col, this._cIndex, compact).addToForm0(_inner, this.parent, xvalueByKey(_v, col.key));
                 });    
             } else {
                 this.columns.forEach(col=>{
                     let _inner = $(`<div class="form-group row"></div>`);
                     _outer.append(_inner);
-                    IndexedNestColumn.of(col, index, compact).addToForm0(_inner, this.parent, xvalueByKey(_v, col.key));
+                    IndexedNestColumn.of(col, this._cIndex, compact).addToForm0(_inner, this.parent, xvalueByKey(_v, col.key));
                 });
             }
             //minus btn
@@ -940,17 +939,8 @@ class ListColumn extends NestColumn {
             _outer.append(minusBtn);
             return _outer;
         };
-        this._cIndex = 0;
-        xclick(_dom, ()=>makeElement((++this._cIndex), _x=>_dom.before(_x)));
-        if(_val) {
-            let _last;
-            for(let _e of _val) {
-                let aplFunc = _last ? _x=>_last.after(_x) : _x=>_dom.before(_x);
-                if(!_e._id) _e._id = ++this._cIndex
-                this._cIndex = Math.max(_e._id, this._cIndex);
-                _last = makeElement(_e._id, aplFunc, _e);
-            }
-        }
+        if(_val) _val.forEach(makeElement);
+        xclick(_dom, ()=>makeElement());
     }
     getFormVal(needValid=true) {
         let compact = this.getCompact();
