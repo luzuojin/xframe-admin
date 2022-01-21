@@ -305,7 +305,7 @@ class TableDetail extends Detail {
         }
     }
     getQueryParams() {
-        return Column.getVals(this.qryOp.children, col=>col.getQueryVal());
+        return Column.getQueryVals(this.qryOp.children);
     }
     static showTableHead(_pdom, columns, hasOps=false) {
         let _tabletr = $(`<tr id='xtr_{0}'/>`.format(0));
@@ -423,7 +423,7 @@ class MarkdDetail extends Detail {
 }
 
 /*-----------------------------*/
-/*-----------columns-----------*/
+/*------------option-----------*/
 /*-----------------------------*/
 class Option extends Node {
     static of(parent, jOption) {
@@ -438,7 +438,11 @@ class Option extends Node {
         return this.children && this.children.some(e=>e.key==col.key);
     }
     columns() {
-        return this.children && this.children.length > 0 ? this.children : this.parent.columns.map(col=>Column.of(this, col));
+        if(this.children && this.children.length>0)
+            return this.children;
+        if(this._columns)
+            return this._columns
+        return (this._columns = this.parent.columns.map(col=>Column.of(this, col)));
     }
     uri() {
         return this.path ? this.parent.uri().urljoin(this.path) : this.parent.uri();
@@ -450,11 +454,11 @@ class Option extends Node {
         //do flex??
         let flexOption = this.parent.flexOption;
         if(flexOption && flexOption.hasChild(col) && val) {
-            flexOption.doGet(Column.getVals([col], _=>val), resp=>{
+            flexOption.doGet(Column.packVals([col], _=>val), resp=>{
                 if(resp.struct) {
                     this.parent.setStruct(resp.struct);
                     this.flexName = resp.struct.flexName;
-                    delete this.columns;//有结构变化
+                    delete this._columns;//有结构变化
                 }
                 //合并数据&刷新form
                 Object.assign(this._form.data, this._form.getFormData(), xOrElse(resp.data, {}));
@@ -473,6 +477,9 @@ class Option extends Node {
     }
 }
 
+/*-----------------------------*/
+/*-----------columns-----------*/
+/*-----------------------------*/
 class Column {
     static Impls = new Map();
     static regist(types, cls) {
@@ -495,10 +502,12 @@ class Column {
         return c;
     }
 
-    static getVals(columns, valFunc) {
+
+    static packVals(columns, valFunc) {
         let obj = {};
         columns.forEach(col=>{
-            obj[col.key] = valFunc(col);
+            let val = valFunc(col);
+            if(val) obj[col.key] = val;
         });
         return obj;
     }
@@ -523,8 +532,11 @@ class Column {
     }
 
     //as query input
-    getQueryDom() {return $('#xqry_{0}'.format(this.key));}
+    static getQueryVals(columns) {
+        return Column.packVals(columns, col=>col.getQueryVal());
+    }
     getQueryVal() {return this.getQueryDom().val();}
+    getQueryDom() {return $('#xqry_{0}'.format(this.key));}
     addToQueryBox(_parent) {
         if(this.type == xTypes._enum) {
             _parent.append(`<div class="col-sm-2 float-left"><select id="xqry_{0}" class="form-control select2bs4" data-placeholder="{1}" style="width:100%"><option/></select></div>`.format(this.key, this.hint));
@@ -544,6 +556,9 @@ class Column {
     /*--------------------------*/
     /*-----for show in form-----*/
     /*--------------------------*/
+    static getFormVals(columns) {
+        return Column.packVals(columns, col=>col.getFormVal());
+    }
     getFormVal() {  //dlgDataFunc
         return this.getFormValDom().val();
     }
@@ -684,14 +699,16 @@ class FileColumn extends Column {
 class ImagColumn extends Column {
     static _ = Column.regist([xTypes._imag], this);
     filePreview(val) {
-        $("dinput_{0}_preview".format(this.pid())).html(`<img class="col-sm-2 img-thumbnail" src="{0}">`.format('{0}/{1}?name={2}&X-Token={3}'.format(xurl, xpaths.preview, val, xtoken())));
+        $("#dinput_{0}_preview".format(this.pid())).html(`<img class="col-sm-2 img-thumbnail" src="{0}">`.format('{0}/{1}?name={2}&X-Token={3}'.format(xurl, xpaths.preview, val, xtoken())));
     }
 }
 
 
 class NestColumn extends Column {
     static _ = Column.regist([xTypes._model], this);
-
+    onColValChanged(col, val) {
+        this.parent.onColValChanged(col, val);
+    }
     addToTable(_parent, val) {
         let _ntable = $(`<table class="table table-bordered table-hover table-sm text-sm mb-0"></table>`);
         let _nthead = this.collapse
@@ -718,7 +735,7 @@ class NestColumn extends Column {
         });
     }
     getFormVal() {
-        return Column.getVals(this.columns, col=>col.getFormVal());
+        return Column.getFormVals(this.columns);
     }
 }
 class IndexedNestColumn extends Column {
@@ -732,7 +749,7 @@ class IndexedNestColumn extends Column {
         };
         c.getColBoxHtm = function() {
             if(this._compact == 2)
-                return  `<label class="col-sm-2 col-form-label"><p class="float-right">{0}</p></label><div class="col-sm-4">{1}</div>`;
+                return `<label class="col-sm-2 col-form-label"><p class="float-right">{0}</p></label><div class="col-sm-4">{1}</div>`;
             if(this._compact == 3)
                 return `<label class="col-sm-1 col-form-label" ><p class="float-right">{0}</p></label><div class="col-sm-3">{1}</div>`;
             return `<label class="col-sm-2 col-form-label"><p class="float-right">{0}</p></label><div class="col-sm-10">{1}</div>`;
@@ -746,18 +763,29 @@ class ListColumn extends NestColumn {
     makeFormValHtm() {
         return `<button id="dinput_{0}" type="button" style="border: dashed 1px #dee2e6;" class="form-group form-control">+</button>`.format(this.pid());
     }
-    setValToFormDom(_d, v) {
-        let compact = this.compact ? this.columns.length : -1;
+    getCompact() {
+        return (this.compact && this.columns.length <= 3) ? this.columns.length : -1;
+    }
+    setValToFormDom(_dom, _val) {
+        let compact = this.getCompact();
         //make empty list element
         let makeElement = (index, aplFunc, _v) => {
-            let _outer = $(`<div id="{0}_{1}" class="border-left border-bottom position-relative form-group text-sm">`.format(this.pid(), index));
+            let _outer = $(`<div id="dnest_{0}_{1}" class="border-left border-bottom position-relative form-group text-sm">`.format(this.pid(), index));
             aplFunc(_outer);
 
-            let _inner = $(`<div class="form-group row"></div>`);
-            _outer.append(_inner);
-            this.columns.forEach(col=>{
-                IndexedNestColumn.of(col, index, compact).addToForm0(_inner, this.parent, xvalueByKey(_v, col.key));
-            });
+            if(compact != -1) {
+                let _inner = $(`<div class="form-group row"></div>`);
+                _outer.append(_inner);
+                this.columns.forEach(col=>{    
+                    IndexedNestColumn.of(col, index, compact).addToForm0(_inner, this.parent, xvalueByKey(_v, col.key));
+                });    
+            } else {
+                this.columns.forEach(col=>{
+                    let _inner = $(`<div class="form-group row"></div>`);
+                    _outer.append(_inner);
+                    IndexedNestColumn.of(col, index, compact).addToForm0(_inner, this.parent, xvalueByKey(_v, col.key));
+                });
+            }
             //minus btn
             let minusBtn = $(`<button type="button" class="position-absolute close" style="right:.5rem;bottom:.25rem;"><i class="fas fa-minus-circle fa-xs"></i></button>`);
             xclick(minusBtn, ()=>minusBtn.parent().remove());
@@ -765,19 +793,28 @@ class ListColumn extends NestColumn {
             return _outer;
         };
         this._cIndex = 0;
-        xclick(_d, ()=>makeElement((++this._cIndex), _x=>_d.before(_x)));
-        if(v) {
-            let _l;
-            for(let _v of v) {
-                let aplFunc = _l ? (_x)=>_l.after(_x) : (_x)=>_d.before(_x);
-                if(!_v._id) {
-                    _v._id = ++this._cIndex
-                } else {
-                    this._cIndex = Math.max(_v._id, this._cIndex);
-                }
-                _l = makeElement(_v._id, aplFunc, _v);
+        xclick(_dom, ()=>makeElement((++this._cIndex), _x=>_dom.before(_x)));
+        if(_val) {
+            let _last;
+            for(let _e of _val) {
+                let aplFunc = _last ? _x=>_last.after(_x) : _x=>_dom.before(_x);
+                if(!_e._id) _e._id = ++this._cIndex
+                this._cIndex = Math.max(_e._id, this._cIndex);
+                _last = makeElement(_e._id, aplFunc, _e);
             }
         }
+    }
+    getFormVal() {
+        let compact = this.getCompact();
+        let _data = [];
+        for (let index = 1; index <= this._cIndex; ++index) {
+            let _nest = $("#dnest_{0}_{1}".format(this.pid(), index));
+            if(_nest.length && _nest.length>0) {
+                let obj = Column.getFormVals(this.columns.map(col=>IndexedNestColumn.of(col, index, compact)));
+                if(Object.keys(obj).length > 0) _data.push(obj);
+            }
+        }
+        return _data;
     }
 }
 
@@ -810,7 +847,7 @@ class OptionForm {
         });
     }
     getFormData() {
-        return Column.getVals(this.option.columns(), col=>col.getFormVal());
+        return Column.getFormVals(this.option.columns());
     }
     submit() {
         this.option.doPost(this.getFormData(), resp=>{
