@@ -504,11 +504,17 @@ class Option extends Node {
     doPost(data, func, _headers) {
         doPost(this.uri(), this, data, func, xOrElse(_headers, {'flex-name': this.flexName}));
     }
+    doPost0(data, func, _headers) { //不解析resp, resp格式为({status, data})
+        doPost0(this.uri(), this, data, func, xOrElse(_headers, {'flex-name': this.flexName}));
+    }
     doGet(data, func) {
         doGet('{0}?{1}'.format(this.uri(), $.param(data)), func);
     }
     onClick(data) {
         (this._form = new OptionForm(this, data)).show();
+    }
+    onDataChanged(data) {
+        this.parent.onDataChanged(this, data);
     }
 }
 
@@ -1024,8 +1030,7 @@ class OptionForm {
     submit() {
         this.option.doPost(this.getFormData(), resp=>{
             $('#xdialog').modal('hide');
-            this.data = resp;   //change data
-            this.option.parent.onDataChanged(this.option, resp);
+            this.option.onDataChanged((this.data = resp));//change data
         });
     }
 }
