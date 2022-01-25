@@ -25,4 +25,6 @@ public @interface XSegment {
 	//order[large---small]
 	int order() default 10;
 
+	boolean canSort() default false;//是否开启字段排序
+
 }

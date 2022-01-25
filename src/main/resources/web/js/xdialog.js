@@ -31,6 +31,8 @@ let dlgFile=`
             </div>
             <div id="dinput_{0}_{1}_preview"/>
             `;
+let inputValid= `<div class="invalid-feedback">{0}</div>`
+let inputRequired= `<span style="font-size: 14px;color: #ed4014;margin-right: 4px">*</span>`
 
 let fileLabelDom = function(_id) {return $('#{0}_label'.format(_id));};
 let filePreviewDom = function(_id) {return $('#{0}_preview'.format(_id));};
@@ -53,14 +55,74 @@ let tryAddDlgInput= function(parent, op, column, idkey, value, _dlgc=dlgColumn) 
 }
 let addDlgInput= function(parent, op, column, idkey, value, _dlgc) {
     let _htm = getFuncFrom(dlgHtmlFuncs, column.type)(idkey, column);
-    parent.append(_dlgc.format(idkey, column.key, column.hint, _htm));
+    if(column.required){
+        parent.append(_dlgc.format(idkey, column.key, inputRequired + column.hint, _htm + inputValid.format(getInvalidText(column))));
+    }else {
+        parent.append(_dlgc.format(idkey, column.key, column.hint, _htm));
+    }
     let _dom = dlgInputDom(idkey, column.key);
     getFuncFrom(dlgMakeFuncs, column.type)(_dom, op, column, value);
+
+    openValid(_dom, column);
 }
+
+function getInvalidText(column){
+    switch (column.type){
+        case xTypes._text_email:
+            return "邮箱地址不正确";
+        case xTypes._text_phone:
+            return "请输入正确的手机号";
+        default:
+            return "{0}不能为空".format(column.hint);
+    }
+}
+
+function openValid(inputDom, column){
+    if(!column.required){
+        return;
+    }
+    inputDom.on("input", validateInputFunc(inputDom, column));
+}
+
+function validateInputFunc(inputDom, column){
+    switch (column.type){
+        case xTypes._text_email:
+            return function (){
+                var reg = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,5}$/;
+                if(!reg.test(inputDom.val())){
+                    inputDom.addClass("is-invalid");
+                    return false;
+                }
+                inputDom.removeClass("is-invalid");
+                return true;
+            }
+        case xTypes._text_phone:
+            return function () {
+                var reg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
+                if(!reg.test(inputDom.val())){
+                    inputDom.addClass("is-invalid");
+                    return false;
+                }
+                inputDom.removeClass("is-invalid");
+                return true;
+            }
+        default:
+            return function () {
+                if(!inputDom.val()){
+                    inputDom.addClass("is-invalid");
+                    return false;
+                }
+                inputDom.removeClass("is-invalid");
+                return true;
+            }
+    }
+}
+
 
 let dlgHtmlFuncs = {};
 let dlgMakeFuncs = {};
 let dlgDataFuncs = {};
+
 
 //enum
 setFuncTo(dlgHtmlFuncs, [xTypes._enum, xTypes._mult],
@@ -95,11 +157,11 @@ setFuncTo(dlgMakeFuncs, [xTypes._area],
     });
 
 //text
-setFuncTo(dlgHtmlFuncs, [xTypes._text, xTypes._pass, xTypes._datetime, xTypes._date, xTypes._time],
+setFuncTo(dlgHtmlFuncs, [xTypes._text, xTypes._text_phone,xTypes._text_email, xTypes._pass, xTypes._datetime, xTypes._date, xTypes._time],
     function(id, c) {
         return dlgText.format(id, c.key, c.hint, (c.type==xTypes._pass)?'password':'text')
     });
-setFuncTo(dlgMakeFuncs, [xTypes._text, xTypes._pass, xTypes._datetime, xTypes._date, xTypes._time],
+setFuncTo(dlgMakeFuncs, [xTypes._text, xTypes._text_phone,xTypes._text_email, xTypes._pass, xTypes._datetime, xTypes._date, xTypes._time],
     function(_d, op, c, v){
         if(v) _d.val(v).trigger('change');
         if(c.type==xTypes._datetime) xdatepicker(_d);//time pick
@@ -259,11 +321,6 @@ function dialogTitle(dlg, op) {
 function getDialogFormObj(dlg) {
     var obj = {};
     for(let column of dlg.columns) {
-        let val = dlgInputVal(dlg.ident, column);
-        if(column.required && !val) {
-            xtoast.error('{0} is empty'.format(column.key))
-            return undefined;
-        }
         obj[column.key] = dlgInputVal(dlg.ident, column)
     }
     return obj;
@@ -333,6 +390,9 @@ function showDialog(dlg, op, model, func, flxOp) {
 }
 
 function submitDialog(dlg, op, func) {
+    if(!$('#xdialog_form')[0].checkValidity()){
+        return;
+    }
     doPost(dlg.segpath.urljoin(op.path), op, getDialogFormObj(dlg),
         function(resp) {
             modalHide();

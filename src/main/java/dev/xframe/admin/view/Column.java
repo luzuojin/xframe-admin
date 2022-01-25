@@ -13,6 +13,7 @@ public class Column {
     private boolean collapse;
     private boolean compact;
     private boolean required;
+    private boolean canSort;
 
     static int byJavaType(int xtype, Class<?> jtype) {
         if(xtype == 0 && (jtype == boolean.class || jtype == Boolean.class)) {
@@ -25,15 +26,15 @@ public class Column {
     }
 
     public Column(String key) {
-        this(key, firstToUpperCase(key), XColumn.type_text, "", XColumn.full, false, false, false, false);
+        this(key, firstToUpperCase(key), XColumn.type_text, "", XColumn.full, false, false, false, false, true);
     }
     public Column(String key, XColumn xc, Class<?> jType) {
         this(key, xc, byJavaType(xc.type(), jType));
     }
     public Column(String key, XColumn xc, int xcType) {
-        this(key, XStrings.orElse(xc.value(), firstToUpperCase(key)), xcType, xc.enumKey(), xc.show(), xc.primary(), xc.collapse(), xc.compact(), xc.required());
+        this(key, XStrings.orElse(xc.value(), firstToUpperCase(key)), xcType, xc.enumKey(), xc.show(), xc.primary(), xc.collapse(), xc.compact(), xc.required(), xc.canSort());
     }
-    public Column(String key, String hint, int type, String enumKey, int show, boolean primary, boolean collapse, boolean compact, boolean required) {
+    public Column(String key, String hint, int type, String enumKey, int show, boolean primary, boolean collapse, boolean compact, boolean required, boolean canSort) {
         this.key = key;
         this.hint = hint;
         this.type = type;
@@ -43,6 +44,7 @@ public class Column {
         this.collapse = collapse;
         this.compact = compact;
         this.required = required;
+        this.canSort = canSort;
 
         if(!XStrings.isEmpty(enumKey) && this.type == 0)
             this.type = XColumn.type_enum;
@@ -101,5 +103,11 @@ public class Column {
     }
     public void setCompact(boolean compact) {
         this.compact = compact;
+    }
+    public boolean isCanSort() {
+        return canSort;
+    }
+    public void setCanSort(boolean canSort) {
+        this.canSort = canSort;
     }
 }

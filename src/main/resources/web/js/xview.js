@@ -85,11 +85,13 @@ class Chapter extends Navi {
 
 var LatestSeg;
 class Segment extends Navi {
+    canSort;
     constructor(parent, name, path) {
         super(parent, name, path);
     }
     static of(parent, jSegment) {
         let seg = new Segment(parent, jSegment.name, jSegment.path);
+        seg.canSort = jSegment.canSort;
         seg.append(Detail.of(seg, jSegment.detail));
         return seg;
     }
@@ -250,10 +252,16 @@ class Detail extends Node {
 /*-----------details-----------*/
 /*-----------------------------*/
 class TableDetail extends Detail {
+    canSort;
+    sortedData;
     static _ = Detail.regist(1, this);
-    constructor(parent) {super(parent);}
+    constructor(parent) {
+        super(parent);
+        this.canSort = parent.canSort;
+    }
     //change cached data(s)
     onDataChanged(op, data) {
+        console.log(this.columns);
         if(op.type == opTypes.qry || Array.isArray(data)) {
             this.setData(data);
         } else if(data){
@@ -267,7 +275,9 @@ class TableDetail extends Detail {
                 if(op.type == opTypes.del) this.data.splice(idx, 1);
             }
         }
-        this.showContent0();
+        this.sort();
+        this.showContent1();
+        //this.showContent0();
     }
     setData(data) {
         return super.setData(xOrElse(data, []));
@@ -283,7 +293,15 @@ class TableDetail extends Detail {
     showContent0() {
         let trOptions = this.options.filter(e=>e.type==opTypes.del||e.type==opTypes.edt);
         TableDetail.showTableHead($('#xthead'), this.columns, trOptions.length>0);
-        TableDetail.showTableBody($('#xtbody'), this.columns, this.data, trOptions);
+        if(!this.sortedData){
+            this.sortedData = [];
+            Object.assign(this.sortedData, this.data);
+        }
+        TableDetail.showTableBody($('#xtbody'), this.columns, this.sortedData, trOptions);
+    }
+    showContent1(){
+        let trOptions = this.options.filter(e=>e.type==opTypes.del||e.type==opTypes.edt);
+        TableDetail.showTableBody($('#xtbody'), this.columns, this.sortedData, trOptions);
     }
     showQueryBox() {
         let _tr = 0;
@@ -313,7 +331,10 @@ class TableDetail extends Detail {
         _pdom.append(_tabletr);
         for(let column of columns){
             if(xcolumn.list(column)) {
-                _tabletr.append(`<td id='xtd_{0}_{1}' class='align-middle'>{2}</td>`.format(0, 0, column.hint));
+                _tabletr.append(`<td id='xtd_{0}_{1}' class='align-middle'>{2}</td>`.format(0, column.pid(), column.hint));
+                if(column.parent instanceof TableDetail && column.canSort && column.parent.canSort){
+                    column.openSort();
+                }
             }
         }
         if(hasOps)//options td head
@@ -346,6 +367,21 @@ class TableDetail extends Detail {
                     _tabletd.append(`<button id="delbtn_{0}_{1}" type="button" class="btn btn-sm btn-outline-danger">{2}</button>`.format(op.pid(), _tr, op.name));
                     xclick($("#delbtn_{0}_{1}".format(op.pid(), _tr)), ()=>op.onClick(model));
                 }
+            }
+        }
+    }
+    sortChange(sortColumn){
+        for (let column of this.columns) {
+            if(column !== sortColumn && column.sortType > 0){
+                column.cancelSort();
+            }
+        }
+    }
+    sort(){
+        Object.assign(this.sortedData, this.data);
+        for (let colum of this.columns) {
+            if(colum.sortType > 0){
+                colum.sort();
             }
         }
     }
@@ -481,6 +517,7 @@ class Option extends Node {
 /*-----------columns-----------*/
 /*-----------------------------*/
 class Column {
+    sortType = 0;//1升序，2降序
     static Impls = new Map();
     static regist(types, cls) {
         for(let type of types)
@@ -505,11 +542,16 @@ class Column {
 
     static packVals(columns, valFunc) {
         let obj = {};
+        let validResult = true;
         columns.forEach(col=>{
             let val = valFunc(col);
+            if(val === undefined){
+                validResult = false;
+                return
+            }
             if(val) obj[col.key] = val;
         });
-        return obj;
+        return validResult?obj:undefined;
     }
 
     equals(other) {
@@ -559,8 +601,14 @@ class Column {
     static getFormVals(columns) {
         return Column.packVals(columns, col=>col.getFormVal());
     }
-    getFormVal() {  //dlgDataFunc
-        return this.getFormValDom().val();
+    getFormVal(needValid=true) {  //dlgDataFunc
+        let val = this.getFormValDom().val();
+        if(needValid && this.required){
+            if(!this.validateInput(val)){
+                return undefined;
+            }
+        }
+        return val;
     }
     getFormValDom() {
         return $("#dinput_{0}".format(this.pid()));
@@ -577,10 +625,17 @@ class Column {
             this.getFormValDom().attr("disabled", true);
             return
         }
-        xchange(this.getFormValDom(), ()=>this.onValChanged(this.getFormVal()));
+        xchange(this.getFormValDom(), ()=>this.onValChanged(this.getFormVal(false)));
+        xinput(this.getFormValDom(), ()=>this.getFormVal());
     }
     doAddToForm(_parent, val) {
-        let _dom = $(this.getColBoxHtm().format(this.hint, this.makeFormValHtm()));
+        let formValHtm = this.makeFormValHtm();
+        let labelHtm = this.hint;
+        if(this.required){
+            formValHtm += this.inputInvalidHtm().format(this.invalidText());
+            labelHtm = this.inputRequiredHtm() + labelHtm;
+        }
+        let _dom = $(this.getColBoxHtm().format(labelHtm, formValHtm));
         _parent.append(_dom);
         this.setValToFormDom(this.getFormValDom(), val);
     }
@@ -595,6 +650,99 @@ class Column {
     }
     setValToFormDom(dom, val) {//dlgMakeFunc
         if(val) dom.val(val).trigger('change')
+    }
+    inputRequiredHtm(){
+        return `<span style="font-size: 14px;color: #ed4014;margin-right: 4px">*</span>`;
+    }
+    inputInvalidHtm(){
+        return `<div class="invalid-feedback">{0}</div>`;
+    }
+    invalidText(){
+        return "{0}不能为空".format(this.hint);
+    }
+    validateInput(val){
+        if(!val){
+            this.invalid();
+            return false;
+        }
+        this.valid();
+        return true;
+    }
+    valid(){
+        this.getFormValDom().removeClass("is-invalid");
+    }
+    invalid(){
+        this.getFormValDom().addClass("is-invalid");
+    }
+
+    sortIconHtm(){
+        return `<span id="sort-icon-{0}" style="display: flex;flex-direction: column;float: right;vertical-align: middle;">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="12" height="12" fill="currentColor" class="bi bi-caret-up-fill asc-icon" viewBox="0 0 16 16">
+                        <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+                    </svg>
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="12" height="12" fill="currentColor" class="bi bi-caret-down-fill desc-icon" viewBox="0 0 16 16">
+                        <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                    </svg>
+                </span>`.format(this.pid())
+    }
+    sortIconDom() {
+        return $("#sort-icon-{0}".format(this.pid()));
+    }
+    tableHeadDom(){
+        return $("#xtd_{0}_{1}".format(0, this.pid()))
+    }
+    openSort(){
+        let headDom = this.tableHeadDom();
+        headDom.append(this.sortIconHtm());
+        headDom.addClass("sort-table-head");
+        xclick(headDom, ()=> this.sortChange());
+    }
+    sortChange(){
+        this.parent.sortChange(this);
+        this.sortType++;
+        if(this.sortType > 2){
+            this.sortType = 0;
+        }
+        this.sort();
+    }
+    sort(){
+        let dom = this.sortIconDom();
+        switch (this.sortType){
+            case 1:
+                dom.removeClass("sort-desc");
+                dom.addClass("sort-asc");
+                this.parent.sortedData.sort(this.ascSortFunc(this));
+                break;
+            case 2:
+                dom.removeClass("sort-asc");
+                dom.addClass("sort-desc");
+                this.parent.sortedData.sort(this.descSortFunc(this));
+                break;
+            default:
+                this.cancelSort();
+                break;
+        }
+        this.parent.showContent1();
+    }
+    ascSortFunc(column){
+        return function (a,b){
+            if(!column.columns){
+                return (a[column.key] > b[column.key])? 1:-1;
+            }
+        }
+    }
+    descSortFunc(column){
+        return function (a,b){
+            if(!column.columns){
+                return (b[column.key] > a[column.key])? 1:-1;
+            }
+        }
+    }
+    cancelSort(){
+        this.sortType = 0;
+        this.sortIconDom().removeClass("sort-desc");
+        this.sortIconDom().removeClass("sort-asc");
+        Object.assign(this.parent.sortedData, this.parent.data);
     }
 }
 
@@ -734,7 +882,7 @@ class NestColumn extends Column {
             col.addToForm0(dom, this.parent, xvalueByKey(val, col.key));
         });
     }
-    getFormVal() {
+    getFormVal(needValid=true) {
         return Column.getFormVals(this.columns);
     }
 }
@@ -804,13 +952,16 @@ class ListColumn extends NestColumn {
             }
         }
     }
-    getFormVal() {
+    getFormVal(needValid=true) {
         let compact = this.getCompact();
         let _data = [];
         for (let index = 1; index <= this._cIndex; ++index) {
             let _nest = $("#dnest_{0}_{1}".format(this.pid(), index));
             if(_nest.length && _nest.length>0) {
                 let obj = Column.getFormVals(this.columns.map(col=>IndexedNestColumn.of(col, index, compact)));
+                if(obj === undefined){
+                    return undefined;
+                }
                 if(Object.keys(obj).length > 0) _data.push(obj);
             }
         }
@@ -818,6 +969,37 @@ class ListColumn extends NestColumn {
     }
 }
 
+class EmailColumn extends Column{
+    static _ = Column.regist([xTypes._text_email], this);
+    invalidText() {
+        return  "邮箱地址不正确";
+    }
+    validateInput(val){
+        let reg = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,5}$/;
+        if(!reg.test(val)){
+            this.invalid()
+            return false;
+        }
+        this.valid();
+        return true;
+    }
+}
+
+class PhoneColumn extends Column{
+    static _ = Column.regist([xTypes._text_phone], this);
+    invalidText() {
+        return  "请输入正确的手机号";
+    }
+    validateInput(val){
+        let reg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
+        if(!reg.test(val)){
+            this.invalid();
+            return false;
+        }
+        this.valid();
+        return true;
+    }
+}
 
 /*-----------------------------*/
 /*-------------Form------------*/

@@ -249,7 +249,7 @@ var xtd = {
 //panel detail
 var xpd = {//重用dialog相关element
     descHtm: `<div class="col-sm-8 m-auto h-100 h5">{0}</div>`,
-    panelhtm: `<form id="xpanel_form" class="form-horizontal"/>`,
+    panelhtm: `<form id="xpanel_form" class="form-horizontal  was-validated"/>`,
     btnRow: `<div id="xpanel_btnrow" class="form-group row"></div>`,
 
     edtBtn: `<div class="col-sm-2 m-auto"><button id="xpanel_edtbtn_{0}" type="button" class="btn btn-block bg-info">{1}</button></div>`,
@@ -290,9 +290,13 @@ var xpd = {//重用dialog相关element
         }
     },
     submitPanel: function(detail, dlg, op, func) {
+        if(!$('#xpanel_form')[0].checkValidity()){
+            return;
+        }
         doPost(dlg.segpath.urljoin(op.path), op, getDialogFormObj(dlg), func, {'flex-name': detail.flexName});
     }
 };
+
 
 
 var xmkd = {

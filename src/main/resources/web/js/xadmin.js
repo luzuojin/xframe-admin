@@ -48,6 +48,8 @@ var xTypes = {
     _time: 32,
     _model:80,
     _list: 81,
+    _text_phone: 101,
+    _text_email: 102,
 }
 
 var xcolumn = {
@@ -191,6 +193,11 @@ function xchange(dom, func) {
     dom.on('change', func);
 }
 
+function xinput(dom, func){
+    dom.off('input');
+    dom.on('input', func);
+}
+
 var xformatDatetime = 'YYYY-MM-DD HH:mm:ss';
 var xformatDate = 'YYYY-MM-DD';
 var xformatTime = 'HH:mm:ss';
@@ -282,7 +289,10 @@ function showSiderbar(data) {
         xclick(segmentdom(seg), showDetailFunc(seg));
     };
     for(let chapter of data.chapters){
-        $('#xsiderbar').append(chapterhtm(chapter));
+        let _c = Chapter.of(chapter);
+        console.log(_c);
+        _c.show();
+        /*$('#xsiderbar').append(chapterhtm(chapter));
         if(chapter.navis) {
             //仅有一个segment且path={x}, 不展示tab, 合并navis~segments
             if(chapter.segments.length == 1 && chapter.segments[0].path.startsWith("{")) {
@@ -310,7 +320,7 @@ function showSiderbar(data) {
                 psetSegment(seg, chapter);
                 showSegment(seg, chapter)
             }
-        }
+        }*/
     }
 }
 

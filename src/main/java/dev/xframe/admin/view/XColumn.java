@@ -24,6 +24,8 @@ public @interface XColumn {
 	boolean compact() default false; //type_list时 是否显示为一行(只对nest object columns为2~3时生效)
 	
 	boolean required() default false;//客户端提交表单时验证是否有值
+
+	boolean canSort() default true;//是否开启排序
 	
 	//Column类型
 	public static final int type_text = 0;	//文本
@@ -39,6 +41,8 @@ public @interface XColumn {
 	public static final int type_time = 32;	//仅时间
 	public static final int type_model = 80;//对应object
 	public static final int type_list  = 81; //object list
+	public static final int type_text_phone  = 101; //手机号
+	public static final int type_text_email  = 102; //邮箱
 
 	//展示在哪里的相关配置
 	public static final int list = 1 << 0;//Table列表中展示

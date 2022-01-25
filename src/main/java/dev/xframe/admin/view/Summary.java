@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import dev.xframe.admin.view.details.Table;
 import dev.xframe.http.service.Service;
 import dev.xframe.inject.beans.BeanHelper;
 import dev.xframe.utils.XCaught;
@@ -74,6 +75,9 @@ public class Summary {
                 //中间若有为flexable path, 动态列表栏
                 String segPath = pathes[pathes.length-1];//最后一个为segment.path
 				Segment segment = new Segment(xseg.name(), segPath, xseg.order(), parseDetail(xseg, clazz));
+				if(xseg.detail() == Table.class){
+					segment.setCanSort(xseg.canSort());
+				}
                 chapter.getSegments().add(segment);
             }
         }
