@@ -6,14 +6,9 @@ String.prototype.format = function() {
     }
     return str;
 }
-String.prototype.urljoin = function(sub) {
-    var url = this;
-    if(sub) {
-        url = url + '/' + sub;
-    }
-    return url;
+String.prototype.join = function(other, delimiter) {
+    return other ? (this + delimiter + other) : this;
 }
-
 
 var xurl = window.location.origin.startsWith("http") ? window.location.origin : "http://127.0.0.1:8001";
 var xpaths = {
@@ -21,43 +16,6 @@ var xpaths = {
     xenum  : "basic/enum",
     upload : "basic/upload",
     preview: "basic/preview"
-}
-
-//option types
-var opTypes = {
-    ini: -1,
-    qry: 1,
-    add: 2,
-    edt: 3,
-    del: 4,
-    flx: 5
-}
-
-//text types
-var xTypes = {
-    _text: 0,
-    _bool: 1,
-    _enum: 2,
-    _datetime: 3,
-    _area: 4,
-    _file: 5,
-    _imag: 6,
-    _numb: 100,
-    _pass: 9,
-    _mult: 20,//multi enum select
-    _date: 31,
-    _time: 32,
-    _model:80,
-    _list: 81,
-    _text_phone: 101,
-    _text_email: 102,
-}
-
-var xcolumn = {
-    list: function(c){return (c.show & 1) > 0;},
-    edit: function(c){return (c.show & 2) > 0;},
-    add : function(c){return (c.show & 4) > 0;},
-    edel: function(c){return (c.show & 8) > 0;},
 }
 
 var xenumCache = {};
@@ -102,10 +60,6 @@ function xvalue(val) {
 }
 function xvalueByKey(val, key) {
     return val ? xvalue(val[key]) : '';
-}
-
-function showSummary() {
-    doGet(xpaths.summary, showSiderbar);
 }
 
 function doGet(path, func) {
@@ -190,7 +144,7 @@ function xclick(btn, func) {
 }
 
 function xchange(dom, func) {
-    // dom.off('change');
+    dom.off('change');
     dom.on('change', func);
 }
 
@@ -239,7 +193,11 @@ function xselect2(e, xinput, cacheEnable=false) {
 }
 var eCaches = {};
 
-function showSiderbar(data) {
+// show contents
+function showSummary() {
+    doGet(xpaths.summary, showSidebar);
+}
+function showSidebar(data) {
     data.chapters.forEach(c=>Chapter.of(c).show());
 }
 
@@ -257,7 +215,79 @@ function initial() {
     });
 }
 
+// profile
+var xuser;
+function xtoken() {
+    return xuser ? xuser.token : '';
+}
+
+//不严谨. 内网访问判定-自动登录
+function isLocalUrl() {
+    if( xurl.startsWith('http://127.0.0.') ||
+        xurl.startsWith('http://10.') ||
+        xurl.startsWith('http://172.16.') ||
+        xurl.startsWith('http://192.168.')
+        ){
+        return true;
+    }
+    return false;
+}
+
+const _inputs = [
+    {key:"name",hint:"用户名",type:xTypes._text,show:13},
+    {key:"passw",hint:"密码",type:xTypes._pass,show:15}
+];
+const _navi = new Navi(new Navi(null, '用户', 'basic'), 'unused', 'profile');//segment->detail->option
+
+function showUser(user) {
+    xuser = user;
+    $('#xuser').empty();
+    $('#xuser').append(`<i class="fas fa-user"></i> {0}`.format(user.name));
+
+    $('#xcontent').append('<div class="card-header"><h3>Welcome</h3></div>');
+
+    xclick($('#xuser_logout'), ()=>{
+        Option.of(_navi, {
+            name: "登出",
+            type: opTypes.del,
+            inputs: _inputs
+        }).doPost({name: xuser.name, passw: ''}, ()=>location.reload());
+    });
+    xclick($('#xuser_profile'), ()=>{
+        let op = Option.of(_navi, {
+            name: "修改密码",
+            type: opTypes.edt,
+            inputs: _inputs
+        });
+        op.onClick({name: xuser.name, passw: ''});
+    });
+}
+
+function doLogin() {
+    let op = Option.of(_navi, {
+        name: "登录",
+        type: opTypes.add,
+        inputs: _inputs
+    });
+    let cb = op.onDataChanged = data=>{
+        showUser(data);
+        showSummary();  //show
+    };
+    if(isLocalUrl()) {
+        let cb0 = resp=>{
+            if(resp.status == -1) {
+                op.onClick();
+            } else {
+                cb(resp.data);
+            }
+        }
+        op.doPost0({name:'local'}, cb0);
+    } else {
+        op.onClick();
+    }
+}
+
 $(function () {
     initial();
-    doLogin(showSummary);
+    doLogin();
 });

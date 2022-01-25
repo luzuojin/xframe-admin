@@ -1,3 +1,40 @@
+//option types
+var opTypes = {
+    ini: -1,
+    qry: 1,
+    add: 2,
+    edt: 3,
+    del: 4,
+    flx: 5
+}
+
+//text types
+var xTypes = {
+    _text: 0,
+    _bool: 1,
+    _enum: 2,
+    _datetime: 3,
+    _area: 4,
+    _file: 5,
+    _imag: 6,
+    _numb: 100,
+    _pass: 9,
+    _mult: 20,//multi enum select
+    _date: 31,
+    _time: 32,
+    _model:80,
+    _list: 81,
+    _text_phone: 101,
+    _text_email: 102,
+}
+
+var xShowcase = {//column.show
+    list: function(c){return (c.show & 1) > 0;},
+    edit: function(c){return (c.show & 2) > 0;},
+    add : function(c){return (c.show & 4) > 0;},
+    edel: function(c){return (c.show & 8) > 0;},
+}
+
 class Node {
     parent;
     children = [];
@@ -27,10 +64,10 @@ class Navi extends Node {
         return this;
     }
     uri() {
-        return this.parent ? this.parent.uri().urljoin(this.path) : this.path;
+        return this.parent ? this.parent.uri().join(this.path, '/') : this.path;
     }
     pid() {//path ident
-        return (this.parent && this.parent.pid) ? (this.parent.pid() + "_" + this.path) : this.path;
+        return (this.parent && this.parent.pid) ? this.parent.pid().join(this.path, '_') : this.path;
     }
 }
 
@@ -330,7 +367,7 @@ class TableDetail extends Detail {
         _pdom.empty();
         _pdom.append(_tabletr);
         for(let column of columns){
-            if(xcolumn.list(column)) {
+            if(xShowcase.list(column)) {
                 _tabletr.append(`<td id='xtd_{0}_{1}' class='align-middle'>{2}</td>`.format(0, column.pid(), column.hint));
                 if(column.parent instanceof TableDetail && column.canSort && column.parent.canSort){
                     column.openSort();
@@ -348,7 +385,7 @@ class TableDetail extends Detail {
             _pdom.append(_tabletr)
             var _td = 0;
             for(let column of columns){
-                if(xcolumn.list(column)) {
+                if(xShowcase.list(column)) {
                     let _tabletd = $(`<td id='xtd_{0}_{1}' class='align-middle'></td>`.format(_tr, (++_td)));
                     _tabletr.append(_tabletd);
                     column.addToTable(_tabletd, column.getValFrom(model));
@@ -480,10 +517,10 @@ class Option extends Node {
         return (this._columns = this.parent.columns.map(col=>Column.of(this, col)));
     }
     uri() {
-        return this.path ? this.parent.uri().urljoin(this.path) : this.parent.uri();
+        return this.parent.uri().join(this.path, '/');
     }
     pid() {
-        return this.path ? (this.parent.pid() + "_" + this.path) : this.parent.pid();
+        return this.parent.pid().join(this.path, '_');
     }
     onColValChanged(col, val) {
         //do flex??
@@ -622,11 +659,11 @@ class Column {
         this.addToForm0(_parent, this.parent, val)
     }
     addToForm0(_parent, op, val) {
-        if(op.type == opTypes.add && !xcolumn.add(this)) return;
-        if(op.type >= opTypes.edt && !xcolumn.edel(this)) return;
+        if(op.type == opTypes.add && !xShowcase.add(this)) return;
+        if(op.type >= opTypes.edt && !xShowcase.edel(this)) return;
         this.doAddToForm(_parent, val);
         //disabled
-        if (op.type == opTypes.del || (op.type == opTypes.edt && !xcolumn.edit(this))) {
+        if (op.type == opTypes.del || (op.type == opTypes.edt && !xShowcase.edit(this))) {
             this.getFormValDom().attr("disabled", true);
             return
         }
