@@ -658,7 +658,7 @@ class Column {
     /*-----for show in form-----*/
     /*--------------------------*/
     static validateFormVals(columns, vals) {
-        return !columns.some(col=>col.required&&!col.validateFromVal(vals[col.key]));
+        return !columns.some(col=>col.required&&!col.validateAndDisplay(vals[col.key]));
     }
     static getFormVals(columns) {
         return Column.packVals(columns, col=>col.getFormVal());
@@ -685,12 +685,7 @@ class Column {
         //for input validate
         if(this.required) {
             xinput(this.getFormValDom(), ()=>{
-                let isValid = this.validateFromVal(this.getFormVal());
-                if(isValid) {
-                    this.getFormValDom().removeClass("is-invalid");
-                } else {
-                    this.getFormValDom().addClass("is-invalid");
-                }
+                this.validateAndDisplay(this.getFormVal());
             });
         }
     }
@@ -725,6 +720,15 @@ class Column {
     }
     invalidText(){
         return "{0}不能为空".format(this.hint);
+    }
+    validateAndDisplay(val){
+        let isValid = this.validateFromVal(val);
+        if(isValid) {
+            this.getFormValDom().removeClass("is-invalid");
+        } else {
+            this.getFormValDom().addClass("is-invalid");
+        }
+        return isValid;
     }
     validateFromVal(val){
         return !!val;
@@ -1050,14 +1054,14 @@ class OptionForm {
     getFormData0() {
         return Column.getFormVals(this.option.columns());
     }
-    getFromData() {
+    getFormData() {
         let val = this.getFormData0();
         if(Column.validateFormVals(this.option.columns(), val))
             return val;
         return undefined;//throw error?
     }
     submit() {
-        this.option.doPost(this.getFromData(), resp=>{
+        this.option.doPost(this.getFormData(), resp=>{
             $('#xdialog').modal('hide');
             this.option.onDataChanged((this.data = resp));//change data
         });
