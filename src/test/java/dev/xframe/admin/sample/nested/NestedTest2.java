@@ -8,7 +8,7 @@ public class NestedTest2 {
 	
 	@XColumn(value="ID", primary=true)
 	private int id;
-	@XColumn("Name")
+	@XColumn(value="Name")
 	private String name;
 	@XColumn(value="Type", enumKey=NESTED_TYPE)
 	private String type;

@@ -537,7 +537,7 @@ class Option extends Node {
                     delete this._columns;//有结构变化
                 }
                 //合并数据&刷新form
-                Object.assign(this._form.data, this._form.getFormData(), xOrElse(resp.data, {}));
+                Object.assign(this._form.data, this._form.getFormData0(), xOrElse(resp.data, {}));
                 this._form.showContent();
             });
         }
@@ -606,16 +606,11 @@ class Column {
 
     static packVals(columns, valFunc) {
         let obj = {};
-        let validResult = true;
         columns.forEach(col=>{
             let val = valFunc(col);
-            if(val === undefined){
-                validResult = false;
-                return
-            }
             if(val) obj[col.key] = val;
         });
-        return validResult?obj:undefined;
+        return obj;
     }
 
     equals(other) {
@@ -662,17 +657,14 @@ class Column {
     /*--------------------------*/
     /*-----for show in form-----*/
     /*--------------------------*/
+    static validateFormVals(columns, vals) {
+        return !columns.some(col=>col.required&&!col.validateFromVal(vals[col.key]));
+    }
     static getFormVals(columns) {
         return Column.packVals(columns, col=>col.getFormVal());
     }
-    getFormVal(needValid=true) {  //dlgDataFunc
-        let val = this.getFormValDom().val();
-        if(needValid && this.required){
-            if(!this.validateInput(val)){
-                return undefined;
-            }
-        }
-        return val;
+    getFormVal() {  //dlgDataFunc
+        return this.getFormValDom().val();
     }
     getFormValDom() {
         return $("#dinput_{0}".format(this.pid()));
@@ -690,7 +682,17 @@ class Column {
             return
         }
         xchange(this.getFormValDom(), ()=>this.onValChanged(this.getFormVal(false)));
-        xinput(this.getFormValDom(), ()=>this.getFormVal());
+        //for input validate
+        if(this.required) {
+            xinput(this.getFormValDom(), ()=>{
+                let isValid = this.validateFromVal(this.getFormVal());
+                if(isValid) {
+                    this.getFormValDom().removeClass("is-invalid");
+                } else {
+                    this.getFormValDom().addClass("is-invalid");
+                }
+            });
+        }
     }
     doAddToForm(_parent, val) {
         let formValHtm = this.makeFormValHtm();
@@ -724,19 +726,8 @@ class Column {
     invalidText(){
         return "{0}不能为空".format(this.hint);
     }
-    validateInput(val){
-        if(!val){
-            this.invalid();
-            return false;
-        }
-        this.valid();
-        return true;
-    }
-    valid(){
-        this.getFormValDom().removeClass("is-invalid");
-    }
-    invalid(){
-        this.getFormValDom().addClass("is-invalid");
+    validateFromVal(val){
+        return !!val;
     }
 
     //for sort
@@ -925,8 +916,11 @@ class NestColumn extends Column {
             col.addToForm0(dom, this.parent, xvalueByKey(val, col.key));
         });
     }
-    getFormVal(needValid=true) {
+    getFormVal() {
         return Column.getFormVals(this.columns);
+    }
+    validateFromVal(val) {
+        return Column.validateFormVals(this.columns, val);
     }
 }
 class IndexedNestColumn extends Column {
@@ -987,20 +981,20 @@ class ListColumn extends NestColumn {
         if(_val) _val.forEach(makeElement);
         xclick(_dom, ()=>makeElement());
     }
-    getFormVal(needValid=true) {
+    getFormVal() {
         let compact = this.getCompact();
         let _data = [];
         for (let index = 1; index <= this._cIndex; ++index) {
             let _nest = $("#dnest_{0}_{1}".format(this.pid(), index));
             if(_nest.length && _nest.length>0) {
                 let obj = Column.getFormVals(this.columns.map(col=>IndexedNestColumn.of(col, index, compact)));
-                if(obj === undefined){
-                    return undefined;
-                }
                 if(Object.keys(obj).length > 0) _data.push(obj);
             }
         }
         return _data;
+    }
+    validateFromVal(val) {
+        return !val.some(_v=>!Column.validateFormVals(this.columns, _v));
     }
 }
 
@@ -1009,14 +1003,9 @@ class EmailColumn extends Column{
     invalidText() {
         return  "邮箱地址不正确";
     }
-    validateInput(val){
+    validateFromVal(val){
         let reg = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,5}$/;
-        if(!reg.test(val)){
-            this.invalid()
-            return false;
-        }
-        this.valid();
-        return true;
+        return reg.test(val);
     }
 }
 
@@ -1025,14 +1014,9 @@ class PhoneColumn extends Column{
     invalidText() {
         return  "请输入正确的手机号";
     }
-    validateInput(val){
+    validateFromVal(val){
         let reg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
-        if(!reg.test(val)){
-            this.invalid();
-            return false;
-        }
-        this.valid();
-        return true;
+        return reg.test(val);
     }
 }
 
@@ -1063,11 +1047,17 @@ class OptionForm {
             col.addToForm(_pdom, xvalueByKey(this.data, col.key));
         });
     }
-    getFormData() {
+    getFormData0() {
         return Column.getFormVals(this.option.columns());
     }
+    getFromData() {
+        let val = this.getFormData0();
+        if(Column.validateFormVals(this.option.columns(), val))
+            return val;
+        return undefined;//throw error?
+    }
     submit() {
-        this.option.doPost(this.getFormData(), resp=>{
+        this.option.doPost(this.getFromData(), resp=>{
             $('#xdialog').modal('hide');
             this.option.onDataChanged((this.data = resp));//change data
         });
