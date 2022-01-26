@@ -658,7 +658,7 @@ class Column {
     /*-----for show in form-----*/
     /*--------------------------*/
     static validateFormVals(columns, vals) {
-        return !columns.some(col=>col.required&&!col.validateAndDisplay(vals[col.key]));
+        return !columns.some(col=>col.required&&!col.validateAndPromptFormVal(vals[col.key]));
     }
     static getFormVals(columns) {
         return Column.packVals(columns, col=>col.getFormVal());
@@ -685,7 +685,7 @@ class Column {
         //for input validate
         if(this.required) {
             xinput(this.getFormValDom(), ()=>{
-                this.validateAndDisplay(this.getFormVal());
+                this.validateAndPromptFormVal(this.getFormVal());
             });
         }
     }
@@ -721,7 +721,7 @@ class Column {
     invalidText(){
         return "{0}不能为空".format(this.hint);
     }
-    validateAndDisplay(val){
+    validateAndPromptFormVal(val){
         let isValid = this.validateFromVal(val);
         if(isValid) {
             this.getFormValDom().removeClass("is-invalid");
