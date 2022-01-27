@@ -360,7 +360,7 @@ class TableDetail extends Detail {
         for(let op of this.getOptions(opTypes.add)) {
             let _id = op.pid();
             $('#xboxhead').append(`<button id="addbtn_{0}_{1}" type="button" class="btn bg-gradient-success float-right" style="margin-left:7.5px;margin-right:7.5px;">{2}</button>`.format(_id, _tr, op.name));
-            xclick($("#addbtn_{0}_{1}".format(op.pid(), _tr)), ()=>op.onClick(this.padding?this.getQueryParams():{}));
+            xclick($("#addbtn_{0}_{1}".format(op.pid(), _tr)), ()=>op.popup(this.padding?this.getQueryParams():{}));
         }
     }
     getQueryParams() {
@@ -401,11 +401,11 @@ class TableDetail extends Detail {
                 _tabletr.append(_tabletd);
                 for(let op of options.filter(e=>e.type==opTypes.edt)) {
                     _tabletd.append(`<button id="edtbtn_{0}_{1}" type="button" class="btn btn-sm btn-outline-info" style="margin-right:5px">{2}</button>`.format(op.pid(), _tr, op.name));
-                    xclick($("#edtbtn_{0}_{1}".format(op.pid(), _tr)), ()=>op.onClick(model));
+                    xclick($("#edtbtn_{0}_{1}".format(op.pid(), _tr)), ()=>op.popup(model));
                 }
                 for(let op of options.filter(e=>e.type==opTypes.del)) {
                     _tabletd.append(`<button id="delbtn_{0}_{1}" type="button" class="btn btn-sm btn-outline-danger">{2}</button>`.format(op.pid(), _tr, op.name));
-                    xclick($("#delbtn_{0}_{1}".format(op.pid(), _tr)), ()=>op.onClick(model));
+                    xclick($("#delbtn_{0}_{1}".format(op.pid(), _tr)), ()=>op.popup(model));
                 }
             }
         }
@@ -551,7 +551,7 @@ class Option extends Node {
     doGet(data, func) {
         doGet('{0}?{1}'.format(this.uri(), $.param(data)), func);
     }
-    onClick(data) {
+    popup(data) {
         (this._form = new OptionForm(this, data)).show();
     }
     onDataChanged(data) {

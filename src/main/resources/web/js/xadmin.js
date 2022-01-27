@@ -139,17 +139,17 @@ var xtoast = {
 }
 
 function xclick(btn, func) {
-    btn.off('click');
+//    btn.off('click');
     btn.click(func);
 }
 
 function xchange(dom, func) {
-    dom.off('change');
+//    dom.off('change');
     dom.on('change', func);
 }
 
 function xinput(dom, func){
-    dom.off('input');
+//    dom.off('input');
     dom.on('input', func);
 }
 
@@ -259,7 +259,7 @@ function showUser(user) {
             type: opTypes.edt,
             inputs: _inputs
         });
-        op.onClick({name: xuser.name, passw: ''});
+        op.popup({name: xuser.name, passw: ''});
     });
 }
 
@@ -276,14 +276,14 @@ function doLogin() {
     if(isLocalUrl()) {
         let cb0 = resp=>{
             if(resp.status == -1) {
-                op.onClick();
+                op.popup();
             } else {
                 cb(resp.data);
             }
         }
         op.doPost0({name:'local'}, cb0);
     } else {
-        op.onClick();
+        op.popup();
     }
 }
 
