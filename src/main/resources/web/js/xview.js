@@ -832,11 +832,11 @@ class EnumColumn extends Column {
     }
 }
 class BoolColumn extends Column {
-    static _ = Column.regist([xTypes._time], this);
+    static _ = Column.regist([xTypes._bool], this);
     makeFormValHtm() {
         return `<div class="form-control custom-control custom-switch custom-switch-on-primary">
                     <input id="dinput_{0}" type="checkbox" class="custom-control-input" value="false">
-                    <label class="custom-control-label" style="margin-left:7.5px;"/>
+                    <label for="dinput_{0}" class="custom-control-label" style="margin-left:7.5px;"/>
                 </div>`.format(this.pid());
     }
     setValToFormDom(dom, val) {
@@ -849,7 +849,7 @@ class FileColumn extends Column {
     makeFormValHtm() {
         return `<div class="custom-file">
                     <input type="file" class="custom-file-input" id="dinput_{0}">
-                    <label class="custom-file-label" id="dinput_{0}_label"></label>
+                    <label for="dinput_{0}" class="custom-file-label" id="dinput_{0}_label"></label>
                 </div>
                 <div id="dinput_{0}_preview"/>`.format(this.pid());
     }
