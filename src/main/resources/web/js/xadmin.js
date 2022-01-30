@@ -1,15 +1,3 @@
-String.prototype.format = function() {
-    var str = this;
-    for (let key in arguments) {
-        let reg = new RegExp("({)" + key + "(})", "g");
-        str = str.replace(reg, arguments[key]);
-    }
-    return str;
-}
-String.prototype.join = function(other, delimiter) {
-    return other ? (this + delimiter + other) : this;
-}
-
 var xurl = window.location.origin.startsWith("http") ? window.location.origin : "http://127.0.0.1:8001";
 var xpaths = {
     summary: "basic/summary",
@@ -25,7 +13,7 @@ function xenum(key) {
     } else {
         let xenumData = $.parseJSON($.ajax({
             type: "GET",
-            url: "{0}/{1}?key={2}".format(xurl, xpaths.xenum, key),
+            url: `${xurl}/${xpaths.xenum}?key=${key}`,
             headers: {"X-Token": xtoken()},
             cache: false,
             async: false
@@ -52,14 +40,17 @@ function xenumText(key, id) {
         return simpleText(id);
     }
 }
-function xOrElse(val, oth) {
-    return val==undefined ? oth : val;
+function xConcat(left, delimiter, right) {
+    return (left && right) ? `${left}${delimiter}${right}` : (left ? left : (right ? right : ''));
 }
-function xvalue(val) {
+function xOrElse(val, oth) {
+    return val ? val : oth;
+}
+function xOrEmpty(val) {
     return xOrElse(val, '');
 }
-function xvalueByKey(val, key) {
-    return val ? xvalue(val[key]) : '';
+function xOrGet(val, key) {
+    return val ? val[key] : undefined;
 }
 
 function doGet(path, func) {
@@ -69,7 +60,7 @@ function doGet0(path, func) {
     xlatestOp = undefined;
     $.ajax({
         type: 'get',
-        url: '{0}/{1}'.format(xurl, path),
+        url: `${xurl}/${path}`,
         headers: {"X-Token": xtoken()},
         dataType: 'json',
         success: func
@@ -86,7 +77,7 @@ function doPost0(path, op, data, func, _headers={}) {
     xlatestOp = op;
     $.ajax({
         type: httpTypes[op.type],
-        url: '{0}/{1}'.format(xurl, path),
+        url: `${xurl}/${path}`,
         data: JSON.stringify(data),
         headers: Object.assign({"X-Token": xtoken()}, _headers),
         dataType: 'json',
@@ -97,12 +88,12 @@ function doResp(func) {
     return function(resp, textStatus, xhr) {
         clrEnumCaches(xhr);
         if(resp.status == -1) {
-            xtoast.error(resp.text?resp.text:'{0} 失败'.format(xlatestOp.name));
+            xtoast.error(resp.text?resp.text:`${xlatestOp.name} 失败`);
         } else if(resp.status == -2) { //提示
             xtoast.info(resp.text)
             func(resp.data);
         } else if(xlatestOp && xlatestOp.name) {
-            xtoast.succ('{0} 成功'.format(xlatestOp.name));
+            xtoast.succ(`${xlatestOp.name} 成功`);
             func(resp.data);
         } else {
             func(resp.data);
@@ -242,7 +233,7 @@ const _navi = new Navi(new Navi(null, '用户', 'basic'), 'unused', 'profile');/
 function showUser(user) {
     xuser = user;
     $('#xuser').empty();
-    $('#xuser').append(`<i class="fas fa-user"></i> {0}`.format(user.name));
+    $('#xuser').append(`<i class="fas fa-user"></i> ${user.name}`);
 
     $('#xcontent').append('<div class="card-header"><h3>Welcome</h3></div>');
 
