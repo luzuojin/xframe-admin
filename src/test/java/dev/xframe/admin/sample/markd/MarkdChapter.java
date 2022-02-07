@@ -1,16 +1,24 @@
 package dev.xframe.admin.sample.markd;
 
-import java.util.Arrays;
-import java.util.List;
-
+import dev.xframe.admin.system.BasicContext;
 import dev.xframe.admin.view.Navi;
-import dev.xframe.admin.view.Navigable;
 import dev.xframe.admin.view.XChapter;
+import dev.xframe.inject.Bean;
+import dev.xframe.inject.Inject;
+import dev.xframe.inject.Loadable;
 
+import java.util.Arrays;
+
+@Bean
 @XChapter(name="wildcard&markd",path="markd")
-public class MarkdChapter implements Navigable {
+public class MarkdChapter implements Loadable {
+
+    @Inject
+    private BasicContext basicCtx;
+
     @Override
-    public List<Navi> get() {
-        return Arrays.asList(new Navi("userops", "userops"), new Navi("sysops", "sysops"), new Navi("readme", "readme"));
+    public void load() {
+        basicCtx.registNaviValue("markd", ()-> Arrays.asList(new Navi("userops", "userops"), new Navi("sysops", "sysops"), new Navi("readme", "readme")));
     }
+    
 }

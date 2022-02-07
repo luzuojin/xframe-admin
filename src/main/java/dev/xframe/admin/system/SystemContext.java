@@ -10,6 +10,7 @@ import dev.xframe.admin.system.auth.UserPrivileges;
 import dev.xframe.admin.system.privilege.Privilege;
 import dev.xframe.admin.system.role.Role;
 import dev.xframe.admin.system.user.User;
+import dev.xframe.admin.view.Navi;
 import dev.xframe.admin.view.Segment;
 import dev.xframe.admin.view.VEnum;
 import dev.xframe.inject.Bean;
@@ -36,8 +37,8 @@ public class SystemContext implements Loadable {
         
         basicCtx.getSummary().getChapters().forEach(c->{
             privileges.add(new Privilege(c.getName(), c.getPath()));
-            for (Segment seg : c.getSegments()) {
-                privileges.add(new Privilege("・"+seg.getName(), c.getPath() + "/" + seg.getPath()));
+            for (Navi navi : c.getNavis()) {
+                privileges.add(new Privilege("・"+navi.getName(), c.getPath() + "/" + navi.getPath()));
             }
         });
         

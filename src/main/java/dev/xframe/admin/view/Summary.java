@@ -4,7 +4,6 @@ import dev.xframe.admin.view.details.Markd;
 import dev.xframe.admin.view.details.Panel;
 import dev.xframe.admin.view.details.Table;
 import dev.xframe.http.service.Service;
-import dev.xframe.inject.beans.BeanHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,35 +65,23 @@ public class Summary {
 		Map<String, Chapter> chapters = new LinkedHashMap<>();
         for (Class<?> clazz : classes) {
             if(clazz.isAnnotationPresent(XChapter.class)) {
-                XChapter chapter = clazz.getAnnotation(XChapter.class);
-                Chapter value = new Chapter(chapter);
-				chapters.put(chapter.path(), value);
-				parseNavigable(clazz, value);
+				Chapter chapter = new Chapter(clazz.getAnnotation(XChapter.class));
+				chapters.put(chapter.getPath(), chapter);
             }
         }
         
         for (Class<?> clazz : classes) {
             if(clazz.isAnnotationPresent(XSegment.class)) {
                 XSegment xseg = clazz.getAnnotation(XSegment.class);
-                String[] pathes = Service.findPath(clazz).split("/");
-                Chapter chapter = chapters.get(pathes[0]);//第一个为chapter.path
-                //中间若有为flexable path, 动态列表栏
-                String segPath = pathes[pathes.length-1];//最后一个为segment.path
-				Segment segment = new Segment(xseg.name(), segPath, xseg.order(), parseDetail(xseg, clazz));
-				if(xseg.type() == XSegment.type_table){
-					segment.setSortable(xseg.sortable());
+                String[] paths = Service.findPath(clazz).split("/");
+                Navigate parent = chapters.get(paths[0]);//第一个为chapter.path
+				if(paths.length == 3) {//三级菜单
+					parent = (Navigate) Symbol.unwrap(parent.findOrAdd(paths[1], Symbol.wrap(parent.path, new Navigate(paths[1]))));
 				}
-                chapter.getSegments().add(segment);
+				parent.getNavis().add(Symbol.wrap(parent.path, new Segment(paths[paths.length-1], xseg, parseDetail(xseg, clazz))));
             }
         }
-        
-        this.setChapters(chapters.values().stream().peek(c->Collections.sort(c.getSegments())).sorted().collect(Collectors.toList()));
-	}
-
-	void parseNavigable(Class<?> clazz, Chapter chapter) {
-		if(Navigable.class.isAssignableFrom(clazz)) {
-			chapter.fix((Navigable) BeanHelper.inject(clazz));
-		}
+        this.setChapters(chapters.values().stream().peek(c->Collections.sort(c.getNavis())).sorted().collect(Collectors.toList()));
 	}
 
 	Detail parseDetail(XSegment xseg, Class<?> declaring) {

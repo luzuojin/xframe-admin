@@ -32,5 +32,13 @@ public class Navi implements Comparable<Navi> {
 	public int compareTo(Navi o) {
 	    return Integer.compare(o.order, this.order);
 	}
-	
+
+	protected void fillTo(Chapter chapter) {
+		chapter.getNavis().add(this);
+	}
+
+	protected Navi duplicateBy(Navi navi) {
+		return new Navi(navi.name, navi.path, navi.order);
+	}
+
 }

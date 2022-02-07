@@ -123,6 +123,13 @@ var foo = function (bar) {
 
 console.log(foo(5));
 ```
+``` java
+public class Foo {
+    void dosomething() {
+        System.out.println("Bar");
+    }
+}
+```
 
 ## Tables
 

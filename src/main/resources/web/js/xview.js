@@ -48,6 +48,7 @@ class Node {
     }
     append(node) {
         this.children.push(node);
+        return node;
     }
     //显示
     show() {}
@@ -82,25 +83,12 @@ class Chapter extends Navi {
     }
     static of(jChapter) {
         let c = new Chapter(jChapter.name, jChapter.path);
-        if(jChapter.navis) {
-            //仅有一个segment且path={x}, 不展示tab, 合并navis~segments
-            if(jChapter.segments.length == 1 && jChapter.segments[0].path.startsWith("{")) {
-                let jSegment = jChapter.segments[0];  //wildcard segment
-                for(let jNavi of jChapter.navis) {
-                    c.append(Segment.of(c, jSegment).mergeFrom(jNavi));
-                }
-            } else {//展示tab
-                for(let jNavi of jChapter.navis) {
-                    let tab = Tab.of(c, jNavi);
-                    for(let jSegment of jChapter.segments) {
-                        tab.append(Segment.of(tab, jSegment));
-                    }
-                    c.append(tab);
-                }
-            }
-        } else {
-            for(let jSegment of jChapter.segments){//二级菜单
-                c.append(Segment.of(c, jSegment));
+        for(let jNavi of jChapter.navis) {
+            if(jNavi.detail) {  //segment
+                c.append(Segment.of(c, jNavi));
+            } else {             //tab (二级菜单)
+                let tab = c.append(Tab.of(c, jNavi));
+                jNavi.navis.forEach(_jNavi=>tab.append(Segment.of(tab, _jNavi)));
             }
         }
         return c
@@ -328,7 +316,7 @@ class TableDetail extends Detail {
     showContent() {
         $('#xboxhead').empty();
         $('#xboxbody').empty();
-        $('#xboxbody').append(`<table id="xtable" class="table table-bordered table-hover"><thead id="xthead"></thead><tbody id="xtbody"></tbody></table>`);
+        $('#xboxbody').append(`<table id="xtable" class="table table-bordered table-hover"><thead id="xthead" bgcolor="#f8f9fa"></thead><tbody id="xtbody"></tbody></table>`);
 
         this.showQueryBox();
         this.showContent0();
@@ -370,14 +358,14 @@ class TableDetail extends Detail {
         _pdom.append(_tabletr);
         for(let column of columns){
             if(xShowcase.list(column)) {
-                _tabletr.append(`<td id='xtd_0_${column.pid()}' class='align-middle'>${column.hint}</td>`);
+                _tabletr.append(`<th id='xtd_0_${column.pid()}' class='align-middle'>${column.hint}</th>`);
                 if(column.parent instanceof TableDetail && column.sortable && column.parent.sortable){
                     column.openSort();
                 }
             }
         }
         if(hasOps)//options td head
-            _tabletr.append(`<td id='xtd_0_0' class='align-middle text-right'>Options</td>`);
+            _tabletr.append(`<th id='xtd_0_0' class='align-middle text-right'>Options</th>`);
     }
     static showTableBody(_pdom, columns, data, options) {
         _pdom.empty();
@@ -470,7 +458,7 @@ class MarkdDetail extends Detail {
             code(code, infostr, enscaped) {
                 let lang = hljs.getLanguage(infostr) ? infostr : 'plaintext';
                 let text = hljs.highlight(lang, code).value;
-                return `<pre class="pre" style="white-space:pre-wrap;word-break:normal;background-color:#f6f8fa;border-radius:4px;">${text}</pre>`;
+                return `<pre class="p-0"><code class="hljs language-${lang}">${text}</code></pre>`;
             },
             table(header, body) {
                 return `<div class="table-responsive">
@@ -484,10 +472,7 @@ class MarkdDetail extends Detail {
                 return `<tr>${content}</tr>`;
             },
             tablecell(content, flags) {
-                if(flags.header) {
-                    return `<th>${content}</th>`
-                }
-                return `<td>${content}</td>`;
+                return flags.header ? `<th>${content}</th>` : `<td>${content}</td>`;
             }
         };
         marked.use({renderer});

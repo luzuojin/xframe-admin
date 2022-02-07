@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import dev.xframe.admin.system.auth.AuthContext;
-import dev.xframe.admin.system.auth.OpUser;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;
 import dev.xframe.http.request.MultiPart;
@@ -34,7 +33,7 @@ public class BasicService {
 	
 	@HttpMethods.GET("enum")
 	public Object getEnum(@HttpArgs.Param String key) {
-		return basicCtx.getEnumValue(OpUser.get(), key);
+		return basicCtx.getEnumValue(key);
 	}
     
     @HttpMethods.POST("upload")

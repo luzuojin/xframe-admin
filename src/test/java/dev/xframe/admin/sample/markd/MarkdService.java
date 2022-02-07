@@ -9,8 +9,10 @@ import dev.xframe.http.service.rest.HttpMethods;
 @Rest("markd/{name}")
 @XSegment(name = "unused", model = void.class, type = XSegment.type_markd)
 public class MarkdService {
+
     @HttpMethods.GET
     public Object get(@HttpArgs.Path String name) {
         return Markd.read(name + ".md");
     }
+
 }
