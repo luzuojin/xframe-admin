@@ -114,13 +114,11 @@ class Chapter extends Navi {
 
 var LatestSeg;
 class Segment extends Navi {
-    sortable;
     constructor(parent, name, path) {
         super(parent, name, path);
     }
     static of(parent, jSegment) {
         let seg = new Segment(parent, jSegment.name, jSegment.path);
-        seg.sortable = jSegment.sortable;
         seg.append(Detail.of(seg, jSegment.detail));
         return seg;
     }
@@ -220,7 +218,6 @@ class Detail extends Node {
         return cls ? cls : Detail;
     }
     type;
-    padding;
     options;
     data;
     constructor(parent) {
@@ -229,8 +226,9 @@ class Detail extends Node {
     static of(parent, jDetail) {
         let d = new (Detail.getCls(jDetail.type))(parent);
         d.type = jDetail.type;
-        d.desc = jDetail.desc;
-        d.padding = jDetail.padding;
+        d.desc = jDetail.desc;          //panel
+        d.padding = jDetail.padding;    //table
+        d.sortable = jDetail.sortable;  //table
         d.flexName = jDetail.flexName;
         d.children = d.columns = jDetail.columns.map(jColumn=>Column.of(d, jColumn));
         d.options = jDetail.options.map(jOption=>Option.of(d, jOption));
@@ -280,12 +278,10 @@ class Detail extends Node {
 /*-----------details-----------*/
 /*-----------------------------*/
 class TableDetail extends Detail {
-    sortable;
-    originalData = [];
     static _ = Detail.regist(1, this);
+    originalData = [];
     constructor(parent) {
         super(parent);
-        this.sortable = parent.sortable;
     }
     //change cached data(s)
     onDataChanged(op, data) {

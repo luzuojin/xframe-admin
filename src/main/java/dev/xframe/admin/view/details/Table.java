@@ -11,6 +11,7 @@ public class Table extends Classic {
 	}
 
 	private boolean padding;
+    private boolean sortable;
     
     public boolean getPadding() {
         return padding;
@@ -18,11 +19,18 @@ public class Table extends Classic {
     public void setPadding(boolean padding) {
         this.padding = padding;
     }
-    
+    public boolean getSortable() {
+        return sortable;
+    }
+    public void setSortable(boolean sortable) {
+        this.sortable = sortable;
+    }
+
     @Override
     public Detail parseFrom(XSegment xseg, Class<?> declaring) {
     	super.parseFrom(xseg, declaring);
     	this.padding = xseg.padding();
+        this.sortable = xseg.sortable();
     	this.checkQryOption();
         return this;
     }
