@@ -1,21 +1,21 @@
 package dev.xframe.admin.system;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import dev.xframe.admin.system.auth.RolePrivileges;
 import dev.xframe.admin.system.auth.UserPrivileges;
 import dev.xframe.admin.system.privilege.Privilege;
 import dev.xframe.admin.system.role.Role;
 import dev.xframe.admin.system.user.User;
 import dev.xframe.admin.view.Navi;
-import dev.xframe.admin.view.Segment;
+import dev.xframe.admin.view.Symbol;
 import dev.xframe.admin.view.VEnum;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;
 import dev.xframe.inject.Loadable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Bean
 public class SystemContext implements Loadable {
@@ -38,7 +38,9 @@ public class SystemContext implements Loadable {
         basicCtx.getSummary().getChapters().forEach(c->{
             privileges.add(new Privilege(c.getName(), c.getPath()));
             for (Navi navi : c.getNavis()) {
-                privileges.add(new Privilege("・"+navi.getName(), c.getPath() + "/" + navi.getPath()));
+                if(!(navi instanceof Symbol)) {
+                    privileges.add(new Privilege("・"+navi.getName(), c.getPath() + "/" + navi.getPath()));
+                }
             }
         });
         
