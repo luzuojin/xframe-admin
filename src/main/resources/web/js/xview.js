@@ -122,13 +122,13 @@ class Chapter extends Navi {
 
 var LatestSeg;
 class Segment extends Navi {
-    canSort;
+    sortable;
     constructor(parent, name, path) {
         super(parent, name, path);
     }
     static of(parent, jSegment) {
         let seg = new Segment(parent, jSegment.name, jSegment.path);
-        seg.canSort = jSegment.canSort;
+        seg.sortable = jSegment.sortable;
         seg.append(Detail.of(seg, jSegment.detail));
         return seg;
     }
@@ -289,27 +289,26 @@ class Detail extends Node {
 /*-----------details-----------*/
 /*-----------------------------*/
 class TableDetail extends Detail {
-    canSort;
-    sortedData;
+    sortable;
+    originalData = [];
     static _ = Detail.regist(1, this);
     constructor(parent) {
         super(parent);
-        this.canSort = parent.canSort;
+        this.sortable = parent.sortable;
     }
     //change cached data(s)
     onDataChanged(op, data) {
-        console.log(this.columns);
         if(op.type == opTypes.qry || Array.isArray(data)) {
             this.setData(data);
         } else if(data){
             let pks = this.columns.filter(col=>col.primary).map(col=>col.key);
-            let idx = pks.length==0?-1:this.data.findIndex(dat=>!pks.some(pk=>data[pk]!=dat[pk]));//! not equals
+            let idx = pks.length==0?-1:this.originalData.findIndex(dat=>!pks.some(pk=>data[pk]!=dat[pk]));//! not equals
             if(idx == -1) {
-                if(op.type == opTypes.add) this.data.push(data);
+                if(op.type == opTypes.add) this.originalData.push(data);
             } else {
-                if(op.type == opTypes.add) this.data[idx] = data;
-                if(op.type == opTypes.edt) this.data[idx] = data;
-                if(op.type == opTypes.del) this.data.splice(idx, 1);
+                if(op.type == opTypes.add) this.originalData[idx] = data;
+                if(op.type == opTypes.edt) this.originalData[idx] = data;
+                if(op.type == opTypes.del) this.originalData.splice(idx, 1);
             }
         }
         this.sort();
@@ -317,6 +316,7 @@ class TableDetail extends Detail {
         //this.showContent0();
     }
     setData(data) {
+        Object.assign(this.originalData, data);
         return super.setData(xOrElse(data, []));
     }
     showContent() {
@@ -330,15 +330,11 @@ class TableDetail extends Detail {
     showContent0() {
         let trOptions = this.options.filter(e=>e.type==opTypes.del||e.type==opTypes.edt);
         TableDetail.showTableHead($('#xthead'), this.columns, trOptions.length>0);
-        if(!this.sortedData){
-            this.sortedData = [];
-            Object.assign(this.sortedData, this.data);
-        }
-        TableDetail.showTableBody($('#xtbody'), this.columns, this.sortedData, trOptions);
+        TableDetail.showTableBody($('#xtbody'), this.columns, this.data, trOptions);
     }
     showContent1(){
         let trOptions = this.options.filter(e=>e.type==opTypes.del||e.type==opTypes.edt);
-        TableDetail.showTableBody($('#xtbody'), this.columns, this.sortedData, trOptions);
+        TableDetail.showTableBody($('#xtbody'), this.columns, this.data, trOptions);
     }
     showQueryBox() {
         let _tr = 0;
@@ -369,7 +365,7 @@ class TableDetail extends Detail {
         for(let column of columns){
             if(xShowcase.list(column)) {
                 _tabletr.append(`<td id='xtd_{0}_{1}' class='align-middle'>{2}</td>`.format(0, column.pid(), column.hint));
-                if(column.parent instanceof TableDetail && column.canSort && column.parent.canSort){
+                if(column.parent instanceof TableDetail && column.sortable && column.parent.sortable){
                     column.openSort();
                 }
             }
@@ -408,16 +404,16 @@ class TableDetail extends Detail {
     }
     sortChange(sortColumn){
         for (let column of this.columns) {
-            if(column !== sortColumn && column.sortType > 0){
+            if(column !== sortColumn && column.sortType !== SortTypes.NIL){
                 column.cancelSort();
             }
         }
     }
     sort(){
-        Object.assign(this.sortedData, this.data);
-        for (let colum of this.columns) {
-            if(colum.sortType > 0){
-                colum.sort();
+        Object.assign(this.data, this.originalData);
+        for (let column of this.columns) {
+            if(column.sortType !== SortTypes.NIL){
+                column.sortType.apply(column);
             }
         }
     }
@@ -558,8 +554,27 @@ class Option extends Node {
 /*-----------------------------*/
 /*-----------columns-----------*/
 /*-----------------------------*/
+
+const SortTypes = Object.freeze({
+    DSC:{name:"dsc", num: -1, next: ()=> SortTypes.NIL, apply: (col)=>{
+            let dom = col.sortIconDom();
+            dom.removeClass("sort-asc");
+            dom.addClass("sort-desc");
+            col.parent.data.sort(col.sortFunc());
+        }},
+    NIL:{name:"nil", num: 0, next: ()=> SortTypes.ASC, apply: (col)=>{
+            col.cancelSort();
+        }},
+    ASC:{name:"asc", num: 1, next: ()=> SortTypes.DSC, apply: (col)=>{
+            let dom = col.sortIconDom();
+            dom.removeClass("sort-desc");
+            dom.addClass("sort-asc");
+            col.parent.data.sort(col.sortFunc());
+        }},
+});
+
 class Column {
-    sortType = 0;//1升序，2降序
+    sortType = SortTypes.NIL;
     static Impls = new Map();
     static regist(types, cls) {
         for(let type of types)
@@ -741,50 +756,22 @@ class Column {
     }
     sortChange(){
         this.parent.sortChange(this);
-        this.sortType++;
-        if(this.sortType > 2){
-            this.sortType = 0;
-        }
-        this.sort();
-    }
-    sort(){
-        let dom = this.sortIconDom();
-        switch (this.sortType){
-            case 1:
-                dom.removeClass("sort-desc");
-                dom.addClass("sort-asc");
-                this.parent.sortedData.sort(this.ascSortFunc(this));
-                break;
-            case 2:
-                dom.removeClass("sort-asc");
-                dom.addClass("sort-desc");
-                this.parent.sortedData.sort(this.descSortFunc(this));
-                break;
-            default:
-                this.cancelSort();
-                break;
-        }
+        this.sortType = this.sortType.next();
+        this.sortType.apply(this);
         this.parent.showContent1();
     }
-    ascSortFunc(column){
-        return function (a,b){
-            if(!column.columns){
-                return (a[column.key] > b[column.key])? 1:-1;
-            }
-        }
-    }
-    descSortFunc(column){
-        return function (a,b){
-            if(!column.columns){
-                return (b[column.key] > a[column.key])? 1:-1;
+    sortFunc(){
+        return (a,b) => {
+            if(!this.columns){
+                return (a[this.key] > b[this.key])? this.sortType.num: -1 * this.sortType.num;
             }
         }
     }
     cancelSort(){
-        this.sortType = 0;
+        this.sortType = SortTypes.NIL;
         this.sortIconDom().removeClass("sort-desc");
         this.sortIconDom().removeClass("sort-asc");
-        Object.assign(this.parent.sortedData, this.parent.data);
+        Object.assign(this.parent.data, this.parent.originalData);
     }
 }
 

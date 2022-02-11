@@ -4,7 +4,7 @@ public class Segment extends Navi {
 	
 	protected Detail detail;
 
-    protected boolean canSort;
+    protected boolean sortable;
 	
 	public Segment(String name, String path, int order, Detail detail) {
 		super(name, path, order);
@@ -18,11 +18,11 @@ public class Segment extends Navi {
         this.detail = detail;
     }
 
-    public void setCanSort(boolean canSort) {
-        this.canSort = canSort;
+    public void setSortable(boolean sortable) {
+        this.sortable = sortable;
     }
 
-    public boolean isCanSort() {
-        return canSort;
+    public boolean isSortable() {
+        return sortable;
     }
 }

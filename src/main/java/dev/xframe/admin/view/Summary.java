@@ -81,8 +81,8 @@ public class Summary {
                 //中间若有为flexable path, 动态列表栏
                 String segPath = pathes[pathes.length-1];//最后一个为segment.path
 				Segment segment = new Segment(xseg.name(), segPath, xseg.order(), parseDetail(xseg, clazz));
-				if(xseg.detail() == Table.class){
-					segment.setCanSort(xseg.canSort());
+				if(xseg.type() == XSegment.type_table){
+					segment.setSortable(xseg.sortable());
 				}
                 chapter.getSegments().add(segment);
             }

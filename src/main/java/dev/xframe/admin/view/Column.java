@@ -16,7 +16,7 @@ public class Column {
     private boolean collapse;
     private boolean compact;
     private boolean required;
-    private boolean canSort;
+    private boolean sortable;
 
     static int inferType(XColumn xc, Class<?> jtype, String key) {
         if(xc.type() == 0) {
@@ -57,15 +57,15 @@ public class Column {
     }
     public Column(String key, String hint, int type, String enumKey, int show, boolean primary, boolean collapse, boolean compact, boolean required, boolean canSort) {
         this.key = key;
-        this.hint = hint;
-        this.type = type;
-        this.enumKey = enumKey;
-        this.show = show;
-        this.primary = primary;
-        this.collapse = collapse;
-        this.compact = compact;
-        this.required = required;
-        this.canSort = canSort;
+        this.hint = XStrings.orElse(xc.value(), firstToUpperCase(key));
+        this.type = inferType(xc, jType, key);
+        this.enumKey = xc.enumKey();
+        this.show = xc.show();
+        this.primary = xc.primary();
+        this.collapse = xc.collapse();
+        this.compact = xc.compact();
+        this.required = xc.required();
+        this.sortable = xc.canSort();
     }
 
     public int getShow() {
@@ -122,10 +122,10 @@ public class Column {
     public void setCompact(boolean compact) {
         this.compact = compact;
     }
-    public boolean isCanSort() {
-        return canSort;
+    public boolean isSortable() {
+        return sortable;
     }
-    public void setCanSort(boolean canSort) {
-        this.canSort = canSort;
+    public void setSortable(boolean sortable) {
+        this.sortable = sortable;
     }
 }
