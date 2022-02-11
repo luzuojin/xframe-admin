@@ -11,6 +11,8 @@ public class NestedListTest {
 	private int id;
 	@XColumn(value="Name", sortable=true)
 	private String name;
+	@XColumn(type=XColumn.type_email, required=true)
+	private String email;
 	@XColumn(value="Nest", compact=true, collapse=true)
 	private List<NestedObj> nest;
 	@XColumn("Desc")
@@ -49,5 +51,11 @@ public class NestedListTest {
 	}
 	public void setDesc(String desc) {
 		this.desc = desc;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }

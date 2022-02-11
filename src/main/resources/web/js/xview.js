@@ -684,20 +684,18 @@ class Column {
             this.getFormValDom().attr("disabled", true);
             return
         }
-        xchange(this.getFormValDom(), ()=>this.onValChanged(this.getFormVal(false)));
+        xchange(this.getFormValDom(), ()=>this.onValChanged(this.getFormVal()));
         //for input validate
         if(this.required) {
-            xinput(this.getFormValDom(), ()=>{
-                this.validateAndPromptFormVal(this.getFormVal());
-            });
+            xinput(this.getFormValDom(), ()=>this.validateAndPromptFormVal(this.getFormVal()));
         }
     }
     doAddToForm(_parent, val) {
         let formValHtm = this.makeFormValHtm();
         let labelHtm = this.hint;
-        if(this.required){
-            formValHtm += this.inputInvalidHtm();
-            labelHtm = this.inputRequiredHtm() + labelHtm;
+        if(this.required){  //validation
+            formValHtm += `<div class="invalid-feedback">${this.invalidText()}</div>`;
+            labelHtm   += `<span class="text-danger">*</span>`;
         }
         let _dom = $(this.getColBoxHtm(labelHtm, formValHtm));
         _parent.append(_dom);
@@ -715,22 +713,13 @@ class Column {
     setValToFormDom(dom, val) {//dlgMakeFunc
         if(val) dom.val(val).trigger('change')
     }
-    inputRequiredHtm(){
-        return `<span style="font-size: 14px;color: #ed4014;margin-right: 4px">*</span>`;
-    }
-    inputInvalidHtm(){
-        return `<div class="invalid-feedback">${this.invalidText()}</div>`;
-    }
+    //for validation
     invalidText(){
-        return `${this.hint}不能为空`;
+        return `${this.hint} 不能为空`;
     }
     validateAndPromptFormVal(val){
         let isValid = this.validateFromVal(val);
-        if(isValid) {
-            this.getFormValDom().removeClass("is-invalid");
-        } else {
-            this.getFormValDom().addClass("is-invalid");
-        }
+        this.getFormValDom().toggleClass("is-invalid", !isValid);
         return isValid;
     }
     validateFromVal(val){
@@ -749,7 +738,7 @@ class PasswordColumn extends Column {
     makeFormValHtm() {    //dlgHtmFunc
         return `<input id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint}" type="password">`;
     }
-    getFormVal() {  //dlgDataFunc
+    getFormVal() {        //dlgDataFunc
         return $.md5(super.getFormVal());
     }
 }
@@ -783,7 +772,7 @@ class TimeColumn extends Column {
 class EnumColumn extends Column {
     static _ = Column.regist([colTypes._enum, colTypes._mult], this);
     makeFormValHtm() {
-        return `<select id="dinput_${this.pid()}" class="form-control select2" data-placeholder="${this.hint}" style="width:100%"></select>`;
+        return `<select id="dinput_${this.pid()}" class="form-control select2" data-placeholder="${this.hint}"></select>`;
     }
     setValToFormDom(dom, val) {
         xselect2(dom, this);
@@ -968,8 +957,7 @@ class EmailColumn extends Column{
         return "邮箱地址不正确";
     }
     validateFromVal(val){
-        let reg = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,5}$/;
-        return reg.test(val);
+        return /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,5}$/.test(val);
     }
 }
 
@@ -979,8 +967,7 @@ class PhoneColumn extends Column{
         return  "请输入正确的手机号";
     }
     validateFromVal(val){
-        let reg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
-        return reg.test(val);
+        return /^[1][3,4,5,7,8,9][0-9]{9}$/.test(val);
     }
 }
 

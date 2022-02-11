@@ -7,6 +7,7 @@ public class PanelTest2 extends PanelTest {
 	private String email;
 	@XColumn(type=XColumn.type_area)
 	private String content;
+	private boolean showcase;
 
 	public PanelTest2() {
 		setRoleId(1002);
@@ -27,6 +28,12 @@ public class PanelTest2 extends PanelTest {
 	}
 	public void setContent(String content) {
 		this.content = content;
+	}
+	public boolean isShowcase() {
+		return showcase;
+	}
+	public void setShowcase(boolean showcase) {
+		this.showcase = showcase;
 	}
 
 	@Override
