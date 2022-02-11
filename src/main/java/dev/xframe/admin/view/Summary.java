@@ -1,5 +1,11 @@
 package dev.xframe.admin.view;
 
+import dev.xframe.admin.view.details.Markd;
+import dev.xframe.admin.view.details.Panel;
+import dev.xframe.admin.view.details.Table;
+import dev.xframe.http.service.Service;
+import dev.xframe.inject.beans.BeanHelper;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -92,11 +98,24 @@ public class Summary {
 	}
 
 	Detail parseDetail(XSegment xseg, Class<?> declaring) {
-	    try {
-            return xseg.detail().newInstance().parseFrom(xseg, declaring);
-        } catch (Exception e) {
-            throw XCaught.throwException(e);
-        }
+		int type = xseg.type();
+		if(type == XSegment.type_table) {
+			if(xseg.detail() == Panel.class) type = XSegment.type_panel;
+			if(xseg.detail() == Markd.class) type = XSegment.type_markd;
+		}
+		Detail detail;
+		switch (type) {
+			case XSegment.type_panel:
+				detail = new Panel();
+				break;
+			case XSegment.type_markd:
+				detail = new Markd();
+				break;
+			default:
+				detail = new Table();
+				break;
+		}
+		return detail.parseFrom(xseg, declaring);
 	}
 	
 }

@@ -1,5 +1,6 @@
 package dev.xframe.admin.view;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -45,16 +46,27 @@ public @interface XColumn {
 	public static final int type_text_email  = 102; //邮箱
 
 	//展示在哪里的相关配置
-	public static final int list = 1 << 0;//Table列表中展示
-	public static final int edit = 1 << 1;//是否可编辑(disable),显示由edel决定
-	public static final int add  = 1 << 2;//新增(add)Dialog中展示
-	public static final int edel = 1 << 3;//编辑/删除(edt/del)中展示
+	int list = 1 << 0;//Table列表中展示
+	int edit = 1 << 1;//是否可编辑(disable),显示由edel决定
+	int add  = 1 << 2;//新增(add)Dialog中展示
+	int edel = 1 << 3;//编辑/删除(edt/del)中展示
 	//下面为各种组合展示的配置
-	public static final int full = (1 << 4) - 1;		//所有
-	public static final int list_edel = (list | edel);	//列表及改删(只有新增不显示)
-	public static final int xor_list = (full ^ list);	//只有列表不显示
-	public static final int xor_edit = (full ^ edit);	//只是不能编辑
-	public static final int xor_add  = (full ^ add);	//新增不显示
-	public static final int xor_edel = (full ^ edel);	//改删均不展示
-	
+	int full = (1 << 4) - 1;		//所有
+	int list_edel = (list | edel);	//列表及改删(只有新增不显示)
+	int xor_list = (full ^ list);	//只有列表不显示
+	int xor_edit = (full ^ edit);	//只是不能编辑
+	int xor_add  = (full ^ add);	//新增不显示
+	int xor_edel = (full ^ edel);	//改删均不展示
+
+	XColumn Default = new XColumn(){
+		public String value() {return "";}
+		public int type() {return type_text;}
+		public int show() {return full;}
+		public String enumKey() {return "";}
+		public boolean primary() {return false;}
+		public boolean collapse() {return false;}
+		public boolean compact() {return false;}
+		public boolean required() {return false;}
+		public Class<? extends Annotation> annotationType() {return XColumn.class;}
+	};
 }

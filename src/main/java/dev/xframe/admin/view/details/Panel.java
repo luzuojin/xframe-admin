@@ -10,7 +10,7 @@ public class Panel extends Classic {
 	private String desc;
 	
 	public Panel() {
-		super(type_panel);
+		super(XSegment.type_panel);
 	}
 	
 	public String getDesc() {

@@ -7,9 +7,13 @@ public class PanelTest2 extends PanelTest {
 	private String email;
 	@XColumn(type=XColumn.type_area)
 	private String content;
-	
+
 	public PanelTest2() {
 		setRoleId(1002);
+	}
+	public PanelTest2(String content) {
+		this();
+		this.content = content;
 	}
 
 	public String getEmail() {

@@ -42,6 +42,7 @@ var xTypes = {
     _area: 4,
     _file: 5,
     _imag: 6,
+    _numb: 100,
     _pass: 9,
     _mult: 20,//multi enum select
     _date: 31,
@@ -189,7 +190,7 @@ function xclick(btn, func) {
 }
 
 function xchange(dom, func) {
-    dom.off('change');
+    // dom.off('change');
     dom.on('change', func);
 }
 
@@ -238,145 +239,8 @@ function xselect2(e, xinput, cacheEnable=false) {
 }
 var eCaches = {};
 
-//main html
-let chapterhtm= function(chapter){
-return `<li class="nav-item has-treeview">
-            <a class="nav-link" href="javascript:void(0);">
-              <i class="nav-icon fab fa-gg"/>
-              <p>
-                {0}
-                <i class="right fas fa-angle-left"/>
-              </p>
-            </a>
-            <ul id="chapter_{1}" class="nav nav-treeview"/>
-        </li>
-        `.format(chapter.name, chapter.path)
-}
-let chapterdom= function(chapter){return $('#chapter_{0}'.format(chapter.path));};
-
-let segmenthtm= function(seg){
-    return `
-        <li class="nav-item">
-            <a id="seg_{0}_{1}" class="nav-link" href="javascript:void(0);">
-              <i class="fas fa-paperclip"/>
-              <p>{2}</p>
-            </a>
-        </li>
-        `.format(seg.cpath, seg.path, seg.name);
-}
-let segmentdom= function(seg){return $('#seg_{0}_{1}'.format(seg.cpath, seg.path));}
-
-let tabelehtm= function(seg){
-    return `
-        <li class="nav-item">
-            <a id="segtab_{0}_{1}" class="nav-link text-dark" data-toggle="pill" href="javascript:void(0);" role="tab" aria-selected="false">{2}</a>
-        </li>`.format(seg.cpath, seg.path, seg.name);
-}
-let tabeledom= function(seg) {return $('#segtab_{0}_{1}'.format(seg.cpath, seg.path));}
-
 function showSiderbar(data) {
-    let copySegment = function(navi, _detail, _index) {
-        return Object.assign({}, navi, {detail: Object.assign({}, _detail)}, {index: _index});
-    }
-    let psetSegment = function(seg, chapter, navi={}) {
-        seg.cpath = chapter.path;
-        seg.detail.path = seg.path;
-        seg.detail.segname = seg.name;
-        seg.detail.segpath = chapter.path.urljoin(xvalue(navi.path)).urljoin(seg.path);
-    };
-    let showSegment = function(seg, chapter) {
-        chapterdom(chapter).append(segmenthtm(seg))
-        xclick(segmentdom(seg), showDetailFunc(seg));
-    };
-    for(let chapter of data.chapters){
-        let _c = Chapter.of(chapter);
-        console.log(_c);
-        _c.show();
-        /*$('#xsiderbar').append(chapterhtm(chapter));
-        if(chapter.navis) {
-            //仅有一个segment且path={x}, 不展示tab, 合并navis~segments
-            if(chapter.segments.length == 1 && chapter.segments[0].path.startsWith("{")) {
-                let wseg = chapter.segments[0];//wildcard segment
-                for(let pseg of chapter.navis) {
-                    let seg = copySegment(pseg, wseg.detail)
-                    psetSegment(seg, chapter);
-                    showSegment(seg, chapter);
-                }
-            } else {//展示tab
-                for(let pseg of chapter.navis) {
-                    pseg.cpath = chapter.path
-                    pseg.tabs = [];
-                    for(let tsegIdx in chapter.segments) {
-                        let tseg = chapter.segments[tsegIdx];
-                        let nseg = copySegment(tseg, tseg.detail, tsegIdx);//copy seg
-                        psetSegment(nseg, chapter, pseg);
-                        pseg.tabs.push(nseg);
-                    }
-                    showSegment(pseg, chapter)
-                }
-            }
-        } else {
-            for(let seg of chapter.segments){//二级菜单
-                psetSegment(seg, chapter);
-                showSegment(seg, chapter)
-            }
-        }*/
-    }
-}
-
-var xlatestSeg;
-function showDetailFunc(seg) {
-    return function() {
-        if(xlatestSeg)
-            segmentdom(xlatestSeg).removeClass('active'); 
-        xlatestSeg = seg;
-        segmentdom(seg).addClass('active');
-
-        $('#xcontent').empty();
-        let detailBodyHtm = `
-                <div class="card-header">
-                  <div class="row">
-                    <div id="xboxhead" class="clearfix w-100"></div>
-                  </div>
-                </div>
-                <div id="xboxbody" class="card-body">
-                </div>`;
-        if(seg.tabs) {
-            let tabctxhtm= `
-                    <div class="card-header p-0 border-bottom-0">
-                    <ul id="xtabContainer" class="nav nav-tabs" role="tablist"></ul>
-                    </div>
-                    `;
-            $('#xcontent').append($(tabctxhtm));
-            $('#xcontent').append($(detailBodyHtm));
-            for(let segTab of seg.tabs) {
-                $('#xtabContainer').append(tabelehtm(segTab));
-                xclick(tabeledom(segTab), showDetailFuncByTab(segTab));
-            }
-            //show first tab
-            let showIndex = 0;
-            if(xlatestSeg.tab) {
-                showIndex = xlatestSeg.tab.index;
-            }
-            showDetailFuncByTab(seg.tabs[showIndex])();
-        } else {
-            $('#xcontent').append($(detailBodyHtm));
-            showDetail(seg.detail);
-        }
-    };
-}
-
-function showDetailFuncByTab(segTab) {
-    return function() {
-        if(xlatestSeg.tab) {
-            tabeledom(xlatestSeg.tab).removeClass('active');
-            tabeledom(xlatestSeg.tab).attr('aria-selected', false);
-        }
-        xlatestSeg.tab = segTab;
-        tabeledom(segTab).addClass('active');
-        tabeledom(segTab).attr('aria-selected', true);
-        showDetail(segTab.detail);
-    }
+    data.chapters.forEach(c=>Chapter.of(c).show());
 }
 
 // popup dialog keypress listening

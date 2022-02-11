@@ -4,13 +4,12 @@ import dev.xframe.admin.utils.JsonHelper;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.admin.view.details.Flex;
-import dev.xframe.admin.view.details.Panel;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
 
 @Rest("panel/{tab}/test1")
-@XSegment(detail=Panel.class, model=PanelTest.class, desc="面板内容展示", name="PanelTest1")
+@XSegment(type=XSegment.type_panel, model=PanelTest.class, desc="面板内容展示", name="PanelTest1")
 public class TabPanelTestService {
 
 	@HttpMethods.GET("ini")

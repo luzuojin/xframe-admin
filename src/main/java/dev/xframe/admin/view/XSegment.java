@@ -1,11 +1,11 @@
 package dev.xframe.admin.view;
 
+import dev.xframe.admin.view.details.Table;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import dev.xframe.admin.view.details.Table;
 
 /**
  * path use @Http.path
@@ -16,7 +16,7 @@ import dev.xframe.admin.view.details.Table;
 public @interface XSegment {
 	
 	String name();
-	Class<? extends Detail> detail() default Table.class;
+	int type() default type_table;
 	Class<?> model();
 	//for table detail
 	boolean padding() default false;//Option.add时是否把qry表单中的字段用来填充
@@ -26,5 +26,16 @@ public @interface XSegment {
 	int order() default 10;
 
 	boolean canSort() default false;//是否开启字段排序
+	
+	/**deprecated by type */
+	@Deprecated
+	Class<? extends Detail> detail() default Table.class;
+
+	/**表格类详情页*/
+	int type_table = 1;
+	/**单对象详情页*/
+	int type_panel = 2;
+	/**Markdown展示页,只需要ini*/
+	int type_markd = 3;
 
 }

@@ -766,6 +766,12 @@ class PasswordColumn extends Column {
         return $.md5(super.getFormVal());
     }
 }
+class NumberColumn extends Column {
+    static _ = Column.regist([xTypes._numb], this);
+    makeFormValHtm() {    //dlgHtmFunc
+        return `<input id="dinput_{0}" class="form-control" placeholder="{1}" type="{2}">`.format(this.pid(), this.hint, 'number');
+    }
+}
 class DateTimeColumn extends Column {
     static _ = Column.regist([xTypes._datetime], this);
     setValToFormDom(dom, val) {//dlgMakeFunc

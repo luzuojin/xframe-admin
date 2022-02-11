@@ -7,7 +7,7 @@ import dev.xframe.admin.view.XSegment;
 public class Table extends Classic {
     
     public Table() {
-		super(type_table);
+		super(XSegment.type_table);
 	}
 
 	private boolean padding;

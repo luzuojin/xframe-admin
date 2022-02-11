@@ -1,6 +1,9 @@
 package dev.xframe.admin.view;
 
+import dev.xframe.utils.XProperties;
 import dev.xframe.utils.XStrings;
+
+import java.util.Collection;
 
 public class Column {
     private int type;
@@ -15,11 +18,29 @@ public class Column {
     private boolean required;
     private boolean canSort;
 
-    static int byJavaType(int xtype, Class<?> jtype) {
-        if(xtype == 0 && (jtype == boolean.class || jtype == Boolean.class)) {
-            return XColumn.type_bool;
+    static int inferType(XColumn xc, Class<?> jtype, String key) {
+        if(xc.type() == 0) {
+            if(!XStrings.isEmpty(xc.enumKey()))
+                return (jtype.isArray() || Collection.class.isAssignableFrom(jtype)) ?
+                        XColumn.type_mult : XColumn.type_enum;
+            if(jtype == boolean.class || jtype == Boolean.class)
+                return XColumn.type_bool;
+            if(jtype.isPrimitive() || Number.class.isAssignableFrom(jtype))
+                return XColumn.type_number;
+            //通过字段名推断类型... 默认关闭
+            if(XProperties.getAsBool("xframe.admin.column.namingtype", false)) {
+                String lowerCaseKey = key.toLowerCase();
+                if(lowerCaseKey.contains("password"))
+                    return XColumn.type_pass;
+                if(lowerCaseKey.contains("date") || key.contains("time"))
+                    return XColumn.type_datetime;
+                if(lowerCaseKey.contains("file"))
+                    return XColumn.type_file;
+                if(lowerCaseKey.contains("image"))
+                    return XColumn.type_imag;
+            }
         }
-        return xtype;
+        return xc.type();
     }
     static String firstToUpperCase(String key) {
         return String.valueOf(key.charAt(0)).toUpperCase() + key.substring(1);
@@ -45,9 +66,6 @@ public class Column {
         this.compact = compact;
         this.required = required;
         this.canSort = canSort;
-
-        if(!XStrings.isEmpty(enumKey) && this.type == 0)
-            this.type = XColumn.type_enum;
     }
 
     public int getShow() {

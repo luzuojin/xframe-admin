@@ -10,7 +10,7 @@ public class Nested extends Column {
 	private List<Column> columns;
 
 	public Nested(String key, XColumn xc, List<Column> columns) {
-		super(key, xc, xc.type());
+		super(key, xc, Void.class);
 		this.columns = columns;
 	}
 
@@ -22,7 +22,7 @@ public class Nested extends Column {
 		this.columns = columns;
 	}
 
-	public static Class<?> getType(Field field) {
+	public static Class<?> getNestClass(Field field) {
 		Class<?> ftype = field.getType();
 		if(field.getAnnotation(XColumn.class).type() == XColumn.type_model) {
 			return ftype;

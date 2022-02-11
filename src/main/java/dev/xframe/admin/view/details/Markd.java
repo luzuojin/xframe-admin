@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public class Markd extends Classic {
     public Markd() {
-        super(type_markd);
+        super(XSegment.type_markd);
     }
     @Override
     public Detail parseFrom(XSegment xseg, Class<?> declaring) {

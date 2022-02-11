@@ -1,14 +1,13 @@
 package dev.xframe.admin.sample.nested;
 
 import dev.xframe.admin.view.XSegment;
-import dev.xframe.admin.view.details.Panel;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
 
 
 @Rest("nested/panellisttest")
-@XSegment(name="panelnestedlist", detail= Panel.class, model=NestedListTest.class)
+@XSegment(name="panelnestedlist", type=XSegment.type_panel, model=NestedListTest.class)
 public class PanelNestedListTestService {
 	
 	@HttpMethods.GET("ini")
