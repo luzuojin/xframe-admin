@@ -3,9 +3,18 @@ package dev.xframe.admin.view;
 import dev.xframe.utils.XProperties;
 import dev.xframe.utils.XStrings;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collection;
+import java.util.Date;
 
 public class Column {
+
     private int type;
     private String key;
     private String hint;
@@ -18,15 +27,39 @@ public class Column {
     private boolean required;
     private boolean sortable;
 
-    static int inferType(XColumn xc, Class<?> jtype, String key) {
+    static Class<?> getRawType(Type type) {
+        return (Class<?>) (type instanceof ParameterizedType ? ((ParameterizedType) type).getRawType() : type);
+    }
+    static Class<?> getComponentType(Type type) {
+        Class<?> rawType = getRawType(type);
+        if(Collection.class.isAssignableFrom(rawType)) {
+            return (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0];
+        }
+        if(rawType.isArray()) {
+            return rawType.getComponentType();
+        }
+        return rawType;
+    }
+    /**
+     * @param jtype field.type
+     * @param ctype field.componentType
+     */
+    static int inferType(XColumn xc, Class<?> jtype, Class<?> ctype, String key) {
         if(xc.type() == 0) {
             if(!XStrings.isEmpty(xc.enumKey()))
-                return (jtype.isArray() || Collection.class.isAssignableFrom(jtype)) ?
-                        XColumn.type_mult : XColumn.type_enum;
+                return isMulti(jtype) ? XColumn.type_mult : XColumn.type_enum;
             if(jtype == boolean.class || jtype == Boolean.class)
                 return XColumn.type_bool;
             if(jtype.isPrimitive() || Number.class.isAssignableFrom(jtype))
                 return XColumn.type_number;
+            if(ctype.getClassLoader() == Column.class.getClassLoader())//自定义类型
+                return isMulti(jtype) ? XColumn.type_list : XColumn.type_model;
+            if(jtype == LocalDateTime.class || jtype == Timestamp.class || jtype == Date.class)
+                return XColumn.type_datetime;
+            if(jtype == LocalDate.class)
+                return XColumn.type_date;
+            if(jtype == LocalTime.class)
+                return XColumn.type_time;
             //通过字段名推断类型... 默认关闭
             if(XProperties.getAsBool("xframe.admin.column.namingtype", false)) {
                 String lowerCaseKey = key.toLowerCase();
@@ -42,30 +75,38 @@ public class Column {
         }
         return xc.type();
     }
+
+    static boolean isMulti(Class<?> jtype) {
+        return jtype.isArray() || Collection.class.isAssignableFrom(jtype);
+    }
     static String firstToUpperCase(String key) {
         return String.valueOf(key.charAt(0)).toUpperCase() + key.substring(1);
     }
+    static boolean isNested(int type) {
+        return (type / 10) == (XColumn.type_model / 10);
+    }
 
-    public Column(String key) {
-        this(key, firstToUpperCase(key), XColumn.type_text, "", XColumn.full, false, false, false, false, true);
+    public static Column of(XColumn xc, Field field) {
+        return of(field.getName(), xc, field.getGenericType());
     }
-    public Column(String key, XColumn xc, Class<?> jType) {
-        this(key, xc, byJavaType(xc.type(), jType));
+    public static Column of(String key, XColumn xc, Type type) {
+        Class<?> jCls = getRawType(type);
+        Class<?> cCls = getComponentType(type);
+        int colType = inferType(xc, jCls, cCls, key);
+        return isNested(colType) ? new Nested(key, colType, xc, Detail.parseModelColumns(cCls)) : new Column(key, colType, xc);
     }
-    public Column(String key, XColumn xc, int xcType) {
-        this(key, XStrings.orElse(xc.value(), firstToUpperCase(key)), xcType, xc.enumKey(), xc.show(), xc.primary(), xc.collapse(), xc.compact(), xc.required(), xc.canSort());
-    }
-    public Column(String key, String hint, int type, String enumKey, int show, boolean primary, boolean collapse, boolean compact, boolean required, boolean canSort) {
+
+    public Column(String key, int type, XColumn xc) {
         this.key = key;
+        this.type = type;
         this.hint = XStrings.orElse(xc.value(), firstToUpperCase(key));
-        this.type = inferType(xc, jType, key);
         this.enumKey = xc.enumKey();
         this.show = xc.show();
         this.primary = xc.primary();
         this.collapse = xc.collapse();
         this.compact = xc.compact();
         this.required = xc.required();
-        this.sortable = xc.canSort();
+        this.sortable = xc.sortable() && !isNested(this.type);
     }
 
     public int getShow() {

@@ -11,7 +11,7 @@ public class NestedListTest {
 	private int id;
 	@XColumn("Name")
 	private String name;
-	@XColumn(value="Nest", type=XColumn.type_list, compact=true, collapse=true)
+	@XColumn(value="Nest", compact=true, collapse=true)
 	private List<NestedObj> nest;
 	@XColumn("Desc")
 	private String desc;

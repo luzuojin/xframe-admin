@@ -10,22 +10,27 @@ var opTypes = {
 
 //text types
 var xTypes = {
+    //text...
     _text: 0,
-    _bool: 1,
-    _enum: 2,
-    _datetime: 3,
-    _area: 4,
-    _file: 5,
-    _imag: 6,
-    _numb: 100,
-    _pass: 9,
-    _mult: 20,//multi enum select
+    _area: 1,
+    _numb: 2,
+    _pass: 3,
+    _phone: 4,
+    _email: 5,
+    //select...
+    _bool: 20,
+    _enum: 21,
+    _mult: 22,//multi enum select
+    //time...
+    _datetime: 30,
     _date: 31,
     _time: 32,
+    //file...
+    _file: 40,
+    _imag: 41,
+    //nested...
     _model:80,
     _list: 81,
-    _text_phone: 101,
-    _text_email: 102,
 }
 
 var xShowcase = {//column.show
@@ -298,17 +303,18 @@ class TableDetail extends Detail {
     }
     //change cached data(s)
     onDataChanged(op, data) {
+        let _datas = this.originalData;
         if(op.type == opTypes.qry || Array.isArray(data)) {
             this.setData(data);
         } else if(data){
             let pks = this.columns.filter(col=>col.primary).map(col=>col.key);
-            let idx = pks.length==0?-1:this.originalData.findIndex(dat=>!pks.some(pk=>data[pk]!=dat[pk]));//! not equals
+            let idx = pks.length==0?-1:_datas.findIndex(dat=>!pks.some(pk=>data[pk]!=dat[pk]));//! not equals
             if(idx == -1) {
-                if(op.type == opTypes.add) this.originalData.push(data);
+                if(op.type == opTypes.add) _datas.push(data);
             } else {
-                if(op.type == opTypes.add) this.originalData[idx] = data;
-                if(op.type == opTypes.edt) this.originalData[idx] = data;
-                if(op.type == opTypes.del) this.originalData.splice(idx, 1);
+                if(op.type == opTypes.add) _datas[idx] = data;
+                if(op.type == opTypes.edt) _datas[idx] = data;
+                if(op.type == opTypes.del) _datas.splice(idx, 1);
             }
         }
         this.sort();
@@ -316,9 +322,11 @@ class TableDetail extends Detail {
         //this.showContent0();
     }
     setData(data) {
-        Object.assign(this.originalData, data);
-        return super.setData(xOrElse(data, []));
+        super.setData(xOrElse(data, []));
+        this.originalData = Object.assign([], this.data);//reset original data
+        return this;
     }
+
     showContent() {
         $('#xboxhead').empty();
         $('#xboxbody').empty();
@@ -410,7 +418,7 @@ class TableDetail extends Detail {
         }
     }
     sort(){
-        Object.assign(this.data, this.originalData);
+        this.data =  Object.assign([], this.originalData);//copy from original data
         for (let column of this.columns) {
             if(column.sortType !== SortTypes.NIL){
                 column.sortType.apply(column);
@@ -574,7 +582,6 @@ const SortTypes = Object.freeze({
 });
 
 class Column {
-    sortType = SortTypes.NIL;
     static Impls = new Map();
     static regist(types, cls) {
         for(let type of types)
@@ -732,6 +739,8 @@ class Column {
         this.getFormValDom().addClass("is-invalid");
     }
 
+    //for sort
+    sortType = SortTypes.NIL;
     sortIconHtm(){
         return `<span id="sort-icon-{0}" style="display: flex;flex-direction: column;float: right;vertical-align: middle;">
                     <svg  xmlns="http://www.w3.org/2000/svg"  width="12" height="12" fill="currentColor" class="bi bi-caret-up-fill asc-icon" viewBox="0 0 16 16">
@@ -761,9 +770,9 @@ class Column {
         this.parent.showContent1();
     }
     sortFunc(){
-        return (a,b) => {
-            if(!this.columns){
-                return (a[this.key] > b[this.key])? this.sortType.num: -1 * this.sortType.num;
+        return (a, b) => {
+            if(this.sortable){
+                return (a[this.key] > b[this.key]? 1 : -1) * this.sortType.num;
             }
         }
     }
@@ -996,7 +1005,7 @@ class ListColumn extends NestColumn {
 }
 
 class EmailColumn extends Column{
-    static _ = Column.regist([xTypes._text_email], this);
+    static _ = Column.regist([xTypes._email], this);
     invalidText() {
         return  "邮箱地址不正确";
     }
@@ -1012,7 +1021,7 @@ class EmailColumn extends Column{
 }
 
 class PhoneColumn extends Column{
-    static _ = Column.regist([xTypes._text_phone], this);
+    static _ = Column.regist([xTypes._phone], this);
     invalidText() {
         return  "请输入正确的手机号";
     }

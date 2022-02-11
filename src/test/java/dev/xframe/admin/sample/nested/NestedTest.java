@@ -12,7 +12,7 @@ public class NestedTest {
 	private String name;
 	@XColumn(value="Type", enumKey=NESTED_TYPE)
 	private String type;
-	@XColumn(value="Nest", type=XColumn.type_model)
+	@XColumn(value="Nest")
 	private NestedObj nest;
 	
 	public NestedTest() {

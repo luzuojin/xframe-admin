@@ -10,40 +10,42 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 public @interface XColumn {
 
-	String value() default "";		//显示文字(hint)
-	
-	int type() default type_text;	//类型 @see 常量
-
-	int show() default full;		//显示配置 @see 常量
-	
-	String enumKey() default "";	//下拉列表时获取下拉菜单的关键字 @see BasicContext.registEnumValue
-	
-	boolean primary() default false;//用来修改/删除时匹配前端cache用
-	
-	boolean collapse() default false;//type_list时 是否折叠
-
-	boolean compact() default false; //type_list时 是否显示为一行(只对nest object columns为2~3时生效)
-	
-	boolean required() default false;//客户端提交表单时验证是否有值
-
-	boolean canSort() default true;//是否开启排序
+	/**显示文字(hint)*/
+	String value() default "";
+	/**类型 @see 常量XColumn.type_...*/
+	int type() default type_text;
+	/**显示配置 @see 常量XColumn.list...etc*/
+	int show() default full;
+	/**下拉列表时获取下拉菜单的关键字 @see BasicContext.registEnumValue*/
+	String enumKey() default "";
+	/**用来修改/删除时匹配前端cache用*/
+	boolean primary() default false;
+	/**type_list时 是否折叠*/
+	boolean collapse() default false;
+	/**type_list时 是否显示为一行(只对nest object columns为2~3时生效)*/
+	boolean compact() default false;
+	/**客户端提交表单时验证是否有值*/
+	boolean required() default false;
+	/**是否需要支持排序*/
+	boolean sortable() default true;
 	
 	//Column类型
-	public static final int type_text = 0;	//文本
-	public static final int type_bool = 1;	//check radio
-	public static final int type_enum = 2;	//下拉框 @see BasicContext.registEnumValue
-	public static final int type_datetime = 3;	//日期+时间
-	public static final int type_area = 4;	//大段文本
-	public static final int type_file = 5;	//文件上传
-	public static final int type_imag = 6;	//文件(图片)上传
-	public static final int type_pass = 9;	//密码
-	public static final int type_mult = 20;	//下拉框(多选)
-	public static final int type_date = 31;	//日期
-	public static final int type_time = 32;	//仅时间
-	public static final int type_model = 80;//对应object
-	public static final int type_list  = 81; //object list
-	public static final int type_text_phone  = 101; //手机号
-	public static final int type_text_email  = 102; //邮箱
+	int type_text = 0;	//文本
+	int type_area = 1;	//大段文本
+	int type_number = 2;//数字
+	int type_pass = 3;	//密码
+	int type_phone = 4; //手机号
+	int type_email = 5; //邮箱
+	int type_bool = 20;	//check radio
+	int type_enum = 21;	//下拉框 @see BasicContext.registEnumValue
+	int type_mult = 22;	//下拉框(多选)
+	int type_datetime = 30;	//日期+时间
+	int type_date = 31;	//日期
+	int type_time = 32;	//仅时间
+	int type_file = 40;	//文件
+	int type_imag = 41;	//图片
+	int type_model = 80;//对应object
+	int type_list  = 81; //object list
 
 	//展示在哪里的相关配置
 	int list = 1 << 0;//Table列表中展示
@@ -67,6 +69,7 @@ public @interface XColumn {
 		public boolean collapse() {return false;}
 		public boolean compact() {return false;}
 		public boolean required() {return false;}
+		public boolean sortable() {return true;}
 		public Class<? extends Annotation> annotationType() {return XColumn.class;}
 	};
 }

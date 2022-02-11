@@ -62,8 +62,8 @@ public interface Detail {
         		break;//只会有一个
         	}
         	//XColumn标识 HttpArgs.Param
-        	if(p.isAnnotationPresent(XColumn.class)  && p.isAnnotationPresent(HttpArgs.Param.class)) {
-        		columns.add(new Column(p.getName(), p.getAnnotation(XColumn.class), p.getType()));
+        	if(p.isAnnotationPresent(XColumn.class) && p.isAnnotationPresent(HttpArgs.Param.class)) {
+        		columns.add(Column.of(p.getName(), p.getAnnotation(XColumn.class), p.getType()));
         	}
         }
         return columns;
@@ -82,11 +82,7 @@ public interface Detail {
                 continue;
             XColumn xc = Optional.ofNullable(field.getAnnotation(XColumn.class)).orElse(XColumn.Default);
             if(xc.show() > 0) {
-                if(xc.type() == XColumn.type_model || xc.type() == XColumn.type_list) {
-                	columns.add(new Nested(field.getName(), xc, parseModelColumns(Nested.getNestClass(field))));
-                } else {
-                	columns.add(new Column(field.getName(), xc, field.getType()));
-                }
+                columns.add(Column.of(xc, field));
             }
         }
         return columns;
