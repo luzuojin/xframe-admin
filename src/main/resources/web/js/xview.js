@@ -279,16 +279,16 @@ class Detail extends Node {
 /*-----------------------------*/
 class TableDetail extends Detail {
     static _ = Detail.regist(1, this);
-    originalData = [];
+    sorting = new Sorting(this);
     constructor(parent) {
         super(parent);
     }
     //change cached data(s)
     onDataChanged(op, data) {
-        let _datas = this.originalData;
         if(op.type == opTypes.qry || Array.isArray(data)) {
             this.setData(data);
         } else if(data){
+            let _datas = this.sorting.originalData();
             let pks = this.columns.filter(col=>col.primary).map(col=>col.key);
             let idx = pks.length==0?-1:_datas.findIndex(dat=>!pks.some(pk=>data[pk]!=dat[pk]));//! not equals
             if(idx == -1) {
@@ -299,13 +299,12 @@ class TableDetail extends Detail {
                 if(op.type == opTypes.del) _datas.splice(idx, 1);
             }
         }
-        this.sort();
+        this.sorting.sort()
         this.showContent1();
-        //this.showContent0();
     }
     setData(data) {
         super.setData(xOrElse(data, []));
-        this.originalData = Object.assign([], this.data);//reset original data
+        this.sorting.initialData();
         return this;
     }
 
@@ -355,9 +354,7 @@ class TableDetail extends Detail {
         for(let column of columns){
             if(xShowcase.list(column)) {
                 _tabletr.append(`<th id='xtd_0_${column.pid()}' class='align-middle'>${column.hint}</th>`);
-                if(column.parent instanceof TableDetail && column.sortable && column.parent.sortable){
-                    column.openSort();
-                }
+                Sorting.show($(`#xtd_0_${column.pid()}`), column);
             }
         }
         if(hasOps)//options td head
@@ -389,21 +386,6 @@ class TableDetail extends Detail {
                     _tabletd.append(`<button id="delbtn_${op.pid()}_${_tr}" type="button" class="btn btn-sm btn-outline-danger">${op.name}</button>`);
                     xclick($(`#delbtn_${op.pid()}_${_tr}`), ()=>op.popup(model));
                 }
-            }
-        }
-    }
-    sortChange(sortColumn){
-        for (let column of this.columns) {
-            if(column !== sortColumn && column.sortType !== SortTypes.NIL){
-                column.cancelSort();
-            }
-        }
-    }
-    sort(){
-        this.data =  Object.assign([], this.originalData);//copy from original data
-        for (let column of this.columns) {
-            if(column.sortType !== SortTypes.NIL){
-                column.sortType.apply(column);
             }
         }
     }
@@ -477,6 +459,68 @@ class MarkdDetail extends Detail {
 }
 
 /*-----------------------------*/
+/*------------sorting-----------*/
+/*-----------------------------*/
+class Sorting {
+    constructor(detail) {
+        this.detail = detail;
+        this.num = 0;
+    }
+    static show(_pdom, col) {
+        if(col.sortable && col.parent.sortable && col.parent.sorting) {
+            col.parent.sorting.show0(_pdom, col);
+        }
+    }
+    show0(_pdom, col) {
+        _pdom.append(this.iconHtm(col));
+        _pdom.addClass(`sort-table-head`);
+        xclick(_pdom, () => {
+            this.cancel();
+            this.next(col);
+            this.active(col);
+        });
+    }
+    iconHtm(col){
+        return `<span id="sort-icon-${col.pid()}" style="display: flex;flex-direction: column;float: right;vertical-align: middle;">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="12" height="12" fill="currentColor" class="bi bi-caret-up-fill asc-icon" viewBox="0 0 16 16">
+                        <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+                    </svg>
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="12" height="12" fill="currentColor" class="bi bi-caret-down-fill desc-icon" viewBox="0 0 16 16">
+                        <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                    </svg>
+                </span>`;
+    }
+    name() {
+        return ['desc', 'nil', 'asc'][this.num + 1];
+    }
+    next(col) {
+        this.num = this.column !== col ? 1 : (this.num == 1 ? -1 : this.num + 1);
+    }
+    initialData() {
+        this._originalData = Object.assign([], this.detail.data);//set original data
+    }
+    originalData() {
+        return this._originalData;                 //original data
+    }
+    enabled() {
+        return this.column && this.num != 0;
+    }
+    cancel() {  //cancel pre column
+        if(this.enabled()) $(`#sort-icon-${this.column.pid()}`).removeClass(`sort-${this.name()}`);
+    }
+    active(col) {
+        this.column = col;
+        if(this.enabled()) $(`#sort-icon-${this.column.pid()}`).addClass(`sort-${this.name()}`);
+        this.sort();
+    }
+    sort() {
+        this.detail.data = Object.assign([], this._originalData);   //reset data
+        if(this.enabled()) this.detail.data.sort((a, b) => (a[this.column.key] > b[this.column.key]? 1 : -1) * this.num)   
+        this.detail.showContent1();
+    }
+}
+
+/*-----------------------------*/
 /*------------option-----------*/
 /*-----------------------------*/
 class Option extends Node {
@@ -540,25 +584,6 @@ class Option extends Node {
 /*-----------------------------*/
 /*-----------columns-----------*/
 /*-----------------------------*/
-
-const SortTypes = Object.freeze({
-    DSC:{name:"dsc", num: -1, next: ()=> SortTypes.NIL, apply: (col)=>{
-            let dom = col.sortIconDom();
-            dom.removeClass("sort-asc");
-            dom.addClass("sort-desc");
-            col.parent.data.sort(col.sortFunc());
-        }},
-    NIL:{name:"nil", num: 0, next: ()=> SortTypes.ASC, apply: (col)=>{
-            col.cancelSort();
-        }},
-    ASC:{name:"asc", num: 1, next: ()=> SortTypes.DSC, apply: (col)=>{
-            let dom = col.sortIconDom();
-            dom.removeClass("sort-desc");
-            dom.addClass("sort-asc");
-            col.parent.data.sort(col.sortFunc());
-        }},
-});
-
 class Column {
     static Impls = new Map();
     static regist(types, cls) {
@@ -710,50 +735,6 @@ class Column {
     }
     validateFromVal(val){
         return !!val;
-    }
-
-    //for sort
-    sortType = SortTypes.NIL;
-    sortIconHtm(){
-        return `<span id="sort-icon-${this.pid()}" style="display: flex;flex-direction: column;float: right;vertical-align: middle;">
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="12" height="12" fill="currentColor" class="bi bi-caret-up-fill asc-icon" viewBox="0 0 16 16">
-                        <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
-                    </svg>
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="12" height="12" fill="currentColor" class="bi bi-caret-down-fill desc-icon" viewBox="0 0 16 16">
-                        <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                    </svg>
-                </span>`;
-    }
-    sortIconDom() {
-        return $(`#sort-icon-${this.pid()}`);
-    }
-    tableHeadDom(){
-        return $(`#xtd_0_${this.pid()}`);
-    }
-    openSort(){
-        let headDom = this.tableHeadDom();
-        headDom.append(this.sortIconHtm());
-        headDom.addClass("sort-table-head");
-        xclick(headDom, ()=> this.sortChange());
-    }
-    sortChange(){
-        this.parent.sortChange(this);
-        this.sortType = this.sortType.next();
-        this.sortType.apply(this);
-        this.parent.showContent1();
-    }
-    sortFunc(){
-        return (a, b) => {
-            if(this.sortable){
-                return (a[this.key] > b[this.key]? 1 : -1) * this.sortType.num;
-            }
-        }
-    }
-    cancelSort(){
-        this.sortType = SortTypes.NIL;
-        this.sortIconDom().removeClass("sort-desc");
-        this.sortIconDom().removeClass("sort-asc");
-        Object.assign(this.parent.data, this.parent.originalData);
     }
 }
 

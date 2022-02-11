@@ -27,7 +27,7 @@ public @interface XColumn {
 	/**客户端提交表单时验证是否有值*/
 	boolean required() default false;
 	/**是否需要支持排序*/
-	boolean sortable() default true;
+	boolean sortable() default false;
 	
 	//Column类型
 	int type_text = 0;	//文本

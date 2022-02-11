@@ -1,5 +1,6 @@
 package dev.xframe.admin.view.details;
 
+import dev.xframe.admin.view.Column;
 import dev.xframe.admin.view.Detail;
 import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
@@ -30,7 +31,7 @@ public class Table extends Classic {
     public Detail parseFrom(XSegment xseg, Class<?> declaring) {
     	super.parseFrom(xseg, declaring);
     	this.padding = xseg.padding();
-        this.sortable = xseg.sortable();
+        this.sortable = this.columns.stream().anyMatch(Column::isSortable);
     	this.checkQryOption();
         return this;
     }

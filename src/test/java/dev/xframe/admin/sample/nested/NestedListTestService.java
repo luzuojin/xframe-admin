@@ -9,7 +9,7 @@ import dev.xframe.http.service.rest.HttpMethods;
 
 
 @Rest("nested/listtest")
-@XSegment(name="nestedlist", model=NestedListTest.class, sortable=true)
+@XSegment(name="nestedlist", model=NestedListTest.class)
 public class NestedListTestService {
 	
 	@HttpMethods.GET("ini")

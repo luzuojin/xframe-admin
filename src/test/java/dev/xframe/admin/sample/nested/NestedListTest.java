@@ -7,9 +7,9 @@ import java.util.List;
 
 public class NestedListTest {
 	
-	@XColumn(value="ID", primary=true)
+	@XColumn(value="ID", primary=true, sortable=true)
 	private int id;
-	@XColumn("Name")
+	@XColumn(value="Name", sortable=true)
 	private String name;
 	@XColumn(value="Nest", compact=true, collapse=true)
 	private List<NestedObj> nest;

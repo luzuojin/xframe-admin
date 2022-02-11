@@ -20,7 +20,6 @@ public @interface XSegment {
 	Class<?> model();
 	//for table detail
 	boolean padding() default false;//Option.add时是否把qry表单中的字段用来填充
-	boolean sortable() default false;//是否开启字段排序
 
 	//for panel detail
 	String desc() default "";//description
