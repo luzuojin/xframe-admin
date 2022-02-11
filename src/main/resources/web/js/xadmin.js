@@ -161,7 +161,7 @@ function xdatepicker(e, _format=xformatDatetime) {
 function xselect2(e, xinput, cacheEnable=false) {
     let k = xinput.enumKey;
     let d = xenum(k);
-    let m = xinput.type==xTypes._mult;
+    let m = xinput.type==colTypes._mult;
     let s = e.select2({
                 theme: 'bootstrap4',
                 dropdownAutoWidth : true,
@@ -225,8 +225,8 @@ function isLocalUrl() {
 }
 
 const _inputs = [
-    {key:"name",hint:"用户名",type:xTypes._text,show:13},
-    {key:"passw",hint:"密码",type:xTypes._pass,show:15}
+    {key:"name",hint:"用户名",type:colTypes._text,show:13},
+    {key:"passw",hint:"密码",type:colTypes._pass,show:15}
 ];
 const _navi = new Navi(new Navi(null, '用户', 'basic'), 'unused', 'profile');//segment->detail->option
 

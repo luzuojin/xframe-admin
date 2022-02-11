@@ -8,8 +8,8 @@ var opTypes = {
     flx: 5
 }
 
-//text types
-var xTypes = {
+//column types
+var colTypes = {
     //text...
     _text: 0,
     _area: 1,
@@ -442,7 +442,6 @@ class PanelDetail extends Detail {
     submit(op, data) {
         op.doPost(data, resp=>this.setData(resp).showContent(), {'flex-name': this.flexName});
     }
-    onColValChanged(col, val) {}
 }
 
 class MarkdDetail extends Detail {
@@ -601,7 +600,7 @@ class Column {
 
     getValFrom(data) {
         let val = data[this.key];
-        if(this.type == xTypes._enum || this.type == xTypes._mult) {
+        if(this.type == colTypes._enum || this.type == colTypes._mult) {
             return xenumText(this.enumKey, val);
         }
         return xOrEmpty(val);
@@ -618,14 +617,14 @@ class Column {
     getQueryVal() {return this.getQueryDom().val();}
     getQueryDom() {return $(`#xqry_${this.key}`);}
     addToQueryBox(_parent) {
-        if(this.type == xTypes._enum) {
+        if(this.type == colTypes._enum) {
             _parent.append(`<div class="col-sm-2 float-left"><select id="xqry_${this.key}" class="form-control select2bs4" data-placeholder="${this.hint}" style="width:100%"><option/></select></div>`);
             xselect2(this.getQueryDom(), this, true);//查询框/enum记忆
         } else {
             _parent.append(`<div class="col-sm-2 float-left"><input id="xqry_${this.key}" class="form-control" type="text" placeholder="${this.hint}" autocomplete="off"></div>`);
-            if(this.type==xTypes._datetime) xdatepicker(this.getQueryDom());
-            if(this.type==xTypes._date) xdatepicker(this.getQueryDom(), xformatDate);
-            if(this.type==xTypes._date) xdatepicker(this.getQueryDom(), xformatTime);
+            if(this.type==colTypes._datetime) xdatepicker(this.getQueryDom());
+            if(this.type==colTypes._date) xdatepicker(this.getQueryDom(), xformatDate);
+            if(this.type==colTypes._date) xdatepicker(this.getQueryDom(), xformatTime);
         }
     }
 
@@ -759,13 +758,13 @@ class Column {
 }
 
 class AreaColumn extends Column {
-    static _ = Column.regist([xTypes._area], this);
+    static _ = Column.regist([colTypes._area], this);
     makeFormValHtm() {    //dlgHtmFunc
         return `<textarea id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint}" rows="8"/>`;
     }
 }
 class PasswordColumn extends Column {
-    static _ = Column.regist([xTypes._pass], this);
+    static _ = Column.regist([colTypes._pass], this);
     makeFormValHtm() {    //dlgHtmFunc
         return `<input id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint}" type="password">`;
     }
@@ -774,34 +773,34 @@ class PasswordColumn extends Column {
     }
 }
 class NumberColumn extends Column {
-    static _ = Column.regist([xTypes._numb], this);
+    static _ = Column.regist([colTypes._numb], this);
     makeFormValHtm() {    //dlgHtmFunc
         return `<input id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint}" type="number">`;
     }
 }
 class DateTimeColumn extends Column {
-    static _ = Column.regist([xTypes._datetime], this);
+    static _ = Column.regist([colTypes._datetime], this);
     setValToFormDom(dom, val) {//dlgMakeFunc
         super.setValToFormDom(dom, val);
         xdatepicker(dom)
     }
 }
 class DateColumn extends Column {
-    static _ = Column.regist([xTypes._date], this);
+    static _ = Column.regist([colTypes._date], this);
     setValToFormDom(dom, val) {//dlgMakeFunc
         super.setValToFormDom(dom, val);
         xdatepicker(dom, xformatDate)
     }
 }
 class TimeColumn extends Column {
-    static _ = Column.regist([xTypes._time], this);
+    static _ = Column.regist([colTypes._time], this);
     setValToFormDom(dom, val) {//dlgMakeFunc
         super.setValToFormDom(dom, val);
         xdatepicker(dom, xformatTime)
     }
 }
 class EnumColumn extends Column {
-    static _ = Column.regist([xTypes._enum, xTypes._mult], this);
+    static _ = Column.regist([colTypes._enum, colTypes._mult], this);
     makeFormValHtm() {
         return `<select id="dinput_${this.pid()}" class="form-control select2" data-placeholder="${this.hint}" style="width:100%"></select>`;
     }
@@ -811,7 +810,7 @@ class EnumColumn extends Column {
     }
 }
 class BoolColumn extends Column {
-    static _ = Column.regist([xTypes._bool], this);
+    static _ = Column.regist([colTypes._bool], this);
     makeFormValHtm() {
         return `<div class="form-control custom-control custom-switch custom-switch-on-primary">
                     <input id="dinput_${this.pid()}" type="checkbox" class="custom-control-input" value="false">
@@ -824,7 +823,7 @@ class BoolColumn extends Column {
     }
 }
 class FileColumn extends Column {
-    static _ = Column.regist([xTypes._file], this);
+    static _ = Column.regist([colTypes._file], this);
     makeFormValHtm() {
         return `<div class="custom-file">
                     <input type="file" class="custom-file-input" id="dinput_${this.pid()}">
@@ -862,7 +861,7 @@ class FileColumn extends Column {
     filePreview(val) {}
 }
 class ImagColumn extends FileColumn {
-    static _ = Column.regist([xTypes._imag], this);
+    static _ = Column.regist([colTypes._imag], this);
     filePreview(val) {
         $(`#dinput_${this.pid()}_preview`).html(`<img class="col-sm-2 img-thumbnail" src="${xurl}/${xpaths.preview}?name=${val}&X-Token=${xtoken()}">`);
     }
@@ -870,7 +869,7 @@ class ImagColumn extends FileColumn {
 
 
 class NestColumn extends Column {
-    static _ = Column.regist([xTypes._model], this);
+    static _ = Column.regist([colTypes._model], this);
     onColValChanged(col, val) {
         this.parent.onColValChanged(col, val);
     }
@@ -889,7 +888,7 @@ class NestColumn extends Column {
         _ntable.append(_ntbody);
 
         TableDetail.showTableHead(_nthead, this.columns);
-        TableDetail.showTableBody(_ntbody, this.columns, this.type==xTypes._model?[val]:val)
+        TableDetail.showTableBody(_ntbody, this.columns, this.type==colTypes._model?[val]:val)
     }
     makeFormValHtm() {
         return `<div id="dinput_${this.pid()}" class="border-left border-bottom text-sm"></div>`;
@@ -928,7 +927,7 @@ class IndexedNestColumn extends Column {
     }
 }
 class ListColumn extends NestColumn {
-    static _ = Column.regist([xTypes._list], this);
+    static _ = Column.regist([colTypes._list], this);
     _cIndex;
     makeFormValHtm() {
         return `<button id="dinput_${this.pid()}" type="button" style="border: dashed 1px #dee2e6;" class="form-group form-control">+</button>`;
@@ -983,7 +982,7 @@ class ListColumn extends NestColumn {
 }
 
 class EmailColumn extends Column{
-    static _ = Column.regist([xTypes._email], this);
+    static _ = Column.regist([colTypes._email], this);
     invalidText() {
         return "邮箱地址不正确";
     }
@@ -994,7 +993,7 @@ class EmailColumn extends Column{
 }
 
 class PhoneColumn extends Column{
-    static _ = Column.regist([xTypes._phone], this);
+    static _ = Column.regist([colTypes._phone], this);
     invalidText() {
         return  "请输入正确的手机号";
     }

@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface Detail {
-    
+
     Detail parseFrom(XSegment xseg, Class<?> declaring);
     
-    static List<Option> parseOptions(Class<?> declaring, Class<?> model) {
+    static List<Option> parseOptions(Class<?> declaring) {
         List<Option> options = new ArrayList<>();
         Method[] methods = declaring.getDeclaredMethods();
         for (Method method : methods) {
@@ -45,7 +45,7 @@ public interface Detail {
 		return method.isAnnotationPresent(XOption.class) && method.getAnnotation(XOption.class).type() == XOption.type_flx;
 	}
 	static boolean isIniMethod(Method method) {//GET,只有非URL参数
-		return !Arrays.stream(method.getParameters()).filter(p->p.isAnnotationPresent(HttpArgs.Param.class)).findAny().isPresent();
+		return Arrays.stream(method.getParameters()).noneMatch(p->p.isAnnotationPresent(HttpArgs.Param.class));
 	}
     
     static Option parseOption(Option op, Method method, String path) {

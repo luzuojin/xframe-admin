@@ -90,19 +90,17 @@ public class Summary {
 			if(xseg.detail() == Panel.class) type = XSegment.type_panel;
 			if(xseg.detail() == Markd.class) type = XSegment.type_markd;
 		}
-		Detail detail;
 		switch (type) {
+//			case XSegment.type_opset:
+//				return new Opset().parseFrom(xseg, declaring);
 			case XSegment.type_panel:
-				detail = new Panel();
-				break;
+				return new Panel().parseFrom(xseg, declaring);
 			case XSegment.type_markd:
-				detail = new Markd();
-				break;
+				return new Markd().parseFrom(xseg, declaring);
+			case XSegment.type_table:
 			default:
-				detail = new Table();
-				break;
+				return new Table().parseFrom(xseg, declaring);
 		}
-		return detail.parseFrom(xseg, declaring);
 	}
 	
 }
