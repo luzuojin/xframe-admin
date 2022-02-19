@@ -299,8 +299,8 @@ class TableDetail extends Detail {
                 if(op.type == opTypes.del) _datas.splice(idx, 1);
             }
         }
-        this.sorting.sort()
-        this.showContent1();
+        this.sorting.sort();
+        this.showTableBody0();
     }
     setData(data) {
         super.setData(xOrElse(data, []));
@@ -313,40 +313,44 @@ class TableDetail extends Detail {
         $('#xboxbody').empty();
         $('#xboxbody').append(`<table id="xtable" class="table table-bordered table-hover"><thead id="xthead" bgcolor="#f8f9fa"></thead><tbody id="xtbody"></tbody></table>`);
 
-        this.showQueryBox();
-        this.showContent0();
+        this.showContentHead();
+        this.showContentBody();
     }
-    showContent0() {
-        let trOptions = this.options.filter(e=>e.type==opTypes.del||e.type==opTypes.edt);
-        TableDetail.showTableHead($('#xthead'), this.columns, trOptions.length>0);
-        TableDetail.showTableBody($('#xtbody'), this.columns, this.data, trOptions);
-    }
-    showContent1(){
-        let trOptions = this.options.filter(e=>e.type==opTypes.del||e.type==opTypes.edt);
-        TableDetail.showTableBody($('#xtbody'), this.columns, this.data, trOptions);
-    }
-    showQueryBox() {
+    showContentHead() {//content.head(query box & add btn)
         let _tr = 0;
-        //box head
-        for(let op of this.getOptions(opTypes.qry)) {
+        for(let op of this.getOptions(opTypes.qry)) {   //query box
             let _id = op.pid();
             for(let column of op.children) {
                 column.addToQueryBox($('#xboxhead'));
             }
             $('#xboxhead').append(`<button id="qrybtn_${_id}_${_tr}" type="button" class="btn bg-gradient-info float-left" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
-            xclick($(`#qrybtn_${_id}_${_tr}`), ()=>op.doGet(this.getQueryParams(), resp=>this.setData(resp).showContent0()));
+            xclick($(`#qrybtn_${_id}_${_tr}`), ()=>op.doGet(this.getQueryParams(), resp=>this.setData(resp).showContentBody()));
             this.qryOp = op;
+            //最后一个查询框时 监听enter
+            if(op.children.length > 0) {
+                op.children[op.children.length-1].getQueryDom().keypress(e => {
+                    if(e.keyCode==13) $(`#qrybtn_${_id}_${_tr}`).trigger('click');
+                });
+            }
         }
 
-        for(let op of this.getOptions(opTypes.add)) {
+        for(let op of this.getOptions(opTypes.add)) {   //add... btn
             let _id = op.pid();
             $('#xboxhead').append(`<button id="addbtn_${_id}_${_tr}" type="button" class="btn bg-gradient-success float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
             xclick($(`#addbtn_${_id}_${_tr}`), ()=>op.popup(this.padding?this.getQueryParams():{}));
         }
     }
-    getQueryParams() {
-        return Column.getQueryVals(this.qryOp.children);
+    showContentBody() {//content.table(head&body)
+        this.showTableHead0();
+        this.showTableBody0();
     }
+    getQueryParams() {return Column.getQueryVals(this.qryOp.children);}
+    isTableOption(op) {return op.type==opTypes.del||op.type==opTypes.edt;}
+    getTableOptions() {return this.options.filter(this.isTableOption);}
+    hasTableOptions() {return this.options.some(this.isTableOption);}
+    showTableHead0() {TableDetail.showTableHead($('#xthead'), this.columns, this.hasTableOptions());}
+    showTableBody0() {TableDetail.showTableBody($('#xtbody'), this.columns, this.data, this.getTableOptions());}
+
     static showTableHead(_pdom, columns, hasOps=false) {
         let _tabletr = $(`<tr id='xtr_0'/>`);
         _pdom.empty();
@@ -516,7 +520,7 @@ class Sorting {
     sort() {
         this.detail.data = Object.assign([], this._originalData);   //reset data
         if(this.enabled()) this.detail.data.sort((a, b) => (a[this.column.key] > b[this.column.key]? 1 : -1) * this.num)   
-        this.detail.showContent1();
+        this.detail.showTableBody0();
     }
 }
 
@@ -694,8 +698,8 @@ class Column {
         let formValHtm = this.makeFormValHtm();
         let labelHtm = this.hint;
         if(this.required){  //validation
-            formValHtm += `<div class="invalid-feedback">${this.invalidText()}</div>`;
-            labelHtm   += `<span class="text-danger">*</span>`;
+            formValHtm = `${formValHtm}<div class="invalid-feedback">${this.invalidText()}</div>`;
+            labelHtm   = `<span class="text-danger pr-1">*</span>${labelHtm}`;
         }
         let _dom = $(this.getColBoxHtm(labelHtm, formValHtm));
         _parent.append(_dom);
@@ -833,7 +837,7 @@ class FileColumn extends Column {
 class ImagColumn extends FileColumn {
     static _ = Column.regist([colTypes._imag], this);
     filePreview(val) {
-        $(`#dinput_${this.pid()}_preview`).html(`<img class="col-sm-2 img-thumbnail" src="${xurl}/${xpaths.preview}?name=${val}&X-Token=${xtoken()}">`);
+        $(`#dinput_${this.pid()}_preview`).html(`<img class="col-sm-2 img-thumbnail" src="${xHref(xpaths.preview,{name:val})}">`);
     }
 }
 

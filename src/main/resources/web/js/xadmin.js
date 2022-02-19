@@ -53,6 +53,11 @@ function xOrGet(val, key) {
     return val ? val[key] : undefined;
 }
 
+//pack href
+function xHref(path, params) {
+    return `${xurl}/${path}?X-Token=${xtoken()}&${$.param(params)}`;
+}
+
 function doGet(path, func) {
     doGet0(path, doResp(func));
 }
