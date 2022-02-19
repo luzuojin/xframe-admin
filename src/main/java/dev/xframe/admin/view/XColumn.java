@@ -69,7 +69,7 @@ public @interface XColumn {
 		public boolean collapse() {return false;}
 		public boolean compact() {return false;}
 		public boolean required() {return false;}
-		public boolean sortable() {return true;}
+		public boolean sortable() {return false;}
 		public Class<? extends Annotation> annotationType() {return XColumn.class;}
 	};
 }
