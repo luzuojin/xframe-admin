@@ -418,7 +418,7 @@ class PanelDetail extends Detail {
         //desc
         $('#xboxhead').append(`<div class="col-sm-8 m-auto h-100 h5">${this.desc}</div>`);
         //body form
-        $('#xboxbody').append(`<form id="xpanel_form" class="form-horizontal"/>`);
+        $('#xboxbody').append(`<form id="xpanel_form" onsubmit="return false" class="form-horizontal"/>`);
         //form option
         let formOption = Option.of(this, {})
         formOption._form = new OptionForm(formOption, data)
@@ -433,9 +433,9 @@ class PanelDetail extends Detail {
                 $('#xpanel_btnrow').append(`<div class="col-sm-2 m-auto"><button id="xpanel_edtbtn_${op.path}" type="button" class="btn btn-block bg-info">${op.name}</button></div>`);
                 xclick($(`#xpanel_edtbtn_${op.path}`), ()=>this.submit(op, formOption._form.getFormData()));
             } else if(op.type == opTypes.dlh || op.type == opTypes.dlr) {
-                 $('#xpanel_btnrow').append(`<div class="col-sm-2 m-auto"><button id="xpanel_dlbtn_${op.path}" type="button" class="btn btn-block bg-secondary">${op.name}</button></div>`);
-                 xclick($(`#xpanel_dlbtn_${op.path}`), ()=>op.doDownload(formOption._form.getFormData()));
-             }
+                $('#xpanel_btnrow').append(`<div class="col-sm-2 m-auto"><button id="xpanel_dlbtn_${op.path}" type="button" class="btn btn-block bg-secondary">${op.name}</button></div>`);
+                xclick($(`#xpanel_dlbtn_${op.path}`), ()=>op.doDownload(formOption._form.getFormData()));
+            }
         }
     }
     submit(op, data) {
