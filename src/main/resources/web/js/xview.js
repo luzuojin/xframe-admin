@@ -5,7 +5,9 @@ var opTypes = {
     add: 2,
     edt: 3,
     del: 4,
-    flx: 5
+    flx: 5,
+    dlh: 6,
+    dlr: 7
 }
 
 //column types
@@ -323,7 +325,7 @@ class TableDetail extends Detail {
             for(let column of op.children) {
                 column.addToQueryBox($('#xboxhead'));
             }
-            $('#xboxhead').append(`<button id="qrybtn_${_id}_${_tr}" type="button" class="btn bg-gradient-info float-left" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
+            $('#xboxhead').append(`<button id="qrybtn_${_id}_${_tr}" type="button" class="btn btn-info float-left" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
             xclick($(`#qrybtn_${_id}_${_tr}`), ()=>op.doGet(this.getQueryParams(), resp=>this.setData(resp).showContentBody()));
             this.qryOp = op;
             //最后一个查询框时 监听enter
@@ -333,10 +335,14 @@ class TableDetail extends Detail {
                 });
             }
         }
-
+        for(let op of this.getOptions(opTypes.dlh)) {
+            let _id = op.pid();
+            $('#xboxhead').append(`<button id="dlbtn_${_id}_${_tr}" type="button" class="btn btn-secondary float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
+            xclick($(`#dlbtn_${_id}_${_tr}`), ()=>op.doDownload(this.getQueryParams()));
+        }
         for(let op of this.getOptions(opTypes.add)) {   //add... btn
             let _id = op.pid();
-            $('#xboxhead').append(`<button id="addbtn_${_id}_${_tr}" type="button" class="btn bg-gradient-success float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
+            $('#xboxhead').append(`<button id="addbtn_${_id}_${_tr}" type="button" class="btn btn-success float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
             xclick($(`#addbtn_${_id}_${_tr}`), ()=>op.popup(this.padding?this.getQueryParams():{}));
         }
     }
@@ -344,8 +350,8 @@ class TableDetail extends Detail {
         this.showTableHead0();
         this.showTableBody0();
     }
-    getQueryParams() {return Column.getQueryVals(this.qryOp.children);}
-    isTableOption(op) {return op.type==opTypes.del||op.type==opTypes.edt;}
+    getQueryParams() {return this.qryOp ? Column.getQueryVals(this.qryOp.children) : {};}
+    isTableOption(op) {return op.type==opTypes.del||op.type==opTypes.edt||op.type==opTypes.dlr;}
     getTableOptions() {return this.options.filter(this.isTableOption);}
     hasTableOptions() {return this.options.some(this.isTableOption);}
     showTableHead0() {TableDetail.showTableHead($('#xthead'), this.columns, this.hasTableOptions());}
@@ -386,6 +392,10 @@ class TableDetail extends Detail {
                     _tabletd.append(`<button id="edtbtn_${op.pid()}_${_tr}" type="button" class="btn btn-sm btn-outline-info" style="margin-right:5px">${op.name}</button>`);
                     xclick($(`#edtbtn_${op.pid()}_${_tr}`), ()=>op.popup(model));
                 }
+                for(let op of options.filter(e=>e.type==opTypes.dlr)) {
+                    _tabletd.append(`<button id="dlbtn_${op.pid()}_${_tr}" type="button" class="btn btn-sm btn-outline-secondary" style="margin-right:5px">${op.name}</button>`);
+                    xclick($(`#dlbtn_${op.pid()}_${_tr}`), ()=>op.doDownload(model));
+                }
                 for(let op of options.filter(e=>e.type==opTypes.del)) {
                     _tabletd.append(`<button id="delbtn_${op.pid()}_${_tr}" type="button" class="btn btn-sm btn-outline-danger">${op.name}</button>`);
                     xclick($(`#delbtn_${op.pid()}_${_tr}`), ()=>op.popup(model));
@@ -422,7 +432,10 @@ class PanelDetail extends Detail {
             } else if(op.type == opTypes.edt) {
                 $('#xpanel_btnrow').append(`<div class="col-sm-2 m-auto"><button id="xpanel_edtbtn_${op.path}" type="button" class="btn btn-block bg-info">${op.name}</button></div>`);
                 xclick($(`#xpanel_edtbtn_${op.path}`), ()=>this.submit(op, formOption._form.getFormData()));
-            }
+            } else if(op.type == opTypes.dlh || op.type == opTypes.dlr) {
+                 $('#xpanel_btnrow').append(`<div class="col-sm-2 m-auto"><button id="xpanel_dlbtn_${op.path}" type="button" class="btn btn-block bg-secondary">${op.name}</button></div>`);
+                 xclick($(`#xpanel_dlbtn_${op.path}`), ()=>op.doDownload(formOption._form.getFormData()));
+             }
         }
     }
     submit(op, data) {
@@ -576,6 +589,9 @@ class Option extends Node {
     }
     doGet(data, func) {
         doGet(`${this.uri()}?${$.param(data)}`, func);
+    }
+    doDownload(data) {
+        doDownload(`${xHref(this.uri(), Column.packVals(xOrElse(this.children, []), col=>data[col.key]))}`);
     }
     popup(data) {
         (this._form = new OptionForm(this, data)).show();

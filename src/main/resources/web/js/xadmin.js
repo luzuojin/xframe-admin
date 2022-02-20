@@ -117,6 +117,10 @@ function clrEnumCaches(xhr) {
     }
 }
 
+function doDownload(path) {
+    window.open(path);
+}
+
 var xtoast = {
     show: function(type, msg) {
             Swal.mixin({

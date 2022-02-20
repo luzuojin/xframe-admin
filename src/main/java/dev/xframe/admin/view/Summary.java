@@ -86,8 +86,6 @@ public class Summary {
 			if(xseg.detail() == Markd.class) type = XSegment.type_markd;
 		}
 		switch (type) {
-//			case XSegment.type_opset:
-//				return new Opset().parseFrom(xseg, declaring);
 			case XSegment.type_panel:
 				return new Panel().parseFrom(xseg, declaring);
 			case XSegment.type_markd:

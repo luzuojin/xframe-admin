@@ -1,11 +1,16 @@
 package dev.xframe.admin.sample.nested;
 
-import java.util.Arrays;
-
+import dev.xframe.admin.view.XColumn;
+import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
+import dev.xframe.http.response.FileResponse;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
+import dev.xframe.utils.XProperties;
+
+import java.io.File;
+import java.util.Arrays;
 
 
 @Rest("nested/listtest")
@@ -30,4 +35,14 @@ public class NestedListTestService {
 		return nt;
 	}
 
+	@HttpMethods.GET("dl1")
+	@XOption(type = XOption.type_dlh)
+	public Object dlh() {
+		return new FileResponse.Sys(new File(XProperties.get("user.dir"), "src/main/resources/web/js/xadmin.js")).setFileName().forceDownload();
+	}
+	@HttpMethods.GET("dl2")
+	@XOption(type = XOption.type_dlr)
+	public Object dlr(@HttpArgs.Param @XColumn int id) {
+		return new FileResponse.Sys(new File(XProperties.get("user.dir"), "src/main/resources/web/js/xview.js")).setFileName().forceDownload();
+	}
 }

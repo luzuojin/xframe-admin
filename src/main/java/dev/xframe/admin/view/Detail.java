@@ -1,55 +1,28 @@
 package dev.xframe.admin.view;
 
 import dev.xframe.http.service.rest.HttpArgs;
-import dev.xframe.http.service.rest.HttpMethods.DELETE;
-import dev.xframe.http.service.rest.HttpMethods.GET;
-import dev.xframe.http.service.rest.HttpMethods.POST;
-import dev.xframe.http.service.rest.HttpMethods.PUT;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public interface Detail {
 
     Detail parseFrom(XSegment xseg, Class<?> declaring);
-    
-    static List<Option> parseOptions(Class<?> declaring) {
-        List<Option> options = new ArrayList<>();
-        Method[] methods = declaring.getDeclaredMethods();
-        for (Method method : methods) {
-            if(method.isAnnotationPresent(GET.class)) {
-            	options.add(parseOption(GetMethodOption(method), method, method.getAnnotation(GET.class).value()));
-            } else if(method.isAnnotationPresent(PUT.class)) {
-                options.add(parseOption(Option.edt, method, method.getAnnotation(PUT.class).value()));
-            } else if(method.isAnnotationPresent(DELETE.class)) {
-                options.add(parseOption(Option.del, method, method.getAnnotation(DELETE.class).value()));
-            } else if(method.isAnnotationPresent(POST.class)) {
-                options.add(parseOption(Option.add, method, method.getAnnotation(POST.class).value()));
-            }
-        }
-        Collections.sort(options);
-        return options;
-    }
 
-    static Option GetMethodOption(Method method) {
-    	return isIniMethod(method) ? Option.ini : (isFlxMethod(method) ? Option.flx : Option.qry);
-    }
-	static boolean isFlxMethod(Method method) {
-		return method.isAnnotationPresent(XOption.class) && method.getAnnotation(XOption.class).type() == XOption.type_flx;
-	}
-	static boolean isIniMethod(Method method) {//GET,只有非URL参数
-		return Arrays.stream(method.getParameters()).noneMatch(p->p.isAnnotationPresent(HttpArgs.Param.class));
-	}
-    
-    static Option parseOption(Option op, Method method, String path) {
-        return op.copy(method.getAnnotation(XOption.class), path).with(parseParamColumns(method));
+    static List<Option> parseOptions(Class<?> declaring) {
+        return Arrays.stream(declaring.getDeclaredMethods())
+                .map(m->Option.Parsers.stream()
+                        .map(op->op.apply(m))
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     static List<Column> parseParamColumns(Method method) {
