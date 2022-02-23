@@ -1,10 +1,10 @@
 package dev.xframe.admin.system.role;
 
 import dev.xframe.admin.conf.LogicException;
-import dev.xframe.admin.system.ClrEnumKeys;
+import dev.xframe.admin.system.XEnumKeys;
 import dev.xframe.admin.system.SystemContext;
 import dev.xframe.admin.system.SystemRepo;
-import dev.xframe.admin.system.XEnumKeys;
+import dev.xframe.admin.system.SysEnumKeys;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
@@ -30,7 +30,7 @@ public class RoleService {
 	public Object add(@HttpArgs.Body Role role) {
 	    //check auth
 		sysCtx.addRole(role);
-		ClrEnumKeys.add(XEnumKeys.ROLE_LIST);
+		XEnumKeys.clear(SysEnumKeys.ROLE_LIST);
 		return role;
 	}
 	

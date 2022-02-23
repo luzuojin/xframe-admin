@@ -1,6 +1,6 @@
 package dev.xframe.admin.sample.tabpanel;
 
-import dev.xframe.admin.system.BasicContext;
+import dev.xframe.admin.system.XRegistrator;
 import dev.xframe.admin.view.Navi;
 import dev.xframe.admin.view.VEnum;
 import dev.xframe.admin.view.XChapter;
@@ -15,12 +15,12 @@ import java.util.Arrays;
 public class TabAndPanelTestChapter implements Loadable {
 	
 	@Inject
-	private BasicContext basicCtx;
+	private XRegistrator xReg;
 
 	@Override
 	public void load() {
-		basicCtx.registNaviValue("panel", ()->Arrays.asList(new Navi("动态一一", "d1"), new Navi("动态一二", "d2")));
-		basicCtx.registEnumValue(PanelTest.PANEL_ROLE_KEY, ()->Arrays.asList(new VEnum("1001", "测试一"), new VEnum("1002", "测试二")));
+		xReg.registNaviValue("panel", ()->Arrays.asList(new Navi("动态一一", "d1"), new Navi("动态一二", "d2")));
+		xReg.registEnumValue(PanelTest.PANEL_ROLE_KEY, ()->Arrays.asList(new VEnum("1001", "测试一"), new VEnum("1002", "测试二")));
 	}
 
 }

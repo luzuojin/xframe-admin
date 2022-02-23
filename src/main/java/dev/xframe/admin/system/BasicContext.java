@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 
 
 @Bean
-public class BasicContext implements Loadable {
+public class BasicContext implements Loadable, XRegistrator {
     
 	private Summary summary;
 

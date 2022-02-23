@@ -3,7 +3,7 @@ package dev.xframe.admin.system.role;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.xframe.admin.system.XEnumKeys;
+import dev.xframe.admin.system.SysEnumKeys;
 import dev.xframe.admin.view.XColumn;
 
 public class Role {
@@ -19,10 +19,10 @@ public class Role {
 	@XColumn(value="角色")
 	private String name;
 	
-	@XColumn(value="权限", enumKey=XEnumKeys.PRIVILEGES, type=XColumn.type_mult)
+	@XColumn(value="权限", enumKey= SysEnumKeys.PRIVILEGES, type=XColumn.type_mult)
 	private List<String> authorities = new ArrayList<>();
 	
-	@XColumn(value="操作", enumKey=XEnumKeys.ROLE_OPTIONS, type=XColumn.type_mult)
+	@XColumn(value="操作", enumKey= SysEnumKeys.ROLE_OPTIONS, type=XColumn.type_mult)
     private int[] options;
 	
 	public int getId() {

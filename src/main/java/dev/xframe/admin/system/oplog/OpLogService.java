@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 
 import dev.xframe.admin.conf.LogicException;
-import dev.xframe.admin.system.XEnumKeys;
+import dev.xframe.admin.system.SysEnumKeys;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
@@ -22,7 +22,7 @@ public class OpLogService {
 	
 	@HttpMethods.GET
 	public Object query(
-			@HttpArgs.Param @XColumn(value="操作用户", enumKey=XEnumKeys.USER_LIST) String opUser,
+			@HttpArgs.Param @XColumn(value="操作用户", enumKey= SysEnumKeys.USER_LIST) String opUser,
 	        @HttpArgs.Param @XColumn("操作路径") String opPath,
 			@HttpArgs.Param	@XColumn(value="开始时间", type=XColumn.type_date) LocalDate start,
 			@HttpArgs.Param @XColumn(value="结束时间", type=XColumn.type_date) LocalDate end) {
