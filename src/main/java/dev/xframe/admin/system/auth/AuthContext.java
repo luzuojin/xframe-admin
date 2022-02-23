@@ -44,10 +44,14 @@ public class AuthContext implements Loadable {
     public void clearExpiryUser() {
         tokenMap.keySet().forEach(key->{
             UserPrivileges p = tokenMap.get(key);
-            if(System.currentTimeMillis() - p.getLastActiveTime() > TimeUnit.HOURS.toMillis(12)) {//1hours
+            if(!OpUser.isLocalUser(p.getUsername()) && isInactive(p.getLastActiveTime())) {//1hours
                 tokenMap.remove(key);
             }
         });
+    }
+
+    public boolean isInactive(long lastActiveTime) {
+        return System.currentTimeMillis() - lastActiveTime > TimeUnit.HOURS.toMillis(12);
     }
 
     public void addUnblockedPath(String p) {
