@@ -139,17 +139,13 @@ var xtoast = {
 }
 
 function xclick(btn, func) {
-//    btn.off('click');
+    btn.off('click');//移除之前可能存在的点击事件.
     btn.click(func);
 }
-
 function xchange(dom, func) {
-//    dom.off('change');
     dom.on('change', func);
 }
-
 function xinput(dom, func){
-//    dom.off('input');
     dom.on('input', func);
 }
 
