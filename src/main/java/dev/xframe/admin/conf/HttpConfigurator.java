@@ -11,9 +11,12 @@ import dev.xframe.http.config.HttpConfigSetter;
 import dev.xframe.http.config.RespEncoder;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;
+import dev.xframe.task.TaskExecutors;
+import dev.xframe.utils.XProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
 @Bean
@@ -23,6 +26,12 @@ public class HttpConfigurator extends HttpConfigSetter {
 
     @Inject
     private AuthContext authCtx;
+
+    @Override
+    public void setServiceExecutor(Consumer<Executor> setter) {
+        setter.accept(TaskExecutors.newFixed("web",
+                XProperties.getAsInt("xframe.admin.webthreads", Runtime.getRuntime().availableProcessors() * 2)));
+    }
 
     @Override
     public void setErrorHandler(Consumer<ErrorHandler> setter) {
