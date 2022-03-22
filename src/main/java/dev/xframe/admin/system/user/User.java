@@ -9,13 +9,13 @@ public class User {
 
 	@XColumn(value="用户名", show=XColumn.xor_edit, primary=true, required=true)
 	private String name;
-	@XColumn("手机")
+	@XColumn(value="手机", required=true)
 	private String phone;
-	@XColumn("邮箱")
+	@XColumn(value="邮箱", required=true)
 	private String email;
 	@XColumn(value="密码", show=XColumn.add, type=XColumn.type_pass, required=true)
 	private String passw;
-	@XColumn(value="角色", enumKey= SysEnumKeys.ROLE_LIST, type=XColumn.type_mult)
+	@XColumn(value="角色", enumKey= SysEnumKeys.ROLE_LIST, type=XColumn.type_mult, required=true)
 	private int[] roles;
 	@XColumn(value="创建时间", show=XColumn.list_edel, type=XColumn.type_datetime)
 	private Timestamp ctime;

@@ -1,10 +1,5 @@
 package dev.xframe.admin.conf;
 
-import java.util.function.Consumer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dev.xframe.admin.system.auth.AuthContext;
 import dev.xframe.admin.utils.JsonHelper;
 import dev.xframe.admin.view.VResp;
@@ -16,6 +11,10 @@ import dev.xframe.http.config.HttpConfigSetter;
 import dev.xframe.http.config.RespEncoder;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.function.Consumer;
 
 @Bean
 public class HttpConfigurator extends HttpConfigSetter {
