@@ -322,15 +322,13 @@ class TableDetail extends Detail {
         let _tr = 0;
         for(let op of this.getOptions(opTypes.qry)) {   //query box
             let _id = op.pid();
-            for(let column of op.children) {
-                column.addToQueryBox($('#xboxhead'));
-            }
+            (op._form = new OptionForm(op)).showContent($('#xboxhead'));
             $('#xboxhead').append(`<button id="qrybtn_${_id}_${_tr}" type="button" class="btn btn-info float-left" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
             xclick($(`#qrybtn_${_id}_${_tr}`), ()=>op.doGet(this.getQueryParams(), resp=>this.setData(resp).showContentBody()));
             this.qryOp = op;
             //最后一个查询框时 监听enter
             if(op.children.length > 0) {
-                op.children[op.children.length-1].getQueryDom().keypress(e => {
+                op.children[op.children.length-1].getFormValDom().keypress(e => {
                     if(e.keyCode==13) $(`#qrybtn_${_id}_${_tr}`).trigger('click');
                 });
             }
@@ -350,7 +348,7 @@ class TableDetail extends Detail {
         this.showTableHead0();
         this.showTableBody0();
     }
-    getQueryParams() {return this.qryOp ? Column.getQueryVals(this.qryOp.children) : {};}
+    getQueryParams()  {return this.qryOp ? this.qryOp._form.getFormData0() : {};}
     isTableOption(op) {return op.type==opTypes.del||op.type==opTypes.edt||op.type==opTypes.dlr;}
     getTableOptions() {return this.options.filter(this.isTableOption);}
     hasTableOptions() {return this.options.some(this.isTableOption);}
@@ -545,8 +543,9 @@ class Option extends Node {
         let c = new Option(parent);
         Object.assign(c, jOption);
         c.parent = parent;
-        if(jOption.inputs)
-            c.children = jOption.inputs.map(jCol=>Column.of(c, jCol));//复制成Option独有
+        if(jOption.inputs) {
+            c.children = jOption.inputs.map(jCol => (opTypes.qry==jOption.type) ? QueryColumn.of(Column.of(c, jCol)) : Column.of(c, jCol));//复制成Option独有
+        }
         return c;
     }
     hasChild(col) {
@@ -563,7 +562,7 @@ class Option extends Node {
         return this.path ? `${this.parent.uri()}/${this.path}` : this.parent.uri();
     }
     pid() {
-        return this.path ? `${this.parent.pid()}_${this.path}` : this.parent.pid();
+        return this.path ? `${this.parent.pid()}_${this.type}_${this.path}` : `${this.parent.pid()}_${this.type}`;
     }
     onColValChanged(col, val) {
         //do flex??
@@ -626,7 +625,6 @@ class Column {
         return c;
     }
 
-
     static packVals(columns, valFunc) {
         let obj = {};
         columns.forEach(col=>{
@@ -653,24 +651,6 @@ class Column {
 
     onValChanged(val) {
         this.parent.onColValChanged(this, val);
-    }
-
-    //as query input
-    static getQueryVals(columns) {
-        return Column.packVals(columns, col=>col.getQueryVal());
-    }
-    getQueryVal() {return this.getQueryDom().val();}
-    getQueryDom() {return $(`#xqry_${this.key}`);}
-    addToQueryBox(_parent) {
-        if(this.type == colTypes._enum) {
-            _parent.append(`<div class="col-sm-2 float-left"><select id="xqry_${this.key}" class="form-control select2bs4" data-placeholder="${this.hint}" style="width:100%"><option/></select></div>`);
-            xselect2(this.getQueryDom(), this, true);//查询框/enum记忆
-        } else {
-            _parent.append(`<div class="col-sm-2 float-left"><input id="xqry_${this.key}" class="form-control" type="text" placeholder="${this.hint}" autocomplete="off"></div>`);
-            if(this.type==colTypes._datetime) xdatepicker(this.getQueryDom());
-            if(this.type==colTypes._date) xdatepicker(this.getQueryDom(), xformatDate);
-            if(this.type==colTypes._date) xdatepicker(this.getQueryDom(), xformatTime);
-        }
     }
 
     addToTable(_parent, val) {
@@ -795,7 +775,7 @@ class EnumColumn extends Column {
         return `<select id="dinput_${this.pid()}" class="form-control select2" data-placeholder="${this.hint}"></select>`;
     }
     setValToFormDom(dom, val) {
-        xselect2(dom, this);
+        xselect2(dom, this, this.parent && this.parent.type == opTypes.qry);
         if(val && val != 0) dom.val(val).trigger('change')
     }
 }
@@ -857,6 +837,28 @@ class ImagColumn extends FileColumn {
     }
 }
 
+class QueryColumn extends Column {
+    static of(_origin) {
+        let c = Object.assign(new QueryColumn(), _origin);
+        c._origin = _origin;
+        return c;
+    }
+    getColBoxHtm(labelHtm, formValHtm) {
+        return `<div class="col-sm-2 float-left">${formValHtm}</div>`
+    }
+    makeFormValHtm() {
+        return this._origin.makeFormValHtm();
+    }
+    setValToFormDom(dom, val) {
+        this._origin.setValToFormDom(dom, val);
+    }
+    getFormVal() {
+        return this._origin.getFormVal();
+    }
+    onValChanged(val) {
+        this.parent.onColValChanged(this._origin, val);
+    }
+}
 
 class NestColumn extends Column {
     static _ = Column.regist([colTypes._model], this);

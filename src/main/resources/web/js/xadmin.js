@@ -1,4 +1,4 @@
-var xurl = window.location.origin.startsWith("http") ? window.location.origin : "http://127.0.0.1:8001";
+var xurl = window.location.origin.startsWith("http") ? window.location.origin : "http://127.0.0.1:8003";
 var xpaths = {
     summary: "basic/summary",
     xenum  : "basic/enum",
@@ -93,7 +93,7 @@ function doResp(func) {
     return function(resp, textStatus, xhr) {
         clrEnumCaches(xhr);
         if(resp.status == -1) {
-            xtoast.error(resp.text?resp.text:`${xlatestOp.name} 失败`);
+            xtoast.error(xOrElse(resp.text, `${xOrEmpty(xlatestOp, 'name')} 失败`));
         } else if(resp.status == -2) { //提示
             xtoast.info(resp.text)
             func(resp.data);
@@ -163,11 +163,11 @@ function xdatepicker(e, _format=xformatDatetime) {
     });
 }
 
-function xselect2(e, xinput, cacheEnable=false) {
-    let k = xinput.enumKey;
+function xselect2(e, column, disableClear=false) {
+    let k = column.enumKey;
     let d = xenum(k);
-    let m = xinput.type==colTypes._mult;
-    let s = e.select2({
+    let m = column.type==colTypes._mult;
+    e.select2({
                 theme: 'bootstrap4',
                 dropdownAutoWidth : true,
                 width: 'auto',
@@ -175,19 +175,10 @@ function xselect2(e, xinput, cacheEnable=false) {
                 multiple: m,
                 minimumInputLength: (d.length > 100 ? 2 : 0),
                 minimumResultsForSearch: 10,
-                allowClear: !cacheEnable    //碰巧 开启cache的select框 一般都不需要clear操作
+                allowClear: !disableClear
             });
     e.val('').trigger('change');//设置默认不选择
-    //多选 无记忆
-    if(!cacheEnable || m) return;
-    //设置cache值
-    if(eCaches[k]) s.val(eCaches[k]).trigger('change');
-    //设值完成之后添加值变化监听
-    s.on('change', function(evt){
-        if(this.value) eCaches[k] = this.value;
-    });
 }
-var eCaches = {};
 
 // show contents
 function showSummary() {
