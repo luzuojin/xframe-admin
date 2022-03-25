@@ -37,7 +37,7 @@ var colTypes = {
 
 var xShowcase = {//column.show
     list: function(c){return (c.show & 1) > 0;},
-    edit: function(c){return (c.show & 2) > 0;},
+    edit: function(c){return (c.show & 2) > 0 && !c.primary;},
     add : function(c){return (c.show & 4) > 0;},
     edel: function(c){return (c.show & 8) > 0;},
 }
@@ -619,6 +619,7 @@ class Column {
     static of(parent, jColumn) {
         let c = new (Column.getCls(jColumn.type))();
         Object.assign(c, jColumn);
+        c.required = (c.required || c.primary);
         c.parent = parent;
         if(jColumn.columns)
             c.columns = jColumn.columns.map(jCol=>Column.of(c, jCol));
