@@ -152,7 +152,7 @@ function xinput(dom, func){
 var xformatDatetime = 'YYYY-MM-DD HH:mm:ss';
 var xformatDate = 'YYYY-MM-DD';
 var xformatTime = 'HH:mm:ss';
-function xdatepicker(e, _format=xformatDatetime) {
+function xdatepicker(e, col, _format=xformatDatetime) {
     e.datetimepicker({
         format: _format,
         useCurrent: 'day',
@@ -160,13 +160,15 @@ function xdatepicker(e, _format=xformatDatetime) {
         showTodayButton: false,
         icons: {time: "fa fa-clock"},
         locale: 'zh-cn'
+    }).on('dp.change', _ => {
+        col.onValChanged(col.getFormVal());
     });
 }
 
-function xselect2(e, column, disableClear=false) {
-    let k = column.enumKey;
+function xselect2(e, col, disableClear=false) {
+    let k = col.enumKey;
+    let m = col.type==colTypes._mult;
     let d = xenum(k);
-    let m = column.type==colTypes._mult;
     e.select2({
                 theme: 'bootstrap4',
                 dropdownAutoWidth : true,

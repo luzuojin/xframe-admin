@@ -641,6 +641,16 @@ class Column {
     pid() {
         return `${this.parent.pid()}_${this.key}`;
     }
+    //for val local cache
+    getCacheKey() {
+        return this.cacheKey ? this.cacheKey : this.pid();
+    }
+    tryCache(val) {
+        if(this.cacheable) localStorage.setItem(this.getCacheKey(), val);
+    }
+    orCached(val) {
+        return (this.cacheable && !val) ? localStorage.getItem(this.getCacheKey()) : val;
+    }
 
     getValFrom(data) {
         let val = data[this.key];
@@ -651,6 +661,7 @@ class Column {
     }
 
     onValChanged(val) {
+        this.tryCache(val);
         this.parent.onColValChanged(this, val);
     }
 
@@ -700,8 +711,9 @@ class Column {
         }
         let _dom = $(this.getColBoxHtm(labelHtm, formValHtm));
         _parent.append(_dom);
-        this.setValToFormDom(this.getFormValDom(), val);
+        this.setValToFormDom(this.getFormValDom(), this.orCached(val));
     }
+
     getColBoxHtm(labelHtm, formValHtm) {
         return `<div class="form-group row">
                     <label class="col-sm-2 col-form-label"><p class="float-right">${labelHtm}</p></label>
@@ -753,21 +765,21 @@ class DateTimeColumn extends Column {
     static _ = Column.regist([colTypes._datetime], this);
     setValToFormDom(dom, val) {//dlgMakeFunc
         super.setValToFormDom(dom, val);
-        xdatepicker(dom)
+        xdatepicker(dom, this)
     }
 }
 class DateColumn extends Column {
     static _ = Column.regist([colTypes._date], this);
     setValToFormDom(dom, val) {//dlgMakeFunc
         super.setValToFormDom(dom, val);
-        xdatepicker(dom, xformatDate)
+        xdatepicker(dom, this, xformatDate)
     }
 }
 class TimeColumn extends Column {
     static _ = Column.regist([colTypes._time], this);
     setValToFormDom(dom, val) {//dlgMakeFunc
         super.setValToFormDom(dom, val);
-        xdatepicker(dom, xformatTime)
+        xdatepicker(dom, this, xformatTime)
     }
 }
 class EnumColumn extends Column {
@@ -850,6 +862,12 @@ class QueryColumn extends Column {
     makeFormValHtm() {
         return this._origin.makeFormValHtm();
     }
+    tryCache(val) {
+        this._origin.tryCache(val);
+    }
+    orCached(val) {
+        return this._origin.orCached(val);
+    }
     setValToFormDom(dom, val) {
         this._origin.setValToFormDom(dom, val);
     }
@@ -857,7 +875,7 @@ class QueryColumn extends Column {
         return this._origin.getFormVal();
     }
     onValChanged(val) {
-        this.parent.onColValChanged(this._origin, val);
+        this._origin.onValChanged(val);
     }
 }
 

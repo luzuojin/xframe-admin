@@ -6,7 +6,7 @@ public class PanelTest {
 	
 	public static final String PANEL_ROLE_KEY = "panel_role_key";
 
-	@XColumn(value="角色", enumKey=PANEL_ROLE_KEY)
+	@XColumn(value="角色", enumKey=PANEL_ROLE_KEY, cacheable=true)
 	private int roleId;
 	
 	@XColumn(value="图片", type=XColumn.type_imag)

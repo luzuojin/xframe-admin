@@ -26,6 +26,8 @@ public class Column {
     private boolean compact;
     private boolean required;
     private boolean sortable;
+    private boolean cacheable;
+    private String cacheKey;
 
     static Class<?> getRawType(Type type) {
         return (Class<?>) (type instanceof ParameterizedType ? ((ParameterizedType) type).getRawType() : type);
@@ -107,6 +109,8 @@ public class Column {
         this.compact = xc.compact();
         this.required = xc.required();
         this.sortable = xc.sortable() && !isNested(this.type);
+        this.cacheKey = xc.cacheKey();
+        this.cacheable = xc.cacheable() || !XStrings.isEmpty(this.cacheKey);
     }
 
     public int getShow() {
@@ -163,10 +167,22 @@ public class Column {
     public void setCompact(boolean compact) {
         this.compact = compact;
     }
-    public boolean isSortable() {
+    public boolean getSortable() {
         return sortable;
     }
     public void setSortable(boolean sortable) {
         this.sortable = sortable;
+    }
+    public boolean getCacheable() {
+        return cacheable;
+    }
+    public void setCacheable(boolean cacheable) {
+        this.cacheable = cacheable;
+    }
+    public String getCacheKey() {
+        return cacheKey;
+    }
+    public void setCacheKey(String cacheKey) {
+        this.cacheKey = cacheKey;
     }
 }

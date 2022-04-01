@@ -28,6 +28,9 @@ public @interface XColumn {
 	boolean required() default false;
 	/**是否需要支持排序*/
 	boolean sortable() default false;
+	/**是否本地缓存表单数据(Panel&Query)*/
+	boolean cacheable() default false;
+	String cacheKey() default "";
 	
 	//Column类型
 	int type_text = 0;	//文本
@@ -70,6 +73,8 @@ public @interface XColumn {
 		public boolean compact() {return false;}
 		public boolean required() {return false;}
 		public boolean sortable() {return false;}
+		public boolean cacheable() {return false;}
+		public String cacheKey() {return "";}
 		public Class<? extends Annotation> annotationType() {return XColumn.class;}
 	};
 }
