@@ -287,7 +287,7 @@ class TableDetail extends Detail {
     }
     //change cached data(s)
     onDataChanged(op, data) {
-        if(op.type == opTypes.qry || Array.isArray(data)) {
+        if(op.type == opTypes.qry || Array.isArray(data) || (data.data && Array.isArray(data.data))) {
             this.setData(data);
         } else if(data){
             let _datas = this.sorting.originalData();
@@ -302,7 +302,7 @@ class TableDetail extends Detail {
             }
         }
         this.sorting.sort();
-        this.showTableBody0();
+        this.showContentBody();
     }
     setData(data) {
         super.setData(xOrElse(data, []));
@@ -672,8 +672,11 @@ class Column {
     /*--------------------------*/
     /*-----for show in form-----*/
     /*--------------------------*/
-    static validateFormVals(columns, vals) {
-        return !columns.some(col=>col.required&&!col.validateAndPromptFormVal(vals[col.key]));
+    static showInForm(op, col) {
+        return !((op.type == opTypes.add && !xShowcase.add(col)) || (op.type >= opTypes.edt && !xShowcase.edel(col)));
+    }
+    static validateFormVals(op, columns, vals) {
+        return !columns.some(col=>col.required&&!col.validateAndPromptFormVal(op, vals[col.key]));
     }
     static getFormVals(columns) {
         return Column.packVals(columns, col=>col.getFormVal());
@@ -688,8 +691,9 @@ class Column {
         this.addToForm0(_parent, this.parent, val)
     }
     addToForm0(_parent, op, val) {
-        if(op.type == opTypes.add && !xShowcase.add(this)) return;
-        if(op.type >= opTypes.edt && !xShowcase.edel(this)) return;
+        if(!Column.showInForm(op, this)) {
+            return;
+        }
         this.doAddToForm(_parent, val);
         //disabled
         if (op.type == opTypes.del || (op.type == opTypes.edt && !xShowcase.edit(this))) {
@@ -699,7 +703,7 @@ class Column {
         xchange(this.getFormValDom(), ()=>this.onValChanged(this.getFormVal()));
         //for input validate
         if(this.required) {
-            xinput(this.getFormValDom(), ()=>this.validateAndPromptFormVal(this.getFormVal()));
+            xinput(this.getFormValDom(), ()=>this.validateAndPromptFormVal(op, this.getFormVal()));
         }
     }
     doAddToForm(_parent, val) {
@@ -730,12 +734,12 @@ class Column {
     invalidText(){
         return `${this.hint} 不能为空`;
     }
-    validateAndPromptFormVal(val){
-        let isValid = this.validateFromVal(val);
+    validateAndPromptFormVal(op, val){
+        let isValid = !Column.showInForm(op, this) || this.validateFormVal(op, val);
         this.getFormValDom().toggleClass("is-invalid", !isValid);
         return isValid;
     }
-    validateFromVal(val){
+    validateFormVal(op, val){
         return !!val;
     }
 }
@@ -913,8 +917,8 @@ class NestColumn extends Column {
     getFormVal() {
         return Column.getFormVals(this.columns);
     }
-    validateFromVal(val) {
-        return Column.validateFormVals(this.columns, val);
+    validateFormVal(op, val) {
+        return Column.validateFormVals(op, this.columns, val);
     }
 }
 class IndexedNestColumn extends Column {
@@ -987,8 +991,8 @@ class ListColumn extends NestColumn {
         }
         return _data;
     }
-    validateFromVal(val) {
-        return !val.some(_v=>!Column.validateFormVals(this.columns, _v));
+    validateFormVal(op, val) {
+        return !val.some(_v=>!Column.validateFormVals(op, this.columns, _v));
     }
 }
 
@@ -997,7 +1001,7 @@ class EmailColumn extends Column{
     invalidText() {
         return "邮箱地址不正确";
     }
-    validateFromVal(val){
+    validateFormVal(op, val){
         return /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,5}$/.test(val);
     }
 }
@@ -1007,7 +1011,7 @@ class PhoneColumn extends Column{
     invalidText() {
         return  "请输入正确的手机号";
     }
-    validateFromVal(val){
+    validateFormVal(op, val){
         return /^[1][3,4,5,7,8,9][0-9]{9}$/.test(val);
     }
 }
@@ -1044,7 +1048,7 @@ class OptionForm {
     }
     getFormData() {
         let val = this.getFormData0();
-        if(Column.validateFormVals(this.option.columns(), val))
+        if(Column.validateFormVals(this.option, this.option.columns(), val))
             return val;
         return undefined;//throw error?
     }
