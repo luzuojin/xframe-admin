@@ -18,8 +18,7 @@ public class DBMysql implements Database {
         DBSource conf = new DBSource(getDbUser(), getDbPass(), Driver, String.format(Url0, getDbHost(), getDbPort()), 1, 1);
         DataSource source = (DataSource) DataSources.tomcatJdbc(conf);
         JdbcTemplate jdbc = JdbcTemplate.of(source);
-        if(jdbc.fetchMany("show databases;", PSSetter.NONE, rs->rs.getString(1))
-                .stream().noneMatch(getDbName()::equals)) {
+        if(jdbc.fetchMany("show databases;", PSSetter.NONE, rs->rs.getString(1)).stream().noneMatch(getDbName()::equalsIgnoreCase)) {
             jdbc.execute(String.format("CREATE DATABASE IF NOT EXISTS %s;", getDbName()));
         }
         source.close();

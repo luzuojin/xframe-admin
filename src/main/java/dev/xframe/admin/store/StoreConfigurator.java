@@ -38,7 +38,7 @@ public class StoreConfigurator implements Loadable {
 
     protected void tryCreateTables(StoreKey key) {
         JdbcTemplate jdbc = JdbcEnviron.getJdbcTemplate(key);
-        if(jdbc.fetchMany("SHOW TABLES;", PSSetter.NONE, rs->rs.getString(1)).stream().anyMatch(key.vTable::equals)) {
+        if(jdbc.fetchMany("SHOW TABLES;", PSSetter.NONE, rs->rs.getString(1)).stream().anyMatch(key.vTable::equalsIgnoreCase)) {
             return;
         }
         for (String script : readScripts(key.script)) {
