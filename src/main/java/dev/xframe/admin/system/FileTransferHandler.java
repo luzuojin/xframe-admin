@@ -1,16 +1,16 @@
 package dev.xframe.admin.system;
 
+import dev.xframe.inject.Bean;
+import dev.xframe.inject.Providable;
+import dev.xframe.utils.XCaught;
+import dev.xframe.utils.XProperties;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
-import dev.xframe.admin.store.StoreProps;
-import dev.xframe.inject.Bean;
-import dev.xframe.inject.Providable;
-import dev.xframe.utils.XCaught;
 
 /**
  * 文件上传下载
@@ -20,9 +20,11 @@ import dev.xframe.utils.XCaught;
 @Providable
 public class FileTransferHandler {
 
+    String storeDir = XProperties.get("store.dir", XProperties.get("work.dir", XProperties.get("user.dir")));
+
     public File upload(String originName, File tmpFile) {
         try {
-            Path target = Files.move(tmpFile.toPath(), Paths.get(StoreProps.getDir(), originName), StandardCopyOption.ATOMIC_MOVE);
+            Path target = Files.move(tmpFile.toPath(), Paths.get(storeDir, originName), StandardCopyOption.ATOMIC_MOVE);
             return target.toFile();
         } catch (IOException e) {
             throw XCaught.throwException(e);
@@ -30,7 +32,7 @@ public class FileTransferHandler {
     }
 
     public File preview(String name) {
-        return Paths.get(StoreProps.getDir(), name).toFile();
+        return Paths.get(storeDir, name).toFile();
     }
 
 }

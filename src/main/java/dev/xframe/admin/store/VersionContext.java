@@ -1,24 +1,21 @@
 package dev.xframe.admin.store;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-
-import dev.xframe.inject.Configurator;
+import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;
 import dev.xframe.inject.Loadable;
 import dev.xframe.jdbc.JdbcEnviron;
 import dev.xframe.jdbc.JdbcTemplate;
 import dev.xframe.jdbc.TypeQuery;
-import dev.xframe.jdbc.tools.SQLScript;
 import dev.xframe.utils.XLogger;
-import dev.xframe.utils.XStrings;
 
-@Configurator
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+
+import static dev.xframe.admin.store.StoreConfigurator.readScripts;
+
+@Bean
 public class VersionContext implements Loadable  {
 	
 	@Inject
@@ -56,24 +53,10 @@ public class VersionContext implements Loadable  {
 	    }
 	    XLogger.info("Current {} version: {}", key, Version.toStr(v));
 	    if(version.getVersion() > v) {
-	    	readScripts(version.getSqlPath())
-	    	    .forEach(script->runScript(key, script));
+			readScripts(version.getSqlPath()).forEach(script->runScript(key, script));
 	    	addVersion(key, version);
 	    	XLogger.info("Updated version: {}", Version.toStr(version.getVersion()));
 	    }
-	}
-
-	List<String> readScripts(String path) {
-		try (InputStream input = getClass().getClassLoader().getResourceAsStream(path)) {
-		    ByteArrayOutputStream out = new ByteArrayOutputStream();
-		    int b;
-		    while((b = input.read()) != -1) {
-		        out.write(b);
-		    }
-            return SQLScript.parse(XStrings.newStringUtf8(out.toByteArray()));
-        } catch (IOException e) {
-        	throw new IllegalArgumentException(e);
-        }
 	}
 
 }

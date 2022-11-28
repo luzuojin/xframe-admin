@@ -6,7 +6,10 @@ import java.util.regex.Pattern;
 import dev.xframe.admin.view.XColumn;
 
 public class Version {
-    
+
+    /**
+     * format: 0.0
+     */
     private int version;
     
     private Timestamp upTime;
