@@ -666,7 +666,7 @@ class Column {
     }
 
     addToTable(_parent, val) {
-        return _parent.append(val);
+        return _parent.append(`${val}`);
     }
 
     /*--------------------------*/
@@ -793,7 +793,7 @@ class EnumColumn extends Column {
     }
     setValToFormDom(dom, val) {
         xselect2(dom, this, this.parent && this.parent.type == opTypes.qry);
-        if(val && val != 0) dom.val(val).trigger('change')
+        if(val && val != 0) dom.val(val).trigger('change');
     }
 }
 class BoolColumn extends Column {
