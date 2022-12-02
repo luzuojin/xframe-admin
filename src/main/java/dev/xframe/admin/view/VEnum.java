@@ -8,6 +8,9 @@ public class VEnum {
 	public VEnum(String id) {
 		this(id, id);
 	}
+	public VEnum(Number id, String text) {
+		this(id.toString(), text);
+	}
 	public VEnum(String id, String text) {
 		this.id = id;
 		this.text = text;

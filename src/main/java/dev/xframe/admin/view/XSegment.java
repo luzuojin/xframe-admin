@@ -17,7 +17,7 @@ public @interface XSegment {
 	
 	String name();
 	int type() default type_table;
-	Class<?> model();
+	Class<?> model() default void.class;
 	//for table detail
 	boolean padding() default false;//Option.add时是否把qry表单中的字段用来填充
 
@@ -36,5 +36,7 @@ public @interface XSegment {
 	int type_panel = 2;
 	/**Markdown展示页,只需要ini*/
 	int type_markd = 3;
+	/**图表展示*/
+	int type_chart = 4;
 
 }

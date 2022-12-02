@@ -33,6 +33,10 @@ var colTypes = {
     //nested...
     _model:80,
     _list: 81,
+    //chart
+    _line: 91,
+    _bar:  92,
+    _pie:  93,
 }
 
 var xShowcase = {//column.show
@@ -142,7 +146,8 @@ class Segment extends Navi {
         });
     }
     initContainer() {
-        $('#xcontent').empty();
+        $('#xcontainer').empty();
+        $('#xcontainer').append(`<div id="xcontent" class="card card-info card-outline card-outline-tabs"></div>`);
         $('#xcontent').append(`<div class="card-header">
                                 <div class="row">
                                     <div id="xboxhead" class="clearfix w-100"></div>
@@ -470,6 +475,101 @@ class MarkdDetail extends Detail {
         marked.use({renderer});
         let text = marked(this.data);
         $('#xcontent').html(`<div class="card-body">${text}</div>`);
+    }
+}
+
+//0,1,2,3
+let ChartTypesArray = ['line', 'line', 'bar', 'pie'];
+let ChartColors = {
+    red: 'rgb(255, 99, 132)',
+    orange: 'rgb(255, 159, 64)',
+    yellow: 'rgb(255, 205, 86)',
+    green: 'rgb(75, 192, 192)',
+    blue: 'rgb(54, 162, 235)',
+    purple: 'rgb(153, 102, 255)',
+    grey: 'rgb(201, 203, 207)'
+};
+let ChartColorsArray = [
+    ChartColors.blue,
+    ChartColors.purple,
+    ChartColors.grey,
+    ChartColors.red,
+    ChartColors.orange,
+    ChartColors.yellow,
+    ChartColors.green
+]
+
+/*多维数据集合展示(m*n table|chart)*/
+class ChartDetail extends Detail {
+    static _ = Detail.regist(4, this);
+    constructor(parent) {super(parent);}
+    showContent() {
+        let data = this.data;
+        if(!data) data = {};
+        //segment
+        $('#xcontainer').empty();
+        //
+        $('#xboxhead').empty();//for query
+        $('#xboxbody').empty();//for description
+        //
+        for(let row of data.rows) {
+            let rowHtm = $(`<div class="row"></div>`);
+            $('#xcontainer').append(rowHtm)
+            let md = 12 / row.cols.length;
+            for(let col of row.cols) {
+                let rowCol = $(`<div class="col-md-${md}"></div>`);
+                rowHtm.append(rowCol);
+                let rowCard = $(`<div class="card"></div>`);
+                rowCol.append(rowCard);
+                let canvas = $(`<canvas style="min-height: 240px; max-height: 360px; max-width: 100%;"><canvas/>`);
+                rowCard.append(canvas)
+
+                new Chart(canvas, this.makeChartConfig(col));
+            }
+        }
+    }
+    makeChartConfig(col) {
+        let labels = col.datas.map(d=>d.label).filter((v,i,a)=>a.indexOf(v)==i);
+        let group = col.datas.reduce((g, e) => {
+            let {set} = e;
+            g[set] = g[set] ?? [];
+            g[set].push(e);
+            return g;
+        }, {});
+        let type = ChartTypesArray[col.type];
+        let datasets = [];
+        let index = -1;
+        for(let k in group) {
+            let idColor = ChartColorsArray[++index];
+            let bdColor = type == 'pie' ? 'rgb(255, 255, 255, 0.3)' : idColor;
+            let bgColor = type == 'pie' ? ChartColorsArray : idColor;
+            datasets.push({
+                label: k,
+                data: group[k].map(v=>v.value),
+                borderColor: bdColor,
+                backgroundColor: bgColor,
+            })
+        }
+        return {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: true,
+                        text: xOrElse(col.title, '')
+                    }
+                }
+            }
+        }
     }
 }
 

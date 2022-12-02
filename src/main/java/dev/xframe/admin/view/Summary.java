@@ -1,5 +1,6 @@
 package dev.xframe.admin.view;
 
+import dev.xframe.admin.view.details.Chart;
 import dev.xframe.admin.view.details.Markd;
 import dev.xframe.admin.view.details.Panel;
 import dev.xframe.admin.view.details.Table;
@@ -70,6 +71,9 @@ public class Summary {
                 XSegment xseg = clazz.getAnnotation(XSegment.class);
                 String[] paths = Service.findPath(clazz).split("/");
                 Navigate parent = chapters.get(paths[0]);//第一个为chapter.path
+				if(parent == null) {
+					throw new IllegalStateException( String.format("Chapter[%s] of Segment[%s] not found", paths[0], xseg));
+				}
 				if(paths.length == 3) {//三级菜单
 					parent = (Navigate) Symbol.unwrap(parent.findOrAdd(paths[1], Symbol.wrap(parent.path, new Navigate(paths[1]))));
 				}
@@ -90,6 +94,8 @@ public class Summary {
 				return new Panel().parseFrom(xseg, declaring);
 			case XSegment.type_markd:
 				return new Markd().parseFrom(xseg, declaring);
+			case XSegment.type_chart:
+				return new Chart().parseFrom(xseg, declaring);
 			case XSegment.type_table:
 			default:
 				return new Table().parseFrom(xseg, declaring);

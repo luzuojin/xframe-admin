@@ -113,76 +113,92 @@ public class Column {
         this.cacheable = xc.cacheable() || !XStrings.isEmpty(this.cacheKey);
     }
 
+    public static Column of(String key) {
+        return new Column(key, XColumn.type_text, XColumn.Default);
+    }
+
     public int getShow() {
         return show;
     }
-    public void setShow(int show) {
+    public Column setShow(int show) {
         this.show = show;
+        return this;
     }
     public int getType() {
         return type;
     }
-    public void setType(int type) {
+    public Column setType(int type) {
         this.type = type;
+        return this;
     }
     public String getKey() {
         return key;
     }
-    public void setKey(String key) {
+    public Column setKey(String key) {
         this.key = key;
+        return this;
     }
     public String getHint() {
         return hint;
     }
-    public void setHint(String hint) {
+    public Column setHint(String hint) {
         this.hint = hint;
+        return this;
     }
     public String getEnumKey() {
         return enumKey;
     }
-    public void setEnumKey(String enumKey) {
+    public Column setEnumKey(String enumKey) {
         this.enumKey = enumKey;
+        return this;
     }
     public boolean getPrimary() {
         return primary;
     }
-    public void setPrimary(boolean primary) {
+    public Column setPrimary(boolean primary) {
         this.primary = primary;
+        return this;
     }
     public boolean getCollapse() {
         return collapse;
     }
-    public void setCollapse(boolean collapse) {
+    public Column setCollapse(boolean collapse) {
         this.collapse = collapse;
+        return this;
     }
     public boolean getRequired() {
         return required;
     }
-    public void setRequired(boolean required) {
+    public Column setRequired(boolean required) {
         this.required = required;
+        return this;
     }
     public boolean getCompact() {
         return compact;
     }
-    public void setCompact(boolean compact) {
+    public Column setCompact(boolean compact) {
         this.compact = compact;
+        return this;
     }
     public boolean getSortable() {
         return sortable;
     }
-    public void setSortable(boolean sortable) {
+    public Column setSortable(boolean sortable) {
         this.sortable = sortable;
+        return this;
     }
     public boolean getCacheable() {
         return cacheable;
     }
-    public void setCacheable(boolean cacheable) {
+    public Column setCacheable(boolean cacheable) {
         this.cacheable = cacheable;
+        return this;
     }
     public String getCacheKey() {
         return cacheKey;
     }
-    public void setCacheKey(String cacheKey) {
+    public Column setCacheKey(String cacheKey) {
         this.cacheKey = cacheKey;
+        return this;
     }
 }

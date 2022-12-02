@@ -7,7 +7,7 @@ import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
 
 @Rest("markd/{name}")
-@XSegment(name = "unused", model = void.class, type = XSegment.type_markd)
+@XSegment(name = "unused", type = XSegment.type_markd)
 public class MarkdService {
 
     @HttpMethods.GET
