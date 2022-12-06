@@ -9,7 +9,7 @@ public class Chart extends Classic {
     }
     @Override
     public Detail parseFrom(XSegment xseg, Class<?> declaring) {
-        this.options = Detail.parseOptions(declaring);
+        this.options = Detail.parseOptions(declaring, xseg.model());
         this.checkIniOption();
         return this;
     }

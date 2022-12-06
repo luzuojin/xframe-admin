@@ -35,11 +35,11 @@ public class Option implements Comparable<Option> {
 		private boolean isParamPredicated(Method m) {
 			return !this.np || Arrays.stream(m.getParameters()).noneMatch(p -> p.isAnnotationPresent(Param.class));
 		}
-		private Option make(Method m) {
-			return op.copy(m.getAnnotation(XOption.class), vl.apply(m.getAnnotation(ma))).with(Detail.parseParamColumns(m));
+		private Option make(Method m, Class<?> model) {
+			return op.copy(m.getAnnotation(XOption.class), vl.apply(m.getAnnotation(ma))).with(Detail.parseParamColumns(m, model));
 		}
-		Option apply(Method m) {
-			return m.isAnnotationPresent(ma) && isOpPredicated(m) && isParamPredicated(m) ? make(m) : null;
+		Option apply(Method m, Class<?> model) {
+			return m.isAnnotationPresent(ma) && isOpPredicated(m) && isParamPredicated(m) ? make(m, model) : null;
 		}
 	}
 	static final List<Parser<?>> Parsers = Arrays.asList(

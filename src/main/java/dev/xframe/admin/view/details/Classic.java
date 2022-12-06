@@ -45,8 +45,8 @@ public abstract class Classic implements Detail {
     
     @Override
     public Detail parseFrom(XSegment xseg, Class<?> declaring) {
-        this.options = Detail.parseOptions(declaring);
         this.columns = Detail.parseModelColumns(xseg.model());
+        this.options = Detail.parseOptions(declaring, xseg.model());
         this.checkIniOption();
         return this;
     }
