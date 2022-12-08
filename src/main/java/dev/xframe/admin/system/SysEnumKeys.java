@@ -10,4 +10,5 @@ public class SysEnumKeys {
     
     public static final String USER_LIST  = "userlist";
 
+    public static final String PRIVILEGE_TREE = "privilege_tree";
 }

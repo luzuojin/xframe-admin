@@ -40,8 +40,9 @@ public @interface XColumn {
 	int type_phone = 4; //手机号
 	int type_email = 5; //邮箱
 	int type_bool = 20;	//check radio
-	int type_enum = 21;	//下拉框 @see BasicContext.registEnumValue
+	int type_enum = 21;	//下拉框 @see XRegistrator.registEnumValue
 	int type_mult = 22;	//下拉框(多选)
+	int type_tree = 23;	//下拉框(树状多选)
 	int type_datetime = 30;	//日期+时间
 	int type_date = 31;	//日期
 	int type_time = 32;	//仅时间

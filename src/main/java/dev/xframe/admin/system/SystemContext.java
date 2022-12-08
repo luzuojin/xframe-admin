@@ -8,6 +8,7 @@ import dev.xframe.admin.system.user.User;
 import dev.xframe.admin.view.Navi;
 import dev.xframe.admin.view.Symbol;
 import dev.xframe.admin.view.VEnum;
+import dev.xframe.admin.view.VTree;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;
 import dev.xframe.inject.Loadable;
@@ -24,7 +25,7 @@ public class SystemContext implements Loadable {
     private SystemRepo sysRepo;
     @Inject
     private BasicContext basicCtx;
-    
+
     private List<Role> roles;
     
     private List<Privilege> privileges = new ArrayList<>();
@@ -34,19 +35,24 @@ public class SystemContext implements Loadable {
     @Override
     public void load() {
         privileges.add(Privilege.WHOLE);
-        
+
+        List<VEnum> ptrees = new ArrayList<>();
+        ptrees.add(new VTree("_", "全部"));
         basicCtx.getSummary().getChapters().forEach(c->{
+            VTree ptree = new VTree(c.getPath(), c.getName());
             privileges.add(new Privilege(c.getName(), c.getPath()));
             for (Navi navi : c.getNavis()) {
                 if(!(navi instanceof Symbol)) {
                     privileges.add(new Privilege("・"+navi.getName(), c.getPath() + "/" + navi.getPath()));
+                    ptree.child(new VTree(c.getPath() + "/" + navi.getPath(), navi.getName()));
                 }
             }
+            ptrees.add(ptree);
         });
         
         List<VEnum> privilegesEnum = privileges.stream().map(p->new VEnum(p.getPath(), p.getName())).collect(Collectors.toList());
         basicCtx.registEnumValue(SysEnumKeys.PRIVILEGES, ()->privilegesEnum);
-        
+
         roles = sysRepo.fetchRoles();
         
         basicCtx.registEnumValue(SysEnumKeys.ROLE_LIST, ()->{
@@ -68,8 +74,10 @@ public class SystemContext implements Loadable {
         basicRole = new RolePrivileges();
         basicRole.setOptions(new int[] {Role.op_all});
         basicRole.addPrivilege(new Privilege("Basic", "basic"));
+
+        basicCtx.registEnumValue(SysEnumKeys.PRIVILEGE_TREE, () -> ptrees);
     }
-    
+
     void addPrivilege(Privilege p) {
         privileges.add(p);
     }
@@ -85,9 +93,10 @@ public class SystemContext implements Loadable {
     public UserPrivileges getPrivileges(User user) {
         UserPrivileges p = new UserPrivileges(user.getName());
         for (int role : user.getRoles()) {
-            Role x = this.roles.stream().filter(r->r.getId() == role).findAny().orElse(null);
-            if(x != null)
-                p.add(toRolePrivileges(x));
+            this.roles.stream()
+                    .filter(r -> r.getId() == role)
+                    .findAny()
+                    .ifPresent(r -> p.add(toRolePrivileges(r)));
         }
         p.add(basicRole);
         return p;

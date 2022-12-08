@@ -23,10 +23,14 @@ function xenum(key) {
     }
 }
 function xenumText(key, id) {
-    let simpleText = function(_id) {
-        let data = xenum(key);
-        for(let e of data) {
+    let data = xenum(key);
+    let simpleText = function(_id, _data=data) {
+        for(let e of _data) {
             if(e.id == _id) return e.text;
+            if(e.children) {
+                let ctext = simpleText(_id, e.children);
+                if(ctext != _id) return ctext;
+            }
         }
         return _id;
     }
@@ -169,7 +173,7 @@ function xselect2(e, col, disableClear=false) {
     let k = col.enumKey;
     let m = col.type==colTypes._mult;
     let d = xenum(k);
-    e.select2({
+    let r = e.select2({
                 theme: 'bootstrap4',
                 dropdownAutoWidth : true,
                 width: 'auto',
@@ -177,9 +181,24 @@ function xselect2(e, col, disableClear=false) {
                 multiple: m,
                 minimumInputLength: (d.length > 100 ? 2 : 0),
                 minimumResultsForSearch: 10,
+                templateSelection: selection => `<span style="font-size: 85%;">${selection.text}</span>`,
+                escapeMarkup: markup => markup,
                 allowClear: !disableClear
             });
     e.val('').trigger('change');//设置默认不选择
+    return r;
+}
+
+function xtreeselect(e, col) {
+    let k = col.enumKey;
+    let d = xenum(k);
+    return e.comboTree({
+        source: d,
+        isMultiple: true,
+        cascadeSelect: true,
+        isolatedSelectable: true,
+        collapse: true
+    });
 }
 
 // show contents

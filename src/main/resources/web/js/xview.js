@@ -23,6 +23,7 @@ var colTypes = {
     _bool: 20,
     _enum: 21,
     _mult: 22,//multi enum select
+    _tree: 23,//multi tree select
     //time...
     _datetime: 30,
     _date: 31,
@@ -754,7 +755,7 @@ class Column {
 
     getValFrom(data) {
         let val = data[this.key];
-        if(this.type == colTypes._enum || this.type == colTypes._mult) {
+        if(this.type == colTypes._enum || this.type == colTypes._mult || this.type == colTypes._tree) {
             return xenumText(this.enumKey, val);
         }
         return xOrEmpty(val);
@@ -894,6 +895,16 @@ class EnumColumn extends Column {
     setValToFormDom(dom, val) {
         xselect2(dom, this, this.parent && this.parent.type == opTypes.qry);
         if(val && val != 0) dom.val(val).trigger('change');
+    }
+}
+class TreeColumn extends Column {
+    static _ = Column.regist([colTypes._tree], this);
+    getFormVal() {
+        return this._tree.getSelectedIds();
+    }
+    setValToFormDom(dom, val) {
+        this._tree = xtreeselect(dom, this);
+        this._tree.setSelection(val);
     }
 }
 class BoolColumn extends Column {

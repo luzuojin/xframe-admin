@@ -39,16 +39,16 @@ public class UserPrivileges implements Predicate<String> {
     }
     
     public boolean readable(String path) {
-        return rolePrivileges.stream().filter(rp->rp.readable(path)).findAny().isPresent();
+        return rolePrivileges.stream().anyMatch(rp->rp.readable(path));
     }
     public boolean creatable(String path) {
-        return rolePrivileges.stream().filter(rp->rp.creatable(path)).findAny().isPresent();
+        return rolePrivileges.stream().anyMatch(rp->rp.creatable(path));
     }
     public boolean editable(String path) {
-        return rolePrivileges.stream().filter(rp->rp.editable(path)).findAny().isPresent();
+        return rolePrivileges.stream().anyMatch(rp->rp.editable(path));
     }
     public boolean deletable(String path) {
-        return rolePrivileges.stream().filter(rp->rp.deletable(path)).findAny().isPresent();
+        return rolePrivileges.stream().anyMatch(rp->rp.deletable(path));
     }
 
     public long getLastActiveTime() {

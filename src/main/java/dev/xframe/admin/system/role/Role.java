@@ -19,7 +19,7 @@ public class Role {
 	@XColumn(value="角色", required=true)
 	private String name;
 	
-	@XColumn(value="权限", enumKey= SysEnumKeys.PRIVILEGES, type=XColumn.type_mult, required=true)
+	@XColumn(value="权限", enumKey= SysEnumKeys.PRIVILEGE_TREE, type=XColumn.type_tree, required=true)
 	private List<String> authorities = new ArrayList<>();
 	
 	@XColumn(value="操作", enumKey= SysEnumKeys.ROLE_OPTIONS, type=XColumn.type_mult, required=true)

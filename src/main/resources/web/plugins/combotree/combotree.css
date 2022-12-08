@@ -1,0 +1,130 @@
+/*!
+ * jQuery ComboTree Plugin 
+ * Author:  Erhan FIRAT
+ * Mail:    erhanfirat@gmail.com
+ * Licensed under the MIT license
+ * Version: 1.2.1
+ */
+:root {
+    --ct-bg: #fff;
+    --ct-btn-hover: #e8e8e8;
+    --ct-btn-active: #ddd;
+    --ct-btn-color: #555;
+    --ct-border-color: #e1e1e1;
+    --ct-border-radius: 5px;
+    --ct-tree-hover: #e8e8e8;
+    --ct-selection: #418EFF;
+    --ct-padding: 8px;
+    --ct-indeterminate-color: #0d6efd;
+}
+
+.comboTreeWrapper{
+	position: relative;
+	text-align: left !important;
+}
+
+.comboTreeInputWrapper{
+	position: relative;
+}
+
+.comboTreeInputBox:focus {
+    color: var(--ct-btn-color);
+    border-top: 1px solid var(--ct-selection);
+    border-right: 1px solid var(--ct-selection);
+    border-bottom: 1px solid var(--ct-selection);
+}
+
+.comboTreeDropDownContainer {
+	display: none;
+	background: var(--ct-bg);
+	border: 1px solid var(--ct-border-color);
+	border-radius: 4px;
+	position: absolute;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 999;
+	max-height: 250px;
+	overflow-y: auto;
+}
+
+.comboTreeDropDownContainer ul{
+	padding: 0px;
+	margin: 0;
+}
+
+.comboTreeDropDownContainer li{
+	list-style-type: none;
+	padding-left: 15px;
+}
+
+.comboTreeDropDownContainer li .selectable{
+	cursor: pointer;
+}
+
+.comboTreeDropDownContainer li .not-selectable{
+	cursor: not-allowed;
+}
+
+.comboTreeDropDownContainer li:hover{
+	background-color: var(--ct-tree-hover);
+}
+.comboTreeDropDownContainer li:hover ul{
+	background-color: var(--ct-bg)
+}
+.comboTreeDropDownContainer li span.comboTreeItemText.comboTreeItemHover,
+.comboTreeDropDownContainer label.comboTreeItemHover
+{
+	background-color: var(--ct-selection);
+	color: var(--ct-bg);
+    border-radius: 2px;
+}
+
+span.comboTreeItemText, .comboTreeDropDownContainer .selectAll{
+	display: block;
+    padding: 3px var(--ct-padding);
+}
+.comboTreeDropDownContainer label{
+    cursor: pointer;
+	width: 100%;
+    display: block;
+}
+.comboTreeDropDownContainer .comboTreeItemText input,
+.comboTreeDropDownContainer .selectAll input {
+	position: relative;
+    top: 2px;
+	margin: 0px 4px 0px 0px;
+}
+.comboTreeParentPlus{
+    position: relative;
+    left: -12px;
+    top: 4px;
+    width: 4px;
+    float: left;
+	cursor: pointer;
+}
+
+
+.comboTreeInputBox {
+	padding: var(--ct-padding);
+    border-radius: var(--ct-border-radius);
+    border: 1px solid var(--ct-border-color);
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 24px;
+    cursor: pointer;
+}
+.comboTreeInputBox:focus {
+    border: 1px solid var(--ct-selection);
+    outline-width: 0;
+}
+
+
+.multiplesFilter{
+	width: 100%;
+	padding: 5px;
+	box-sizing: border-box;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	border-bottom: 1px solid var(--ct-border-color);
+}
