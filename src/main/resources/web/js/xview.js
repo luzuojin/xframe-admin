@@ -385,7 +385,7 @@ class TableDetail extends Detail {
                 if(xShowcase.list(column)) {
                     let _tabletd = $(`<td id='xtd_${_tr}_${++_td}' class='align-middle'></td>`);
                     _tabletr.append(_tabletd);
-                    column.addToTable(_tabletd, column.getValFrom(model));
+                    column.addToTable(_tabletd, column.getTextFrom(model));
                 }
             }
             //options td
@@ -753,10 +753,13 @@ class Column {
         return (this.cacheable && !val) ? localStorage.getItem(this.getCacheKey()) : val;
     }
 
-    getValFrom(data) {
+    getTextFrom(data) {
         let val = data[this.key];
         if(this.type == colTypes._enum || this.type == colTypes._mult || this.type == colTypes._tree) {
             return xenumText(this.enumKey, val);
+        }
+        if(isPrimitive(val)) {
+            return `${val}`;
         }
         return xOrEmpty(val);
     }
@@ -829,7 +832,7 @@ class Column {
         return `<input id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint}" type="text">`;
     }
     setValToFormDom(dom, val) {//dlgMakeFunc
-        if(val) dom.val(val).trigger('change')
+        if(isPrimitive(val) || val) dom.val(val).trigger('change')
     }
     //for validation
     invalidText(){

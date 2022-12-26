@@ -1,4 +1,4 @@
-var xurl = window.location.origin.startsWith("http") ? window.location.origin : "http://127.0.0.1:8003";
+var xurl = window.location.origin.startsWith("http") ? window.location.origin : "http://127.0.0.1:8001";
 var xpaths = {
     summary: "basic/summary",
     xenum  : "basic/enum",
@@ -55,6 +55,10 @@ function xOrEmpty(val) {
 }
 function xOrGet(val, key) {
     return val ? val[key] : undefined;
+}
+
+function isPrimitive(val) {
+    return typeof(val) == 'boolean' || typeof(val) == 'number';
 }
 
 //pack href
