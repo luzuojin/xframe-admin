@@ -1,4 +1,4 @@
-var xurl = window.location.origin.startsWith("http") ? window.location.origin : "http://127.0.0.1:8001";
+var xurl = (location.origin.startsWith("http") || location.origin.startsWith("https")) ? location.origin : "http://127.0.0.1:8001";
 var xpaths = {
     summary: "basic/summary",
     xenum  : "basic/enum",
@@ -244,6 +244,10 @@ function isLocalUrl() {
     }
     return false;
 }
+const reloginHash = '#!auto';
+function isLocalAutoLogin() {
+    return isLocalUrl() && location.hash != reloginHash;
+}
 
 const _inputs = [
     {key:"name",hint:"用户名",type:colTypes._text,show:13},
@@ -251,7 +255,7 @@ const _inputs = [
 ];
 const _navi = new Navi(new Navi(null, '用户', 'basic'), 'unused', 'profile');//segment->detail->option
 
-function showUser(user) {
+function showUser(user, _isAutoLogin) {
     xuser = user;
     $('#xuser').empty();
     $('#xuser').append(`<i class="fas fa-user"></i> ${user.name}`);
@@ -263,7 +267,11 @@ function showUser(user) {
             name: "登出",
             type: opTypes.del,
             inputs: _inputs
-        }).doPost({name: xuser.name, passw: ''}, ()=>location.reload());
+        }).doPost({name: xuser.name, passw: ''}, ()=>{
+            if(_isAutoLogin)
+                location.hash = reloginHash;
+            location.reload();
+        });
     });
     xclick($('#xuser_profile'), ()=>{
         let op = Option.of(_navi, {
@@ -281,11 +289,12 @@ function doLogin() {
         type: opTypes.add,
         inputs: _inputs
     });
+    let _isAutoLogin = false;
     let cb = op.onDataChanged = data=>{
-        showUser(data);
+        showUser(data, _isAutoLogin);
         showSummary();  //show
     };
-    if(isLocalUrl()) {
+    if(_isAutoLogin = isLocalAutoLogin()) {
         let cb0 = resp=>{
             if(resp.status == -1) {
                 op.popup();
