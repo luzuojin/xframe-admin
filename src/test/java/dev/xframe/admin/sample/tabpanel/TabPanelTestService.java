@@ -4,7 +4,7 @@ import dev.xframe.admin.utils.JsonHelper;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
-import dev.xframe.admin.view.details.Flex;
+import dev.xframe.admin.view.details.Variant;
 import dev.xframe.http.response.FileResponse;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
@@ -23,15 +23,15 @@ public class TabPanelTestService {
 	}
 	
 	@HttpMethods.GET
-	public Flex get(@HttpArgs.Param @XColumn int roleId) {
+	public Variant get(@HttpArgs.Param @XColumn int roleId) {
 		if(roleId == 1001) {
-			return Flex.struct(PanelTest1.class);
+			return Variant.struct(PanelTest1.class);
 		}
-		return Flex.struct(PanelTest2.class);
+		return Variant.struct(PanelTest2.class);
 	}
 	
 	@HttpMethods.PUT
-	public PanelTest put(@HttpArgs.Header(Flex.HEADER_KEY) String flexName, @HttpArgs.Body String json) throws Exception {
+	public PanelTest put(@HttpArgs.Header(Variant.HEADER_KEY) String flexName, @HttpArgs.Body String json) throws Exception {
 		PanelTest pt = (PanelTest) JsonHelper.parseObject(json, Class.forName(flexName));
 		System.out.println(pt);
 		return pt;

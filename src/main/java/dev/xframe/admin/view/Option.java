@@ -43,7 +43,7 @@ public class Option implements Comparable<Option> {
 		}
 	}
 	static final List<Parser<?>> Parsers = Arrays.asList(
-			new Parser<>(new Option("结构", XOption.type_flx), GET.class,    GET::value,   true,  false),
+			new Parser<>(new Option("结构", XOption.type_vrt), GET.class,    GET::value,   true,  false),
 			new Parser<>(new Option("下载", XOption.type_dlh), GET.class,    GET::value,   true,  false),
 			new Parser<>(new Option("下载", XOption.type_dlr), GET.class,    GET::value,   true,  false),
 			new Parser<>(new Option("加载", XOption.type_ini), GET.class,    GET::value,   false, true),

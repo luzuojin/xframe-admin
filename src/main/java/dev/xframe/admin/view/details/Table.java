@@ -41,8 +41,8 @@ public class Table extends Classic {
 		if(options.stream().filter(opt->opt.getType()==XOption.type_qry).count() > 1) {
 			throw new IllegalArgumentException("Detail can only exist one qry option(@HttpMethods.GET");
 		}
-		if(options.stream().filter(opt->opt.getType()==XOption.type_flx).count() > 1) {
-			throw new IllegalArgumentException("Detail can only exist one flx option(@HttpMethods.GET");
+		if(options.stream().filter(opt->opt.getType()==XOption.type_vrt).count() > 1) {
+			throw new IllegalArgumentException("Detail can only exist one vrt option(@HttpMethods.GET");
 		}
 	}
 

@@ -5,7 +5,7 @@ var opTypes = {
     add: 2,
     edt: 3,
     del: 4,
-    flx: 5,
+    vrt: 5,
     dlh: 6,
     dlr: 7
 }
@@ -237,14 +237,14 @@ class Detail extends Node {
         d.desc = jDetail.desc;          //panel
         d.padding = jDetail.padding;    //table
         d.sortable = jDetail.sortable;  //table
-        d.flexName = jDetail.flexName;
+        d.variantName = jDetail.variantName;
         d.children = d.columns = jDetail.columns.map(jColumn=>Column.of(d, jColumn));
         d.options = jDetail.options.map(jOption=>Option.of(d, jOption));
-        d.flexOption = d.getOption(opTypes.flx);
+        d.variantOption = d.getOption(opTypes.vrt);
         return d;
     }
     setData(data) {
-        if(data && data.struct) {//flex
+        if(data && data.struct) {//variant
             this.data = data.data;
             this.setStruct(data.struct);
         } else {
@@ -255,7 +255,7 @@ class Detail extends Node {
     setStruct(struct) {
         let cols = struct.columns.map(jCol=>Column.of(this, jCol));
         Object.assign(this.columns, cols, {length:cols.length});
-        this.flexName = struct.flexName;
+        this.variantName = struct.variantName;
     }
     uri() {
         return this.parent.uri();
@@ -443,7 +443,7 @@ class PanelDetail extends Detail {
         }
     }
     submit(op, data) {
-        op.doPost(data, resp=>this.setData(resp).showContent(), {'flex-name': this.flexName});
+        op.doPost(data, resp=>this.setData(resp).showContent(), {'variant-name': this.variantName});
     }
 }
 
@@ -666,13 +666,13 @@ class Option extends Node {
         return this.path ? `${this.parent.pid()}_${this.type}_${this.path}` : `${this.parent.pid()}_${this.type}`;
     }
     onColValChanged(col, val) {
-        //do flex??
-        let flexOption = this.parent.flexOption;
-        if(flexOption && flexOption.hasChild(col) && val) {
-            flexOption.doGet(Column.packVals([col], _=>val), resp=>{
+        //do variant??
+        let variantOption = this.parent.variantOption;
+        if(variantOption && variantOption.hasChild(col) && val) {
+            variantOption.doGet(Column.packVals([col], _=>val), resp=>{
                 if(resp.struct) {
                     this.parent.setStruct(resp.struct);
-                    this.flexName = resp.struct.flexName;
+                    this.variantName = resp.struct.variantName;
                     delete this._columns;//有结构变化
                 }
                 //合并数据&刷新form
@@ -682,10 +682,10 @@ class Option extends Node {
         }
     }
     doPost(data, func, _headers) {
-        doPost(this.uri(), this, data, func, xOrElse(_headers, {'flex-name': this.flexName}));
+        doPost(this.uri(), this, data, func, xOrElse(_headers, {'variant-name': this.variantName}));
     }
     doPost0(data, func, _headers) { //不解析resp, resp格式为({status, data})
-        doPost0(this.uri(), this, data, func, xOrElse(_headers, {'flex-name': this.flexName}));
+        doPost0(this.uri(), this, data, func, xOrElse(_headers, {'variant-name': this.variantName}));
     }
     doGet(data, func) {
         doGet(`${this.uri()}?${$.param(data)}`, func);

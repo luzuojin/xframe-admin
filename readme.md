@@ -39,8 +39,7 @@
   - Columns(s) --> 对应类型`@XColumn.type_*`, 展示配置`@XColumn.!type_*`(常量)
   - Option(s)  --> 需要多个操作时, 同类方法可以增加(suburl)的方式配置多个
   - Panel      --> qry方法对应的Column(s)值在展示页中变化时会自动发送Get请求(无按钮支持)
-  - Panel.Flex --> 返回Flex对象时可以使用返回值的字段重构Panel页展示的Columns
-  - Type_ENUM  --> 下拉选择框需要通过`BasicContext.registEnumValue`提前配置选项列表
+  - Type_ENUM  --> 下拉选择框需要通过`XRegistrator.registEnumValue`提前配置选项列表
 
 - 启动参数
   - -Dstore.dir --> h2databse目录

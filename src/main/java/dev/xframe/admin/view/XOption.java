@@ -24,8 +24,8 @@ public @interface XOption {
 	int type_edt = 3;
 	/**删除*/
 	int type_del = 4;
-	/**变更结构体(Flex.Struct)*/
-	int type_flx = 5;//变更结构的查询操作
+	/**变更结构体(Variant.Struct)*/
+	int type_vrt = 5;//变更结构的查询操作
 	/**download*/
 	int type_dlh = 6;
 	/**table row download*/

@@ -8,29 +8,29 @@ import dev.xframe.admin.view.Column;
 import dev.xframe.admin.view.Detail;
 
 //结构变化的结果
-public class Flex {
+public class Variant {
     //可以用来识别变化之后的结构类
-    //Http.header("flex-name")
-    public static final String HEADER_KEY = "flex-name";
+    //Http.header("variant-name")
+    public static final String HEADER_KEY = "variant-name";
     
     public final Struct struct;
     public final Object data;
 	
-	public Flex(Struct struct, Object data) {
+	public Variant(Struct struct, Object data) {
 	    this.struct = struct;
 	    this.data = data;
     }
-    public static Flex data(Object data) {
-        return new Flex(null, data);
+    public static Variant data(Object data) {
+        return new Variant(null, data);
 	}
-    public static Flex struct(Class<?> model) {
-        return new Flex(makeStruct(model), null);
+    public static Variant struct(Class<?> model) {
+        return new Variant(makeStruct(model), null);
     }
-	public static Flex structAndData(Object data) {
+	public static Variant structAndData(Object data) {
 	    return structAndData(data.getClass(), data);
 	}
-	public static Flex structAndData(Class<?> model, Object data) {
-	    return new Flex(makeStruct(model), data);
+	public static Variant structAndData(Class<?> model, Object data) {
+	    return new Variant(makeStruct(model), data);
 	}
 
 	private static final Map<Class<?>, List<Column>> caches = new HashMap<>();
@@ -38,12 +38,12 @@ public class Flex {
         return new Struct(caches.computeIfAbsent(model, Detail::parseModelColumns), model.getName());
     }
     public static class Struct {
-	    //Http.header("flex-name")
-	    public final String flexName;
+	    //Http.header("variant-name")
+	    public final String variantName;
 	    public final List<Column> columns;
-	    public Struct(List<Column> columns, String flexName) {
+	    public Struct(List<Column> columns, String variantName) {
 	        this.columns = columns;
-	        this.flexName = flexName;
+	        this.variantName = variantName;
 	    }
 	}
 	

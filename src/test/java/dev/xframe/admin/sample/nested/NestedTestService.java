@@ -5,7 +5,7 @@ import java.util.Arrays;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
-import dev.xframe.admin.view.details.Flex;
+import dev.xframe.admin.view.details.Variant;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
@@ -23,12 +23,12 @@ public class NestedTestService {
 				);
 	}
 	
-	@HttpMethods.GET @XOption(type=XOption.type_flx)
+	@HttpMethods.GET @XOption(type=XOption.type_vrt)
 	public Object get(@HttpArgs.Param @XColumn String type) {
 		if("001".equals(type)) {
-			return Flex.struct(NestedTest.class);
+			return Variant.struct(NestedTest.class);
 		}
-		return Flex.struct(NestedTest2.class);
+		return Variant.struct(NestedTest2.class);
 	}
 	
 	@HttpMethods.POST

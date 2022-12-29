@@ -36,9 +36,9 @@ public class Panel extends Classic {
 			throw new IllegalArgumentException("Panel can only exist one qry option(@HttpMethods.GET");
 		}
 		Option qryOp = options.stream().filter(opt->opt.getType()==XOption.type_qry).findAny().orElse(null);
-		if(qryOp != null) qryOp.setType(XOption.type_flx);//Panel不支持qry默认转为flx
-		if(options.stream().filter(opt->opt.getType()==XOption.type_flx).count() > 1) {
-			throw new IllegalArgumentException("Panel can only exist one flx option(@HttpMethods.GET");
+		if(qryOp != null) qryOp.setType(XOption.type_vrt);//Panel不支持qry默认转为var
+		if(options.stream().filter(opt->opt.getType()==XOption.type_vrt).count() > 1) {
+			throw new IllegalArgumentException("Panel can only exist one vrt option(@HttpMethods.GET");
 		}
 	}
 
