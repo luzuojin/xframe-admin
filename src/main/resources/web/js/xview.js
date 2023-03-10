@@ -105,7 +105,7 @@ class Chapter extends Navi {
     }
     show() {
         let htm = `<li class="nav-item has-treeview">
-                    <a class="nav-link" href="javascript:void(0);">
+                    <a id="vchapter_${this.pid()}_link" class="nav-link" href="javascript:void(0);">
                       <i class="nav-icon fab fa-gg"/>
                       <p>
                         ${this.name}
@@ -116,6 +116,12 @@ class Chapter extends Navi {
                 </li>`;
         $('#xsiderbar').append(htm);
         this.children.forEach(child=>child.show());
+    }
+    deactive() {
+        $(`#vchapter_${this.pid()}_link`).removeClass('active');
+    }
+    active() {
+        $(`#vchapter_${this.pid()}_link`).addClass('active');
     }
 }
 
@@ -142,32 +148,22 @@ class Segment extends Navi {
                 </li>`;
         this.parent.dom().append(htm);
         xclick(this.dom(), ()=> {
-            this.active(this);
+            this.active();
             this.showContent()
         });
     }
-    initContainer() {
-        $('#xcontainer').empty();
-        $('#xcontainer').append(`<div id="xcontent" class="card card-info card-outline card-outline-tabs"></div>`);
-        $('#xcontent').append(`<div class="card-header">
-                                <div class="row">
-                                    <div id="xboxhead" class="clearfix w-100"></div>
-                                </div>
-                               </div>
-                               <div id="xboxbody" class="card-body">
-                               </div>`);
-    }
     showContent() {
-        this.initContainer();
-        this.children[0].show();    //detail.show
+        this.children[0].show($('#xcontainer').empty());    //detail.show
     }
-    deactive(seg) {
-        if(seg) seg.dom().removeClass('active');
+    deactive() {
+        this.dom().removeClass('active');
+        this.parent.deactive();
     }
-    active(seg) {
-        this.deactive(LatestSeg);
-        LatestSeg = seg;
-        seg.dom().addClass('active');
+    active() {
+        LatestSeg && LatestSeg.deactive();
+        this.dom().addClass('active');
+        this.parent.active();
+        LatestSeg = this;
     }
 }
 
@@ -183,20 +179,26 @@ class Tab extends Segment {
     tabDom(seg) {
         return $(`#vsegtab_${seg.pid()}`);
     }
-    initContainer() {
-        super.initContainer();
-        //tab container
-        $('#xcontent').prepend(`<div class="card-header p-0 border-bottom-0"><ul id="xtabContainer" class="nav nav-tabs" role="tablist"></ul></div>`);
-
+    showTabNavis(_pdom) {
+        _pdom.append(`
+            <div id="xtabs" class="card card-primary card-outline card-outline-tabs">
+                <div class="card-header p-0 border-bottom-0">
+                    <ul id="xtabNavis" class="nav nav-tabs" role="tablist"></ul>
+                </div>
+            </div>`);
         for(let seg of this.children) {
-            $('#xtabContainer').append(`<li class="nav-item"><a id="vsegtab_${seg.pid()}" class="nav-link text-dark" data-toggle="pill" href="javascript:void(0);" role="tab" aria-selected="false">${seg.name}</a></li>`);
+            $('#xtabNavis').append(`<li class="nav-item"><a id="vsegtab_${seg.pid()}" class="nav-link text-dark" data-toggle="pill" href="javascript:void(0);" role="tab" aria-selected="false">${seg.name}</a></li>`);
             //onClick show content
             xclick(this.tabDom(seg), ()=>this.showTabContent(seg));
         }
     }
     showContent() {
-        this.initContainer();
+        this.showTabNavis($('#xcontainer').empty());
         this.showTabContent(this.latestTabSeg ? this.latestTabSeg : this.children[0]);
+    }
+    showTabContent(seg) {
+        this.tabActive(seg)
+        seg.children[0].show($('#xcontainer'));//detail.show
     }
     tabDeactive(seg) {
         if(!seg) return;
@@ -205,13 +207,9 @@ class Tab extends Segment {
     }
     tabActive(seg) {
         this.tabDeactive(this.latestTabSeg);
-        this.latestTabSeg = seg;
         this.tabDom(seg).addClass('active');
         this.tabDom(seg).attr('aria-selected', true);
-    }
-    showTabContent(seg) {
-        this.tabActive(seg)
-        seg.children[0].show();//detail.show
+        this.latestTabSeg = seg;
     }
 }
 
@@ -269,7 +267,20 @@ class Detail extends Node {
     getOptions(opType) {
         return this.options.filter(e=>e.type==opType);
     }
-    show() {
+    iniDom(_pdom) {
+        _pdom.append(
+        `<div id="xcontent" class="card card-outline">
+            <div class="card-header">
+                <div class="row">
+                    <div id="xboxhead" class="clearfix w-100"></div>
+                </div>
+           </div>
+           <div id="xboxbody" class="card-body">
+           </div>
+        </div>`);
+    }
+    show(_pdom) {
+        this.iniDom(_pdom);
         let ini = this.getOption(opTypes.ini);
         if(ini) {
             ini.doGet({}, _data => this.setData(_data).showContent());
@@ -412,7 +423,6 @@ class TableDetail extends Detail {
 class PanelDetail extends Detail {
     static _ = Detail.regist(2, this);
     constructor(parent) {super(parent);}
-
     showContent() {
         let data = this.data;
         if(!data) data = {};
@@ -504,12 +514,12 @@ let ChartColorsArray = [
 class ChartDetail extends Detail {
     static _ = Detail.regist(4, this);
     constructor(parent) {super(parent);}
+    iniDom(_pdom) {
+    }
     showContent() {
         let data = this.data;
         if(!data) data = {};
         //segment
-        $('#xcontainer').empty();
-        //
         $('#xboxhead').empty();//for query
         $('#xboxbody').empty();//for description
         //
@@ -529,6 +539,7 @@ class ChartDetail extends Detail {
             }
         }
     }
+
     makeChartConfig(col) {
         let labels = col.datas.map(d=>d.label).filter((v,i,a)=>a.indexOf(v)==i);
         let group = col.datas.reduce((g, e) => {
@@ -571,6 +582,15 @@ class ChartDetail extends Detail {
                 }
             }
         }
+    }
+}
+
+//只用于ChartDetail组合
+class CellsDetail extends Detail {
+    static _ = Detail.regist(5, this);
+    constructor(parent) {super(parent);}
+    showContent() {
+
     }
 }
 
