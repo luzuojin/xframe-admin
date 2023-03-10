@@ -1,6 +1,6 @@
 package dev.xframe.admin.conf;
 
-import dev.xframe.admin.system.auth.AuthContext;
+import dev.xframe.admin.system.auth.AuthManager;
 import dev.xframe.admin.utils.JsonHelper;
 import dev.xframe.admin.view.VResp;
 import dev.xframe.http.Request;
@@ -25,7 +25,7 @@ public class HttpConfigurator extends HttpConfigSetter {
     static final Logger logger = LoggerFactory.getLogger(HttpConfigurator.class);
 
     @Inject
-    private AuthContext authCtx;
+    private AuthManager authMgr;
 
     @Override
     public void setServiceExecutor(Consumer<Executor> setter) {

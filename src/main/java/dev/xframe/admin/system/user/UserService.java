@@ -1,13 +1,10 @@
 package dev.xframe.admin.system.user;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import dev.xframe.admin.conf.LogicException;
-import dev.xframe.admin.system.XEnumKeys;
-import dev.xframe.admin.system.SystemContext;
-import dev.xframe.admin.system.SystemRepo;
 import dev.xframe.admin.system.SysEnumKeys;
+import dev.xframe.admin.system.SystemManager;
+import dev.xframe.admin.system.SystemRepo;
+import dev.xframe.admin.system.XEnumKeys;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
@@ -16,6 +13,9 @@ import dev.xframe.http.service.rest.HttpMethods;
 import dev.xframe.inject.Inject;
 import dev.xframe.utils.XStrings;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Rest("system/user")
 @XSegment(name="用户列表", model=User.class)//path use @http.path
 public class UserService {
@@ -23,7 +23,7 @@ public class UserService {
     @Inject
     private SystemRepo sysRepo;
     @Inject
-    private SystemContext sysCtx;
+    private SystemManager sysMgr;
     
 	/**
 	 * 点击侧边栏时调用该方法(GET且参数为空) 可以返回空数组

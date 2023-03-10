@@ -1,5 +1,14 @@
 package dev.xframe.admin.system.auth;
 
+import dev.xframe.admin.system.SystemManager;
+import dev.xframe.http.Request;
+import dev.xframe.inject.Bean;
+import dev.xframe.inject.Inject;
+import dev.xframe.inject.Loadable;
+import dev.xframe.task.scheduled.ScheduledExecutor;
+import dev.xframe.utils.XStrings;
+import io.netty.handler.codec.http.HttpMethod;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
@@ -7,26 +16,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import dev.xframe.admin.system.SystemContext;
-import dev.xframe.http.Request;
-import dev.xframe.inject.Bean;
-import dev.xframe.inject.Inject;
-import dev.xframe.inject.Loadable;
-import dev.xframe.task.ScheduledContext;
-import dev.xframe.utils.XStrings;
-import io.netty.handler.codec.http.HttpMethod;
-
 @Bean
-public class AuthContext implements Loadable {
+public class AuthManager implements Loadable {
 
     private static final String TOKEN_KEY   = "X-Token";
     private static final String REAL_IP_KEY = "X-Real-IP";
 
     @Inject
-    private ScheduledContext scheduledCtx;
-
-    @Inject
-    private SystemContext sysCtx;
+    private SystemManager sysMgr;
 
     private Map<String, UserPrivileges> tokenMap = new ConcurrentHashMap<>();
 
@@ -36,7 +33,7 @@ public class AuthContext implements Loadable {
 
     @Override
     public void load() {
-        scheduledCtx.period(this::clearExpiryUser, 10, TimeUnit.MINUTES);
+        ScheduledExecutor.period(this::clearExpiryUser, 10, TimeUnit.MINUTES);
 
         addUnblockedPath(Unblocked.of("basic/profile", HttpMethod.POST));
     }
@@ -114,7 +111,7 @@ public class AuthContext implements Loadable {
     }
 
     private boolean isPrivilegePath(String path) {
-        return sysCtx.getPrivileges().stream().filter(p->p.getPath().equals(path)).findAny().isPresent();
+        return sysMgr.getPrivileges().stream().anyMatch(p->p.getPath().equals(path));
     }
 
     public boolean isLocalHost(Request req) {

@@ -1,11 +1,6 @@
 package dev.xframe.admin.system;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-
-import dev.xframe.admin.system.auth.AuthContext;
+import dev.xframe.admin.system.auth.AuthManager;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;
 import dev.xframe.http.request.MultiPart;
@@ -16,24 +11,29 @@ import dev.xframe.inject.Inject;
 import dev.xframe.utils.XCaught;
 import io.netty.handler.codec.http.multipart.FileUpload;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+
 @Rest("basic")
 public class BasicService {
 	
 	@Inject
-	private BasicContext basicCtx;
+	private BasicManager basicMgr;
 	@Inject
-	private AuthContext authCtx;
+	private AuthManager authMgr;
 	@Inject
 	private FileTransferHandler ftHandler;
 	
 	@HttpMethods.GET("summary")
 	public Object summary(Request req) {
-		return basicCtx.getSummary(authCtx.getPrivileges(req));
+		return basicMgr.getSummary(authMgr.getPrivileges(req));
 	}
 	
 	@HttpMethods.GET("enum")
 	public Object getEnum(@HttpArgs.Param String key) {
-		return basicCtx.getEnumValue(key);
+		return basicMgr.getEnumValue(key);
 	}
     
     @HttpMethods.POST("upload")

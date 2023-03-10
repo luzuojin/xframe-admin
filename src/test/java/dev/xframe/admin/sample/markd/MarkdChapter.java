@@ -1,6 +1,6 @@
 package dev.xframe.admin.sample.markd;
 
-import dev.xframe.admin.system.BasicContext;
+import dev.xframe.admin.system.XRegistrator;
 import dev.xframe.admin.view.Navi;
 import dev.xframe.admin.view.XChapter;
 import dev.xframe.inject.Bean;
@@ -14,11 +14,11 @@ import java.util.Arrays;
 public class MarkdChapter implements Loadable {
 
     @Inject
-    private BasicContext basicCtx;
+    private XRegistrator xReg;
 
     @Override
     public void load() {
-        basicCtx.registNaviValue("markd", ()-> Arrays.asList(new Navi("userops", "userops"), new Navi("sysops", "sysops"), new Navi("readme", "readme")));
+        xReg.registNaviValue("markd", ()-> Arrays.asList(new Navi("userops", "userops"), new Navi("sysops", "sysops")));
     }
     
 }

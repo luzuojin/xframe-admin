@@ -16,7 +16,7 @@ import java.util.Map;
 import static dev.xframe.admin.store.StoreConfigurator.readScripts;
 
 @Bean
-public class VersionContext implements Loadable  {
+public class VersionManager implements Loadable  {
 	
 	@Inject
 	StoreConfigurator _sc;//for dependence

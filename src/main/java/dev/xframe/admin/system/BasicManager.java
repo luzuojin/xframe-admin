@@ -5,8 +5,11 @@ import dev.xframe.admin.view.Chapter;
 import dev.xframe.admin.view.Navi;
 import dev.xframe.admin.view.Summary;
 import dev.xframe.admin.view.VEnum;
+import dev.xframe.admin.view.XChapter;
+import dev.xframe.admin.view.XSegment;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Loadable;
+import dev.xframe.inject.code.Clazz;
 import dev.xframe.inject.code.Codes;
 
 import java.util.HashMap;
@@ -16,7 +19,7 @@ import java.util.function.Supplier;
 
 
 @Bean
-public class BasicContext implements Loadable, XRegistrator {
+public class BasicManager implements Loadable, XRegistrator {
     
 	private Summary summary;
 
@@ -29,7 +32,7 @@ public class BasicContext implements Loadable, XRegistrator {
 		summary.setName("XFrameAdmin");
 		summary.setIcon("img/xframe.png");
 		
-		summary.parseFrom(Codes.getScannedClasses());
+		summary.parseFrom(Codes.getScannedClasses(Clazz.filter(XChapter.class, XSegment.class)));
 	}
 	
 	public List<Chapter> getChapters() {

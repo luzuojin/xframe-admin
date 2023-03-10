@@ -13,14 +13,14 @@ import dev.xframe.inject.Ordered;
 public class AuthInterceptor implements HttpInterceptor {
 
     @Inject
-    private AuthContext authCtx;
+    private AuthManager authMgr;
 
     public Response intercept(Request req) {
         //设置ThreadLocal变量
-        OpUser.set(authCtx.getAuthUsername(req));
-        OpHost.set(AuthContext.getRemoteHost(req));
+        OpUser.set(authMgr.getAuthUsername(req));
+        OpHost.set(AuthManager.getRemoteHost(req));
 
-        if(authCtx.isReqIllegal(req)) {
+        if(authMgr.isReqIllegal(req)) {
             throw new LogicException("Permission deny!");
         }
         return null;

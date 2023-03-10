@@ -1,12 +1,12 @@
 package dev.xframe.admin.conf;
 
-import dev.xframe.admin.system.auth.AuthContext;
+import dev.xframe.admin.system.auth.AuthManager;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;
 import dev.xframe.http.response.ContentType;
 import dev.xframe.http.response.FileResponse;
 import dev.xframe.http.service.Service;
-import dev.xframe.http.service.ServiceContext;
+import dev.xframe.http.service.ServiceDirectory;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Eventual;
 import dev.xframe.inject.Inject;
@@ -39,9 +39,9 @@ public class WebFileHandler implements Eventual {
     private static final String DefaultIcon   = "xframe.png";
     
     @Inject
-    private ServiceContext serviceCtx;
+    private ServiceDirectory serviceDir;
     @Inject
-    private AuthContext authCtx;
+    private AuthManager authMgr;
     
     private Map<String, Response> caches = new HashMap<>();
 
@@ -115,8 +115,8 @@ public class WebFileHandler implements Eventual {
     }
 
     private void makeHandler1(String uriPath, Supplier<Response> func) {
-        serviceCtx.registService(uriPath, new WebFileService(func), (pp, s1, s2)->{});
-        authCtx.addUnblockedPath(uriPath);
+        serviceDir.registService(uriPath, new WebFileService(func), (pp, s1, s2)->{});
+        authMgr.addUnblockedPath(uriPath);
     }
     
     private Response makeRespFromDirectory(String path) {

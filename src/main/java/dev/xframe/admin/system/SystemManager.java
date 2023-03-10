@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Bean
-public class SystemContext implements Loadable {
+public class SystemManager implements Loadable {
     
     @Inject
     private SystemRepo sysRepo;
     @Inject
-    private BasicContext basicCtx;
+    private BasicManager basicMgr;
 
     private List<Role> roles;
     
@@ -38,7 +38,7 @@ public class SystemContext implements Loadable {
 
         List<VEnum> ptrees = new ArrayList<>();
         ptrees.add(new VTree("_", "全部"));
-        basicCtx.getSummary().getChapters().forEach(c->{
+        basicMgr.getSummary().getChapters().forEach(c->{
             VTree ptree = new VTree(c.getPath(), c.getName());
             privileges.add(new Privilege(c.getName(), c.getPath()));
             for (Navi navi : c.getNavis()) {
@@ -51,15 +51,15 @@ public class SystemContext implements Loadable {
         });
         
         List<VEnum> privilegesEnum = privileges.stream().map(p->new VEnum(p.getPath(), p.getName())).collect(Collectors.toList());
-        basicCtx.registEnumValue(SysEnumKeys.PRIVILEGES, ()->privilegesEnum);
+        basicMgr.registEnumValue(SysEnumKeys.PRIVILEGES, ()->privilegesEnum);
 
         roles = sysRepo.fetchRoles();
         
-        basicCtx.registEnumValue(SysEnumKeys.ROLE_LIST, ()->{
+        basicMgr.registEnumValue(SysEnumKeys.ROLE_LIST, ()->{
             return roles.stream().map(role->new VEnum(String.valueOf(role.getId()), role.getName())).collect(Collectors.toList());
         });
         
-        basicCtx.registEnumValue(SysEnumKeys.USER_LIST, ()->{
+        basicMgr.registEnumValue(SysEnumKeys.USER_LIST, ()->{
             return sysRepo.fetchUsers().stream().map(user->new VEnum(user.getName())).collect(Collectors.toList());
         });
         
@@ -69,13 +69,13 @@ public class SystemContext implements Loadable {
                     new VEnum(String.valueOf(Role.op_edt), "改"),
                     new VEnum(String.valueOf(Role.op_del), "删"),
                     new VEnum(String.valueOf(Role.op_qry), "读"));
-        basicCtx.registEnumValue(SysEnumKeys.ROLE_OPTIONS, ()-> roleOptions);
+        basicMgr.registEnumValue(SysEnumKeys.ROLE_OPTIONS, ()-> roleOptions);
         
         basicRole = new RolePrivileges();
         basicRole.setOptions(new int[] {Role.op_all});
         basicRole.addPrivilege(new Privilege("Basic", "basic"));
 
-        basicCtx.registEnumValue(SysEnumKeys.PRIVILEGE_TREE, () -> ptrees);
+        basicMgr.registEnumValue(SysEnumKeys.PRIVILEGE_TREE, () -> ptrees);
     }
 
     void addPrivilege(Privilege p) {

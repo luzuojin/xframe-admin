@@ -1,6 +1,6 @@
 package dev.xframe.admin.view;
 
-import dev.xframe.admin.system.BasicContext;
+import dev.xframe.admin.system.BasicManager;
 import dev.xframe.inject.Inject;
 import dev.xframe.inject.Prototype;
 
@@ -11,7 +11,7 @@ import dev.xframe.inject.Prototype;
 public class Symbol extends Navi {
 
     @Inject
-    private BasicContext basicCtx;
+    private BasicManager basicMgr;
 
     private String parent;
 
@@ -25,7 +25,7 @@ public class Symbol extends Navi {
 
     @Override
     protected void fillTo(Chapter chapter) {
-        basicCtx.getNaviValue(parent).stream().map(wrapped::duplicateBy).forEach(chapter.getNavis()::add);
+        basicMgr.getNaviValue(parent).stream().map(wrapped::duplicateBy).forEach(chapter.getNavis()::add);
     }
 
     static Navi unwrap(Navi navi) {
