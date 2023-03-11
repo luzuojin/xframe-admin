@@ -1,11 +1,8 @@
-package dev.xframe.admin.view.details;
+package dev.xframe.admin.view.entity;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import dev.xframe.admin.view.Column;
-import dev.xframe.admin.view.Detail;
 
 //结构变化的结果
 public class Variant {
@@ -35,7 +32,7 @@ public class Variant {
 
 	private static final Map<Class<?>, List<Column>> caches = new HashMap<>();
     private static Struct makeStruct(Class<?> model) {
-        return new Struct(caches.computeIfAbsent(model, Detail::parseModelColumns), model.getName());
+        return new Struct(caches.computeIfAbsent(model, Content::parseModelColumns), model.getName());
     }
     public static class Struct {
 	    //Http.header("variant-name")

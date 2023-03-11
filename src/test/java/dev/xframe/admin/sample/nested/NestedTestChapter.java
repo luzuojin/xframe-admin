@@ -1,7 +1,7 @@
 package dev.xframe.admin.sample.nested;
 
 import dev.xframe.admin.system.XRegistrator;
-import dev.xframe.admin.view.VEnum;
+import dev.xframe.admin.view.values.VEnum;
 import dev.xframe.admin.view.XChapter;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;

@@ -1,7 +1,7 @@
 package dev.xframe.admin.system;
 
-import dev.xframe.admin.view.Navi;
-import dev.xframe.admin.view.VEnum;
+import dev.xframe.admin.view.entity.Navi;
+import dev.xframe.admin.view.values.VEnum;
 
 import java.util.List;
 import java.util.function.Supplier;

@@ -1,11 +1,12 @@
 package dev.xframe.admin.sample.tabpanel;
 
+import dev.xframe.admin.view.EColumn;
 import dev.xframe.admin.view.XColumn;
 
 public class PanelTest2 extends PanelTest {
 	
 	private String email;
-	@XColumn(type=XColumn.type_area)
+	@XColumn(type= EColumn.Area)
 	private String content;
 	private boolean showcase;
 

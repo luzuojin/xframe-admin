@@ -1,4 +1,4 @@
-package dev.xframe.admin.view;
+package dev.xframe.admin.view.values;
 
 import java.util.Arrays;
 import java.util.List;

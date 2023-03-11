@@ -5,10 +5,10 @@ import dev.xframe.admin.system.auth.UserPrivileges;
 import dev.xframe.admin.system.privilege.Privilege;
 import dev.xframe.admin.system.role.Role;
 import dev.xframe.admin.system.user.User;
-import dev.xframe.admin.view.Navi;
-import dev.xframe.admin.view.Symbol;
-import dev.xframe.admin.view.VEnum;
-import dev.xframe.admin.view.VTree;
+import dev.xframe.admin.view.entity.Navi;
+import dev.xframe.admin.view.entity.Symbol;
+import dev.xframe.admin.view.values.VEnum;
+import dev.xframe.admin.view.values.VTree;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;
 import dev.xframe.inject.Loadable;
@@ -38,7 +38,7 @@ public class SystemManager implements Loadable {
 
         List<VEnum> ptrees = new ArrayList<>();
         ptrees.add(new VTree("_", "全部"));
-        basicMgr.getSummary().getChapters().forEach(c->{
+        basicMgr.getCatalog().getChapters().forEach(c->{
             VTree ptree = new VTree(c.getPath(), c.getName());
             privileges.add(new Privilege(c.getName(), c.getPath()));
             for (Navi navi : c.getNavis()) {

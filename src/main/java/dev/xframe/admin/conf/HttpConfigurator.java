@@ -2,7 +2,7 @@ package dev.xframe.admin.conf;
 
 import dev.xframe.admin.system.auth.AuthManager;
 import dev.xframe.admin.utils.JsonHelper;
-import dev.xframe.admin.view.VResp;
+import dev.xframe.admin.view.values.VResp;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;
 import dev.xframe.http.config.BodyDecoder;

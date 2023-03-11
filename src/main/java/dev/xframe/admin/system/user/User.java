@@ -3,21 +3,23 @@ package dev.xframe.admin.system.user;
 import java.sql.Timestamp;
 
 import dev.xframe.admin.system.SysEnumKeys;
+import dev.xframe.admin.view.EColumn;
+import dev.xframe.admin.view.EShowcase;
 import dev.xframe.admin.view.XColumn;
 
 public class User {
 
-	@XColumn(value="用户名", show=XColumn.xor_edit, primary=true, required=true)
+	@XColumn(value="用户名", show= EShowcase.xorEdit, primary=true, required=true)
 	private String name;
 	@XColumn(value="手机", required=true)
 	private String phone;
 	@XColumn(value="邮箱", required=true)
 	private String email;
-	@XColumn(value="密码", show=XColumn.add, type=XColumn.type_pass, required=true)
+	@XColumn(value="密码", show= EShowcase.Add, type= EColumn.Pass, required=true)
 	private String passw;
-	@XColumn(value="角色", enumKey= SysEnumKeys.ROLE_LIST, type=XColumn.type_mult, required=true)
+	@XColumn(value="角色", enumKey= SysEnumKeys.ROLE_LIST, type= EColumn.Mult, required=true)
 	private int[] roles;
-	@XColumn(value="创建时间", show=XColumn.list_edel, type=XColumn.type_datetime)
+	@XColumn(value="创建时间", show= EShowcase.ListEdel, type= EColumn.Datetime)
 	private Timestamp ctime;
 	
 	public User() {

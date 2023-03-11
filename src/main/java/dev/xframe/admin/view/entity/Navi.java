@@ -1,4 +1,4 @@
-package dev.xframe.admin.view;
+package dev.xframe.admin.view.entity;
 
 public class Navi implements Comparable<Navi> {
 

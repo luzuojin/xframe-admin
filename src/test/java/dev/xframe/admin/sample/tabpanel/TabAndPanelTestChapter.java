@@ -1,8 +1,8 @@
 package dev.xframe.admin.sample.tabpanel;
 
 import dev.xframe.admin.system.XRegistrator;
-import dev.xframe.admin.view.Navi;
-import dev.xframe.admin.view.VEnum;
+import dev.xframe.admin.view.entity.Navi;
+import dev.xframe.admin.view.values.VEnum;
 import dev.xframe.admin.view.XChapter;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;

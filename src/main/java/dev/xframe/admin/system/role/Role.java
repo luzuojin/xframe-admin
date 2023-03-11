@@ -1,10 +1,12 @@
 package dev.xframe.admin.system.role;
 
+import dev.xframe.admin.system.SysEnumKeys;
+import dev.xframe.admin.view.EColumn;
+import dev.xframe.admin.view.EShowcase;
+import dev.xframe.admin.view.XColumn;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import dev.xframe.admin.system.SysEnumKeys;
-import dev.xframe.admin.view.XColumn;
 
 public class Role {
     public static final int op_qry = 0;
@@ -13,16 +15,16 @@ public class Role {
     public static final int op_del = 4;
     public static final int op_all = 7;
 
-    @XColumn(value="#", show=XColumn.list_edel, primary=true)
+    @XColumn(value="#", show= EShowcase.ListEdel, primary=true)
     private int id;
     
 	@XColumn(value="角色", required=true)
 	private String name;
 	
-	@XColumn(value="权限", enumKey= SysEnumKeys.PRIVILEGE_TREE, type=XColumn.type_tree, required=true)
+	@XColumn(value="权限", enumKey= SysEnumKeys.PRIVILEGE_TREE, type= EColumn.Tree, required=true)
 	private List<String> authorities = new ArrayList<>();
 	
-	@XColumn(value="操作", enumKey= SysEnumKeys.ROLE_OPTIONS, type=XColumn.type_mult, required=true)
+	@XColumn(value="操作", enumKey= SysEnumKeys.ROLE_OPTIONS, type= EColumn.Mult, required=true)
     private int[] options;
 	
 	public int getId() {

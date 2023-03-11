@@ -91,7 +91,7 @@ class Chapter extends Navi {
     static of(jChapter) {
         let c = new Chapter(jChapter.name, jChapter.path);
         for(let jNavi of jChapter.navis) {
-            if(jNavi.detail) {  //segment
+            if(jNavi.content) {  //segment
                 c.append(Segment.of(c, jNavi));
             } else {             //tab (二级菜单)
                 let tab = c.append(Tab.of(c, jNavi));
@@ -132,7 +132,7 @@ class Segment extends Navi {
     }
     static of(parent, jSegment) {
         let seg = new Segment(parent, jSegment.name, jSegment.path);
-        seg.append(Detail.of(seg, jSegment.detail));
+        seg.append(Content.of(seg, jSegment.content));
         return seg;
     }
     dom() {
@@ -153,7 +153,7 @@ class Segment extends Navi {
         });
     }
     showContent() {
-        this.children[0].show($('#xcontainer').empty());    //detail.show
+        this.children[0].show($('#xcontainer').empty());    //content.show
     }
     deactive() {
         this.dom().removeClass('active');
@@ -193,12 +193,13 @@ class Tab extends Segment {
         }
     }
     showContent() {
-        this.showTabNavis($('#xcontainer').empty());
-        this.showTabContent(this.latestTabSeg ? this.latestTabSeg : this.children[0]);
+        this.showTabContent(this.latestTabSeg || this.children[0]);
     }
     showTabContent(seg) {
+        let _pdom = $('#xcontainer').empty();
+        this.showTabNavis(_pdom);
         this.tabActive(seg)
-        seg.children[0].show($('#xcontainer'));//detail.show
+        seg.children[0].show(_pdom);//content.show
     }
     tabDeactive(seg) {
         if(!seg) return;
@@ -213,15 +214,14 @@ class Tab extends Segment {
     }
 }
 
-class Detail extends Node {
+class Content extends Node {
     static Impls = new Map();
     static regist(type, cls) {
-        Detail.Impls.set(type, cls);
+        Content.Impls.set(type, cls);
         return cls;
     }
     static getCls(type) {
-        let cls = Detail.Impls.get(type);
-        return cls ? cls : Detail;
+        return Content.Impls.get(type) || Content;
     }
     type;
     options;
@@ -229,15 +229,15 @@ class Detail extends Node {
     constructor(parent) {
         super(parent);
     }
-    static of(parent, jDetail) {
-        let d = new (Detail.getCls(jDetail.type))(parent);
-        d.type = jDetail.type;
-        d.desc = jDetail.desc;          //panel
-        d.padding = jDetail.padding;    //table
-        d.sortable = jDetail.sortable;  //table
-        d.variantName = jDetail.variantName;
-        d.children = d.columns = jDetail.columns.map(jColumn=>Column.of(d, jColumn));
-        d.options = jDetail.options.map(jOption=>Option.of(d, jOption));
+    static of(parent, jContent) {
+        let d = new (Content.getCls(jContent.type))(parent);
+        d.type = jContent.type;
+        d.desc = jContent.desc;          //panel
+        d.padding = jContent.padding;    //table
+        d.sortable = jContent.sortable;  //table
+        d.variantName = jContent.variantName;
+        d.children = d.columns = jContent.columns.map(jColumn=>Column.of(d, jColumn));
+        d.options = jContent.options.map(jOption=>Option.of(d, jOption));
         d.variantOption = d.getOption(opTypes.vrt);
         return d;
     }
@@ -294,10 +294,10 @@ class Detail extends Node {
 }
 
 /*-----------------------------*/
-/*-----------details-----------*/
+/*-----------contents-----------*/
 /*-----------------------------*/
-class TableDetail extends Detail {
-    static _ = Detail.regist(1, this);
+class TableContent extends Content {
+    static _ = Content.regist(1, this);
     sorting = new Sorting(this);
     constructor(parent) {
         super(parent);
@@ -369,8 +369,8 @@ class TableDetail extends Detail {
     isTableOption(op) {return op.type==opTypes.del||op.type==opTypes.edt||op.type==opTypes.dlr;}
     getTableOptions() {return this.options.filter(this.isTableOption);}
     hasTableOptions() {return this.options.some(this.isTableOption);}
-    showTableHead0() {TableDetail.showTableHead($('#xthead'), this.columns, this.hasTableOptions());}
-    showTableBody0() {TableDetail.showTableBody($('#xtbody'), this.columns, this.data, this.getTableOptions());}
+    showTableHead0() {TableContent.showTableHead($('#xthead'), this.columns, this.hasTableOptions());}
+    showTableBody0() {TableContent.showTableBody($('#xtbody'), this.columns, this.data, this.getTableOptions());}
 
     static showTableHead(_pdom, columns, hasOps=false) {
         let _tabletr = $(`<tr id='xtr_0'/>`);
@@ -420,8 +420,8 @@ class TableDetail extends Detail {
     }
 }
 
-class PanelDetail extends Detail {
-    static _ = Detail.regist(2, this);
+class PanelContent extends Content {
+    static _ = Content.regist(2, this);
     constructor(parent) {super(parent);}
     showContent() {
         let data = this.data;
@@ -457,8 +457,8 @@ class PanelDetail extends Detail {
     }
 }
 
-class MarkdDetail extends Detail {
-    static _ = Detail.regist(3, this);
+class MarkdContent extends Content {
+    static _ = Content.regist(3, this);
     constructor(parent) {super(parent);}
 
     showContent() {
@@ -511,8 +511,8 @@ let ChartColorsArray = [
 ]
 
 /*多维数据集合展示(m*n table|chart)*/
-class ChartDetail extends Detail {
-    static _ = Detail.regist(4, this);
+class ChartContent extends Content {
+    static _ = Content.regist(4, this);
     constructor(parent) {super(parent);}
     iniDom(_pdom) {
     }
@@ -585,9 +585,9 @@ class ChartDetail extends Detail {
     }
 }
 
-//只用于ChartDetail组合
-class CellsDetail extends Detail {
-    static _ = Detail.regist(5, this);
+//只用于ChartContent组合
+class CellsContent extends Content {
+    static _ = Content.regist(5, this);
     constructor(parent) {super(parent);}
     showContent() {
 
@@ -598,8 +598,8 @@ class CellsDetail extends Detail {
 /*------------sorting-----------*/
 /*-----------------------------*/
 class Sorting {
-    constructor(detail) {
-        this.detail = detail;
+    constructor(content) {
+        this.content = content;
         this.num = 0;
     }
     static show(_pdom, col) {
@@ -633,7 +633,7 @@ class Sorting {
         this.num = this.column !== col ? 1 : (this.num == 1 ? -1 : this.num + 1);
     }
     initialData() {
-        this._originalData = Object.assign([], this.detail.data);//set original data
+        this._originalData = Object.assign([], this.content.data);//set original data
     }
     originalData() {
         return this._originalData;                 //original data
@@ -650,9 +650,9 @@ class Sorting {
         this.sort();
     }
     sort() {
-        this.detail.data = Object.assign([], this._originalData);   //reset data
-        if(this.enabled()) this.detail.data.sort((a, b) => (a[this.column.key] > b[this.column.key]? 1 : -1) * this.num)   
-        this.detail.showTableBody0();
+        this.content.data = Object.assign([], this._originalData);   //reset data
+        if(this.enabled()) this.content.data.sort((a, b) => (a[this.column.key] > b[this.column.key]? 1 : -1) * this.num)
+        this.content.showTableBody0();
     }
 }
 
@@ -732,8 +732,7 @@ class Column {
         return cls;
     }
     static getCls(type) {
-        let cls = Column.Impls.get(type);
-        return cls ? cls : Column;
+        return Column.Impls.get(type) || Column;
     }
 
     parent;
@@ -764,7 +763,7 @@ class Column {
     }
     //for val local cache
     getCacheKey() {
-        return this.cacheKey ? this.cacheKey : this.pid();
+        return this.cacheKey || this.pid();
     }
     tryCache(val) {
         if(this.cacheable) localStorage.setItem(this.getCacheKey(), val);
@@ -1036,8 +1035,8 @@ class NestColumn extends Column {
         _ntable.append(_nthead);
         _ntable.append(_ntbody);
 
-        TableDetail.showTableHead(_nthead, this.columns);
-        TableDetail.showTableBody(_ntbody, this.columns, this.type==colTypes._model?[val]:val)
+        TableContent.showTableHead(_nthead, this.columns);
+        TableContent.showTableBody(_ntbody, this.columns, this.type==colTypes._model?[val]:val)
     }
     makeFormValHtm() {
         return `<div id="dinput_${this.pid()}" class="border-left border-bottom text-sm"></div>`;
@@ -1161,7 +1160,7 @@ class OptionForm {
         this.data = data;
     }
     title() {
-        return `${this.option.parent.parent.name}&nbsp;/&nbsp;${this.option.name}`;//option->detail->segment
+        return `${this.option.parent.parent.name}&nbsp;/&nbsp;${this.option.name}`;//option->content->segment
     }
     show() {
         $('#xdialog_title').empty();

@@ -1,4 +1,7 @@
-package dev.xframe.admin.view;
+package dev.xframe.admin.view.entity;
+
+import dev.xframe.admin.view.EColumn;
+import dev.xframe.admin.view.XColumn;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -9,7 +12,7 @@ public class Nested extends Column {
 
 	private List<Column> columns;
 
-	public Nested(String key, int type, XColumn xc, List<Column> columns) {
+	public Nested(String key, EColumn type, XColumn xc, List<Column> columns) {
 		super(key, type, xc);
 		this.columns = columns;
 	}
@@ -24,7 +27,7 @@ public class Nested extends Column {
 
 	public static Class<?> getNestClass(Field field) {
 		Class<?> ftype = field.getType();
-		if(field.getAnnotation(XColumn.class).type() == XColumn.type_model) {
+		if(field.getAnnotation(XColumn.class).type() == EColumn.Model) {
 			return ftype;
 		} else if(Collection.class.isAssignableFrom(ftype)) {
 			return (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];

@@ -1,7 +1,8 @@
 package dev.xframe.admin.sample.data;
 
 
-import dev.xframe.admin.view.VChart;
+import dev.xframe.admin.view.EContent;
+import dev.xframe.admin.view.values.VChart;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpMethods;
@@ -10,7 +11,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 @Rest("chart/chart1")
-@XSegment(name = "图表测试1", type = XSegment.type_chart)
+@XSegment(name = "图表测试1", type = EContent.Chart)
 public class DataService {
 
     @HttpMethods.GET

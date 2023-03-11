@@ -1,19 +1,18 @@
-package dev.xframe.admin.view.details;
+package dev.xframe.admin.view.entity;
 
-import dev.xframe.admin.view.Column;
-import dev.xframe.admin.view.Detail;
-import dev.xframe.admin.view.XOption;
+import dev.xframe.admin.view.EContent;
+import dev.xframe.admin.view.EOption;
 import dev.xframe.admin.view.XSegment;
 
 public class Table extends Classic {
-    
+
+    private boolean padding;
+    private boolean sortable;
+
     public Table() {
-		super(XSegment.type_table);
+		super(EContent.Table);
 	}
 
-	private boolean padding;
-    private boolean sortable;
-    
     public boolean getPadding() {
         return padding;
     }
@@ -28,7 +27,7 @@ public class Table extends Classic {
     }
 
     @Override
-    public Detail parseFrom(XSegment xseg, Class<?> declaring) {
+    public Content parseFrom(XSegment xseg, Class<?> declaring) {
     	super.parseFrom(xseg, declaring);
     	this.padding = xseg.padding();
         this.sortable = this.columns.stream().anyMatch(Column::getSortable);
@@ -38,11 +37,11 @@ public class Table extends Classic {
     
     //只能存在一个qry/flx option
     protected void checkQryOption() {
-		if(options.stream().filter(opt->opt.getType()==XOption.type_qry).count() > 1) {
-			throw new IllegalArgumentException("Detail can only exist one qry option(@HttpMethods.GET");
+		if(options.stream().filter(opt->opt.getType()== EOption.Qry).count() > 1) {
+			throw new IllegalArgumentException("Content can only exist one qry option(@HttpMethods.GET");
 		}
-		if(options.stream().filter(opt->opt.getType()==XOption.type_vrt).count() > 1) {
-			throw new IllegalArgumentException("Detail can only exist one vrt option(@HttpMethods.GET");
+		if(options.stream().filter(opt->opt.getType()== EOption.Var).count() > 1) {
+			throw new IllegalArgumentException("Content can only exist one flx option(@HttpMethods.GET");
 		}
 	}
 

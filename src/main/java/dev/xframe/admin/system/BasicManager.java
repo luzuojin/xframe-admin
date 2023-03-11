@@ -1,10 +1,10 @@
 package dev.xframe.admin.system;
 
 import dev.xframe.admin.system.auth.UserPrivileges;
-import dev.xframe.admin.view.Chapter;
-import dev.xframe.admin.view.Navi;
-import dev.xframe.admin.view.Summary;
-import dev.xframe.admin.view.VEnum;
+import dev.xframe.admin.view.entity.Chapter;
+import dev.xframe.admin.view.entity.Navi;
+import dev.xframe.admin.view.entity.Catalog;
+import dev.xframe.admin.view.values.VEnum;
 import dev.xframe.admin.view.XChapter;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.inject.Bean;
@@ -21,30 +21,30 @@ import java.util.function.Supplier;
 @Bean
 public class BasicManager implements Loadable, XRegistrator {
     
-	private Summary summary;
+	private Catalog catalog;
 
 	private Map<String, Supplier<List<VEnum>>> enumValues = new HashMap<>();
 	private Map<String, Supplier<List<Navi>>>  naviValues = new HashMap<>();
 
 	@Override
 	public void load() {
-		summary = new Summary();
-		summary.setName("XFrameAdmin");
-		summary.setIcon("img/xframe.png");
+		catalog = new Catalog();
+		catalog.setName("XFrameAdmin");
+		catalog.setIcon("img/xframe.png");
 		
-		summary.parseFrom(Codes.getScannedClasses(Clazz.filter(XChapter.class, XSegment.class)));
+		catalog.parseFrom(Codes.getScannedClasses(Clazz.filter(XChapter.class, XSegment.class)));
 	}
 	
 	public List<Chapter> getChapters() {
-		return summary.getChapters();
+		return catalog.getChapters();
 	}
 
-	public Summary getSummary() {
-	    return summary;
+	public Catalog getCatalog() {
+	    return catalog;
 	}
 	
-	public Summary getSummary(UserPrivileges privileges) {
-		return summary.copyBy(privileges);
+	public Catalog getCatalog(UserPrivileges privileges) {
+		return catalog.copyBy(privileges);
 	}
 	
     public List<VEnum> getEnumValue(String key) {

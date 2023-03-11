@@ -1,5 +1,6 @@
 package dev.xframe.admin.sample.tabpanel;
 
+import dev.xframe.admin.view.EColumn;
 import dev.xframe.admin.view.XColumn;
 
 public class PanelTest {
@@ -9,7 +10,7 @@ public class PanelTest {
 	@XColumn(value="角色", enumKey=PANEL_ROLE_KEY, cacheable=true)
 	private int roleId;
 	
-	@XColumn(value="图片", type=XColumn.type_imag)
+	@XColumn(value="图片", type= EColumn.Imag)
 	private String file;
 
 	public int getRoleId() {

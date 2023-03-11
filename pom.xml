@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>dev.xframe</groupId>
   <artifactId>xframe-admin</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1.1-SNAPSHOT</version>
   <name>xframe-admin</name>
   <description>xframe admin template using adminlte</description>
   <build>

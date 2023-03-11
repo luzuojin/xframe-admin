@@ -1,5 +1,8 @@
-package dev.xframe.admin.view;
+package dev.xframe.admin.view.entity;
 
+import dev.xframe.admin.view.XAdapter;
+import dev.xframe.admin.view.XColumn;
+import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.Request;
 import dev.xframe.http.request.HttpBody;
 import dev.xframe.http.request.QueryString;
@@ -16,9 +19,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public interface Detail {
+public interface Content {
 
-    Detail parseFrom(XSegment xseg, Class<?> declaring);
+    Content parseFrom(XSegment xseg, Class<?> declaring);
 
     static List<Option> parseOptions(Class<?> declaring, Class<?> model) {
         return Arrays.stream(declaring.getDeclaredMethods())

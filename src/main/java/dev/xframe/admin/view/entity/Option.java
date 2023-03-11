@@ -1,5 +1,7 @@
-package dev.xframe.admin.view;
+package dev.xframe.admin.view.entity;
 
+import dev.xframe.admin.view.EOption;
+import dev.xframe.admin.view.XOption;
 import dev.xframe.http.service.rest.HttpArgs.Param;
 import dev.xframe.http.service.rest.HttpMethods.DELETE;
 import dev.xframe.http.service.rest.HttpMethods.GET;
@@ -36,21 +38,21 @@ public class Option implements Comparable<Option> {
 			return !this.np || Arrays.stream(m.getParameters()).noneMatch(p -> p.isAnnotationPresent(Param.class));
 		}
 		private Option make(Method m, Class<?> model) {
-			return op.copy(m.getAnnotation(XOption.class), vl.apply(m.getAnnotation(ma))).with(Detail.parseParamColumns(m, model));
+			return op.copy(m.getAnnotation(XOption.class), vl.apply(m.getAnnotation(ma))).with(Content.parseParamColumns(m, model));
 		}
 		Option apply(Method m, Class<?> model) {
 			return m.isAnnotationPresent(ma) && isOpPredicated(m) && isParamPredicated(m) ? make(m, model) : null;
 		}
 	}
 	static final List<Parser<?>> Parsers = Arrays.asList(
-			new Parser<>(new Option("结构", XOption.type_vrt), GET.class,    GET::value,   true,  false),
-			new Parser<>(new Option("下载", XOption.type_dlh), GET.class,    GET::value,   true,  false),
-			new Parser<>(new Option("下载", XOption.type_dlr), GET.class,    GET::value,   true,  false),
-			new Parser<>(new Option("加载", XOption.type_ini), GET.class,    GET::value,   false, true),
-			new Parser<>(new Option("查询", XOption.type_qry), GET.class,    GET::value,   false, false),
-			new Parser<>(new Option("修改", XOption.type_edt), PUT.class,    PUT::value,   false, false),
-			new Parser<>(new Option("新增", XOption.type_add), POST.class,   POST::value,  false, false),
-			new Parser<>(new Option("删除", XOption.type_del), DELETE.class, DELETE::value,false, false)
+			new Parser<>(new Option("结构", EOption.Var), GET.class,    GET::value,   true,  false),
+			new Parser<>(new Option("下载", EOption.Dlh), GET.class,    GET::value,   true,  false),
+			new Parser<>(new Option("下载", EOption.Dlr), GET.class,    GET::value,   true,  false),
+			new Parser<>(new Option("加载", EOption.Ini), GET.class,    GET::value,   false, true),
+			new Parser<>(new Option("查询", EOption.Qry), GET.class,    GET::value,   false, false),
+			new Parser<>(new Option("修改", EOption.Edt), PUT.class,    PUT::value,   false, false),
+			new Parser<>(new Option("新增", EOption.Add), POST.class,   POST::value,  false, false),
+			new Parser<>(new Option("删除", EOption.Del), DELETE.class, DELETE::value,false, false)
 	);
 
 	private String name;
@@ -102,7 +104,7 @@ public class Option implements Comparable<Option> {
 	@Override
 	public int compareTo(Option o) {
 	    if(type == o.type) {
-	        if(type == XOption.type_add) {//add在前端展示时为从右至左
+	        if(type == EOption.Add) {//add在前端展示时为从右至左
 	            return o.path.compareTo(this.path);
 	        } else {
 	            return this.path.compareTo(o.path);
@@ -111,7 +113,7 @@ public class Option implements Comparable<Option> {
 	    return Integer.compare(typeOrderNum(), o.typeOrderNum());
 	}
 	int typeOrderNum() {
-		return type == XOption.type_del ? type * 10 : type;
+		return type == EOption.Del ? type * 10 : type;
 	}
 	
 }

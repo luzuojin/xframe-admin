@@ -1,7 +1,5 @@
 package dev.xframe.admin.view;
 
-import dev.xframe.admin.view.details.Table;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -12,31 +10,24 @@ import java.lang.annotation.Target;
  * @author luzj
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 public @interface XSegment {
 	
 	String name();
-	int type() default type_table;
+
+	EContent type() default EContent.Table;
+
 	Class<?> model() default void.class;
-	//for table detail
+
+	//for table content
 	boolean padding() default false;//Option.add时是否把qry表单中的字段用来填充
 
-	//for panel detail
+	//for panel content
 	String desc() default "";//description
+
+	//for chart content
+	EChart chart() default EChart.Table;
+
 	//order[large---small]
 	int order() default 10;
-	
-	/**deprecated by type */
-	@Deprecated
-	Class<? extends Detail> detail() default Table.class;
-
-	/**表格类详情页*/
-	int type_table = 1;
-	/**单对象详情页*/
-	int type_panel = 2;
-	/**Markdown展示页,只需要ini*/
-	int type_markd = 3;
-	/**图表展示*/
-	int type_chart = 4;
-
 }

@@ -1,4 +1,4 @@
-package dev.xframe.admin.view;
+package dev.xframe.admin.view.entity;
 
 import java.util.ArrayList;
 import java.util.List;

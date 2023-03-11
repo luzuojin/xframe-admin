@@ -1,4 +1,4 @@
-package dev.xframe.admin.view;
+package dev.xframe.admin.view.entity;
 
 import dev.xframe.admin.system.BasicManager;
 import dev.xframe.inject.Inject;

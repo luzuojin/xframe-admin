@@ -26,9 +26,9 @@ public class BasicService {
 	@Inject
 	private FileTransferHandler ftHandler;
 	
-	@HttpMethods.GET("summary")
-	public Object summary(Request req) {
-		return basicMgr.getSummary(authMgr.getPrivileges(req));
+	@HttpMethods.GET("catalog")
+	public Object catalog(Request req) {
+		return basicMgr.getCatalog(authMgr.getPrivileges(req));
 	}
 	
 	@HttpMethods.GET("enum")

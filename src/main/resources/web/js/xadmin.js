@@ -1,6 +1,6 @@
 var xurl = (location.origin.startsWith("http") || location.origin.startsWith("https")) ? location.origin : "http://127.0.0.1:8001";
 var xpaths = {
-    summary: "basic/summary",
+    catalog: "basic/catalog",
     xenum  : "basic/enum",
     upload : "basic/upload",
     preview: "basic/preview"
@@ -206,8 +206,8 @@ function xtreeselect(e, col) {
 }
 
 // show contents
-function showSummary() {
-    doGet(xpaths.summary, showSidebar);
+function showCatalog() {
+    doGet(xpaths.catalog, showSidebar);
 }
 function showSidebar(data) {
     data.chapters.forEach(c=>Chapter.of(c).show());
@@ -253,7 +253,7 @@ const _inputs = [
     {key:"name",hint:"用户名",type:colTypes._text,show:13},
     {key:"passw",hint:"密码",type:colTypes._pass,show:15}
 ];
-const _navi = new Navi(new Navi(null, '用户', 'basic'), 'unused', 'profile');//segment->detail->option
+const _navi = new Navi(new Navi(null, '用户', 'basic'), 'unused', 'profile');//segment->content->option
 
 function showUser(user, _isAutoLogin) {
     xuser = user;
@@ -292,7 +292,7 @@ function doLogin() {
     let _isAutoLogin = false;
     let cb = op.onDataChanged = data=>{
         showUser(data, _isAutoLogin);
-        showSummary();  //show
+        showCatalog();  //show
     };
     if(_isAutoLogin = isLocalAutoLogin()) {
         let cb0 = resp=>{

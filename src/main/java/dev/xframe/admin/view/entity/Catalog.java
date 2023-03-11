@@ -1,9 +1,7 @@
-package dev.xframe.admin.view;
+package dev.xframe.admin.view.entity;
 
-import dev.xframe.admin.view.details.Chart;
-import dev.xframe.admin.view.details.Markd;
-import dev.xframe.admin.view.details.Panel;
-import dev.xframe.admin.view.details.Table;
+import dev.xframe.admin.view.XChapter;
+import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Service;
 
 import java.util.ArrayList;
@@ -14,7 +12,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class Summary {
+public class Catalog {
 	
 	private String name;
 	private String icon;
@@ -45,8 +43,8 @@ public class Summary {
 		this.chapters = chapters;
 	}
 	
-	public Summary copyBy(Predicate<String> predicate) {
-	    Summary s = new Summary();
+	public Catalog copyBy(Predicate<String> predicate) {
+	    Catalog s = new Catalog();
 	    s.name = this.name;
 	    s.icon = this.icon;
 	    for (Chapter chapter : this.chapters) {
@@ -77,29 +75,14 @@ public class Summary {
 				if(paths.length == 3) {//三级菜单
 					parent = (Navigate) Symbol.unwrap(parent.findOrAdd(paths[1], Symbol.wrap(parent.path, new Navigate(paths[1]))));
 				}
-				parent.getNavis().add(Symbol.wrap(parent.path, new Segment(paths[paths.length-1], xseg, parseDetail(xseg, clazz))));
+				parent.getNavis().add(Symbol.wrap(parent.path, new Segment(paths[paths.length-1], xseg, parseContent(xseg, clazz))));
             }
         }
         this.setChapters(chapters.values().stream().peek(c->Collections.sort(c.getNavis())).sorted().collect(Collectors.toList()));
 	}
 
-	Detail parseDetail(XSegment xseg, Class<?> declaring) {
-		int type = xseg.type();
-		if(type == XSegment.type_table) {
-			if(xseg.detail() == Panel.class) type = XSegment.type_panel;
-			if(xseg.detail() == Markd.class) type = XSegment.type_markd;
-		}
-		switch (type) {
-			case XSegment.type_panel:
-				return new Panel().parseFrom(xseg, declaring);
-			case XSegment.type_markd:
-				return new Markd().parseFrom(xseg, declaring);
-			case XSegment.type_chart:
-				return new Chart().parseFrom(xseg, declaring);
-			case XSegment.type_table:
-			default:
-				return new Table().parseFrom(xseg, declaring);
-		}
+	Content parseContent(XSegment xseg, Class<?> declaring) {
+		return xseg.type().fac.get().parseFrom(xseg, declaring);
 	}
 	
 }

@@ -1,5 +1,6 @@
 package dev.xframe.admin.sample.nested;
 
+import dev.xframe.admin.view.EOption;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
@@ -36,12 +37,12 @@ public class NestedListTestService {
 	}
 
 	@HttpMethods.GET("dl1")
-	@XOption(type = XOption.type_dlh)
+	@XOption(type = EOption.Dlh)
 	public Object dlh() {
 		return new FileResponse.Sys(new File(XProperties.get("user.dir"), "src/main/resources/web/js/xadmin.js")).setFileName().forceDownload();
 	}
 	@HttpMethods.GET("dl2")
-	@XOption(type = XOption.type_dlr)
+	@XOption(type = EOption.Dlr)
 	public Object dlr(@HttpArgs.Param @XColumn int id) {
 		return new FileResponse.Sys(new File(XProperties.get("user.dir"), "src/main/resources/web/js/xview.js")).setFileName().forceDownload();
 	}

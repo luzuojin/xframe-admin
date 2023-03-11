@@ -1,27 +1,25 @@
-package dev.xframe.admin.view.details;
+package dev.xframe.admin.view.entity;
+
+import dev.xframe.admin.view.EContent;
+import dev.xframe.admin.view.EOption;
+import dev.xframe.admin.view.XSegment;
 
 import java.util.Collections;
 import java.util.List;
-
-import dev.xframe.admin.view.Column;
-import dev.xframe.admin.view.Detail;
-import dev.xframe.admin.view.Option;
-import dev.xframe.admin.view.XOption;
-import dev.xframe.admin.view.XSegment;
 
 /**
  * model based
  * columns-->model
  * @author luzj
  */
-public abstract class Classic implements Detail {
+public abstract class Classic implements Content {
 
 	protected int type;
 	protected List<Column> columns = Collections.emptyList();
 	protected List<Option> options = Collections.emptyList();
 	
-	protected Classic(int type) {
-		this.type = type;
+	protected Classic(EContent type) {
+		this.type = type.val;
 	}
 	
 	public int getType() {
@@ -44,16 +42,16 @@ public abstract class Classic implements Detail {
     }
     
     @Override
-    public Detail parseFrom(XSegment xseg, Class<?> declaring) {
-        this.columns = Detail.parseModelColumns(xseg.model());
-        this.options = Detail.parseOptions(declaring, xseg.model());
+    public Content parseFrom(XSegment xseg, Class<?> declaring) {
+        this.columns = Content.parseModelColumns(xseg.model());
+        this.options = Content.parseOptions(declaring, xseg.model());
         this.checkIniOption();
         return this;
     }
     
 	protected void checkIniOption() {
-		if(options.stream().filter(opt->opt.getType()==XOption.type_ini).count() > 1) {
-			throw new IllegalArgumentException("Detail can only exist on ini option(@HttpMethods.GET&empty(args)");
+		if(options.stream().filter(opt->opt.getType()== EOption.Ini).count() > 1) {
+			throw new IllegalArgumentException("Content can only exist on ini option(@HttpMethods.GET&empty(args)");
 		}
 	}
 	

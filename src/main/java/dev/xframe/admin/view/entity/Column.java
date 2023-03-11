@@ -1,5 +1,7 @@
-package dev.xframe.admin.view;
+package dev.xframe.admin.view.entity;
 
+import dev.xframe.admin.view.EColumn;
+import dev.xframe.admin.view.XColumn;
 import dev.xframe.utils.XProperties;
 import dev.xframe.utils.XStrings;
 
@@ -46,33 +48,33 @@ public class Column {
      * @param jtype field.type
      * @param ctype field.componentType
      */
-    static int inferType(XColumn xc, Class<?> jtype, Class<?> ctype, String key) {
-        if(xc.type() == 0) {
+    static EColumn inferType(XColumn xc, Class<?> jtype, Class<?> ctype, String key) {
+        if(xc.type() == EColumn.Text) {
             if(!XStrings.isEmpty(xc.enumKey()))
-                return isMulti(jtype) ? XColumn.type_mult : XColumn.type_enum;
+                return isMulti(jtype) ? EColumn.Mult : EColumn.Enum;
             if(jtype == boolean.class || jtype == Boolean.class)
-                return XColumn.type_bool;
+                return EColumn.Bool;
             if(jtype.isPrimitive() || Number.class.isAssignableFrom(jtype))
-                return XColumn.type_number;
+                return EColumn.Number;
             if(ctype.getClassLoader() == Column.class.getClassLoader())//自定义类型
-                return isMulti(jtype) ? XColumn.type_list : XColumn.type_model;
+                return isMulti(jtype) ? EColumn.List : EColumn.Model;
             if(jtype == LocalDateTime.class || jtype == Timestamp.class || jtype == Date.class)
-                return XColumn.type_datetime;
+                return EColumn.Datetime;
             if(jtype == LocalDate.class)
-                return XColumn.type_date;
+                return EColumn.Date;
             if(jtype == LocalTime.class)
-                return XColumn.type_time;
+                return EColumn.Time;
             //通过字段名推断类型... 默认关闭
             if(XProperties.getAsBool("xframe.admin.column.namingtype", false)) {
                 String lowerCaseKey = key.toLowerCase();
                 if(lowerCaseKey.contains("password"))
-                    return XColumn.type_pass;
+                    return EColumn.Pass;
                 if(lowerCaseKey.contains("date") || key.contains("time"))
-                    return XColumn.type_datetime;
+                    return EColumn.Datetime;
                 if(lowerCaseKey.contains("file"))
-                    return XColumn.type_file;
+                    return EColumn.File;
                 if(lowerCaseKey.contains("image"))
-                    return XColumn.type_imag;
+                    return EColumn.Imag;
             }
         }
         return xc.type();
@@ -84,9 +86,6 @@ public class Column {
     static String firstToUpperCase(String key) {
         return String.valueOf(key.charAt(0)).toUpperCase() + key.substring(1);
     }
-    static boolean isNested(int type) {
-        return (type / 10) == (XColumn.type_model / 10);
-    }
 
     public static Column of(XColumn xc, Field field) {
         return of(field.getName(), xc, field.getGenericType());
@@ -94,13 +93,13 @@ public class Column {
     public static Column of(String key, XColumn xc, Type type) {
         Class<?> jCls = getRawType(type);
         Class<?> cCls = getComponentType(type);
-        int colType = inferType(xc, jCls, cCls, key);
-        return isNested(colType) ? new Nested(key, colType, xc, Detail.parseModelColumns(cCls)) : new Column(key, colType, xc);
+        EColumn colType = inferType(xc, jCls, cCls, key);
+        return colType.isNested() ? new Nested(key, colType, xc, Content.parseModelColumns(cCls)) : new Column(key, colType, xc);
     }
 
-    public Column(String key, int type, XColumn xc) {
+    public Column(String key, EColumn type, XColumn xc) {
         this.key = key;
-        this.type = type;
+        this.type = type.val;
         this.hint = XStrings.orElse(xc.value(), firstToUpperCase(key));
         this.enumKey = xc.enumKey();
         this.show = xc.show();
@@ -108,13 +107,13 @@ public class Column {
         this.collapse = xc.collapse();
         this.compact = xc.compact();
         this.required = xc.required();
-        this.sortable = xc.sortable() && !isNested(this.type);
+        this.sortable = xc.sortable() && !type.isNested();
         this.cacheKey = xc.cacheKey();
         this.cacheable = xc.cacheable() || !XStrings.isEmpty(this.cacheKey);
     }
 
     public static Column of(String key) {
-        return new Column(key, XColumn.type_text, XColumn.Default);
+        return new Column(key, EColumn.Text, XColumn.Default);
     }
 
     public int getShow() {

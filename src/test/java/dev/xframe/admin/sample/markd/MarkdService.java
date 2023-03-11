@@ -1,13 +1,14 @@
 package dev.xframe.admin.sample.markd;
 
+import dev.xframe.admin.view.EContent;
 import dev.xframe.admin.view.XSegment;
-import dev.xframe.admin.view.details.Markd;
+import dev.xframe.admin.view.entity.Markd;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
 
 @Rest("markd/{name}")
-@XSegment(name = "unused", type = XSegment.type_markd)
+@XSegment(name = "unused", type = EContent.Markd)
 public class MarkdService {
 
     @HttpMethods.GET

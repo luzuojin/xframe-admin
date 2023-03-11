@@ -27,7 +27,7 @@
     - type   (见Options说明)
     - path   (可选suburl)
     - name   (展示文字)
-    - inputs (`@HttpArgs`获取,查询操作必须有,其他操作默认使用`Detail.Columns`)
+    - inputs (`@HttpArgs`获取,查询操作必须有,其他操作默认使用`Content.Columns`)
 - Options
   - ini(加载) --> 对应`@HttpMethods.GET`且参数为空, 唯一(只能有一个该种方法)
   - qry(查询) --> 对应`@HttpMethods.GET`且参数不为空, 唯一(只能有一个该种方法)
