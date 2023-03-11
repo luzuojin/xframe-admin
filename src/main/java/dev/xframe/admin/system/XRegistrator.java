@@ -1,6 +1,6 @@
 package dev.xframe.admin.system;
 
-import dev.xframe.admin.view.entity.Navi;
+import dev.xframe.admin.view.structs.Navi;
 import dev.xframe.admin.view.values.VEnum;
 
 import java.util.List;

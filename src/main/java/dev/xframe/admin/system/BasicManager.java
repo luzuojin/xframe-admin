@@ -1,9 +1,9 @@
 package dev.xframe.admin.system;
 
 import dev.xframe.admin.system.auth.UserPrivileges;
-import dev.xframe.admin.view.entity.Chapter;
-import dev.xframe.admin.view.entity.Navi;
-import dev.xframe.admin.view.entity.Catalog;
+import dev.xframe.admin.view.structs.Chapter;
+import dev.xframe.admin.view.structs.Navi;
+import dev.xframe.admin.view.structs.Catalog;
 import dev.xframe.admin.view.values.VEnum;
 import dev.xframe.admin.view.XChapter;
 import dev.xframe.admin.view.XSegment;

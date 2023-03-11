@@ -6,7 +6,7 @@ import dev.xframe.admin.view.EOption;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
-import dev.xframe.admin.view.entity.Variant;
+import dev.xframe.admin.view.structs.Variant;
 import dev.xframe.http.response.FileResponse;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;

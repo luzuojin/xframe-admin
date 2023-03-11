@@ -3,7 +3,7 @@ package dev.xframe.admin.sample.tabpanel;
 import dev.xframe.admin.view.XAdapter;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XSegment;
-import dev.xframe.admin.view.entity.Variant;
+import dev.xframe.admin.view.structs.Variant;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;

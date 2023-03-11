@@ -1,4 +1,4 @@
-package dev.xframe.admin.view.entity;
+package dev.xframe.admin.view.structs;
 
 import java.util.HashMap;
 import java.util.List;

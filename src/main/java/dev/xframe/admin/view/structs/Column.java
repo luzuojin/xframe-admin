@@ -1,4 +1,4 @@
-package dev.xframe.admin.view.entity;
+package dev.xframe.admin.view.structs;
 
 import dev.xframe.admin.view.EColumn;
 import dev.xframe.admin.view.XColumn;

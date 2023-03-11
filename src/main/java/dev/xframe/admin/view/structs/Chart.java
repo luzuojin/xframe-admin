@@ -1,4 +1,4 @@
-package dev.xframe.admin.view.entity;
+package dev.xframe.admin.view.structs;
 
 import dev.xframe.admin.view.EContent;
 import dev.xframe.admin.view.XSegment;

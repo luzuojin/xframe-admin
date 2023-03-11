@@ -1,7 +1,7 @@
 package dev.xframe.admin.sample.markd;
 
 import dev.xframe.admin.system.XRegistrator;
-import dev.xframe.admin.view.entity.Navi;
+import dev.xframe.admin.view.structs.Navi;
 import dev.xframe.admin.view.XChapter;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;
