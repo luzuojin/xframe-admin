@@ -20,10 +20,10 @@ public class Option implements Comparable<Option> {
 
 	static class Parser<T extends Annotation> {
 		private final Option op;
-		private final Class<T> ma;
-		private final Function<T, String> vl;
-		private final boolean mk;
-		private final boolean np;
+		private final Class<T> ma;				//@HttpMethods.Annotation
+		private final Function<T, String> vl;	//@HttpMethods.Annotation.value
+		private final boolean mk;				//@XOption marked required
+		private final boolean np;				//@HttpArgs.Param marked argument none
 		private Parser(Option op, Class<T> ma, Function<T, String> vl, boolean mk, boolean np) {
 			this.op = op;
 			this.ma = ma;
@@ -38,7 +38,7 @@ public class Option implements Comparable<Option> {
 			return !this.np || Arrays.stream(m.getParameters()).noneMatch(p -> p.isAnnotationPresent(Param.class));
 		}
 		private Option make(Method m, Class<?> model) {
-			return op.copy(m.getAnnotation(XOption.class), vl.apply(m.getAnnotation(ma))).with(Content.parseParamColumns(m, model));
+			return op.copy(m.getAnnotation(XOption.class), vl.apply(m.getAnnotation(ma))).with(m).with(Content.parseParamColumns(m, model));
 		}
 		Option apply(Method m, Class<?> model) {
 			return m.isAnnotationPresent(ma) && isOpPredicated(m) && isParamPredicated(m) ? make(m, model) : null;
@@ -57,8 +57,9 @@ public class Option implements Comparable<Option> {
 
 	private String name;
 	private String path;
-	private List<Column> inputs = new ArrayList<>();
+	private List<Column> columns = new ArrayList<>();
 	private int type; //1(增), 2(查)
+	transient Method method;
 	
 	public Option(String name, int type) {
 	    this(name, type, "");
@@ -68,37 +69,31 @@ public class Option implements Comparable<Option> {
 	    this.type = type;
 	    this.path = path;
 	}
-	
+	public void setType(int type) {
+		this.type = type;
+	}
 	public String getName() {
 		return name;
 	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public List<Column> getInputs() {
-		return inputs;
-	}
-	public void setInputs(List<Column> inputs) {
-		this.inputs = inputs;
+	public List<Column> getColumns() {
+		return columns;
 	}
 	public int getType() {
 		return type;
 	}
-	public void setType(int type) {
-		this.type = type;
-	}
 	public String getPath() {
         return path;
-    }
-    public void setPath(String path) {
-        this.path = path;
     }
     public Option copy(XOption op, String path) {
 		String xname = op == null ? null : op.value();
 		return new Option(XStrings.orElse(xname, this.name), type, path);
 	}
+	public Option with(Method method) {
+		this.method = method;
+		return this;
+	}
 	public Option with(List<Column> columns) {
-	    this.inputs = columns;
+	    this.columns = columns;
 	    return this;
 	}
 	@Override

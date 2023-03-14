@@ -34,10 +34,6 @@ var colTypes = {
     //nested...
     _model:80,
     _list: 81,
-    //chart
-    _line: 91,
-    _bar:  92,
-    _pie:  93,
 }
 
 var xShowcase = {//column.show
@@ -231,16 +227,14 @@ class Content extends Node {
     }
     static of(parent, jContent) {
         let d = new (Content.getCls(jContent.type))(parent);
-        d.type = jContent.type;
-        d.desc = jContent.desc;          //panel
-        d.padding = jContent.padding;    //table
-        d.sortable = jContent.sortable;  //table
-        d.variantName = jContent.variantName;
+        Object.assign(d, jContent)
         d.children = d.columns = jContent.columns.map(jColumn=>Column.of(d, jColumn));
         d.options = jContent.options.map(jOption=>Option.of(d, jOption));
         d.variantOption = d.getOption(opTypes.vrt);
+        d.onInit();
         return d;
     }
+    onInit() {}
     setData(data) {
         if(data && data.struct) {//variant
             this.data = data.data;
@@ -249,6 +243,9 @@ class Content extends Node {
             this.data = data;
         }
         return this;
+    }
+    getData(_defaults) {
+        return this.data || _defaults;
     }
     setStruct(struct) {
         let cols = struct.columns.map(jCol=>Column.of(this, jCol));
@@ -267,6 +264,9 @@ class Content extends Node {
     getOptions(opType) {
         return this.options.filter(e=>e.type==opType);
     }
+    getOptionsFunc() {
+        return this.getOptions.bind(this);
+    }
     iniDom(_pdom) {
         _pdom.append(
         `<div id="xcontent" class="card card-outline">
@@ -280,13 +280,14 @@ class Content extends Node {
         </div>`);
     }
     show(_pdom) {
-        this.iniDom(_pdom);
-        let ini = this.getOption(opTypes.ini);
-        if(ini) {
-            ini.doGet({}, _data => this.setData(_data).showContent());
-        } else {
-            this.setData().showContent();
-        }
+        this.ini(_data => {
+            this.iniDom(_pdom);
+            this.setData(_data).showContent()
+        });
+    }
+    ini(_show) {
+       let ini = this.getOption(opTypes.ini);
+       (ini ? ini.doGet({}, _show) : _show());
     }
     showContent() {}
     onDataChanged(op, data) {this.data = data;}
@@ -330,42 +331,55 @@ class TableContent extends Content {
     showContent() {
         $('#xboxhead').empty();
         $('#xboxbody').empty();
-        $('#xboxbody').append(`<table id="xtable" class="table table-bordered table-hover"><thead id="xthead" bgcolor="#f8f9fa"></thead><tbody id="xtbody"></tbody></table>`);
-
+        $('#xboxbody').append(`<table id="xtable" class="table table-bordered table-hover">
+                                <thead id="xthead" bgcolor="#f8f9fa"></thead>
+                                <tbody id="xtbody"></tbody>
+                                </table>`);
         this.showContentHead();
         this.showContentBody();
     }
     showContentHead() {//content.head(query box & add btn)
+        TableContent.showHeadBar($('#xboxhead'), this.getOptionsFunc(), data=>this.setData(data).showContentBody(), this.padding);
+    }
+    static showHeadBar(_pdom, opsFunc, onDataChanged, padding) {
+        _pdom.empty();
+        let anyOption = false;
+        let qryOption;
+        let qryParams = () => qryOption ? qryOption._form.getFormData0() : {};
         let _tr = 0;
-        for(let op of this.getOptions(opTypes.qry)) {   //query box
+        for(let op of opsFunc(opTypes.qry)) {//query box
             let _id = op.pid();
-            (op._form = new OptionForm(op)).showContent($('#xboxhead'));
-            $('#xboxhead').append(`<button id="qrybtn_${_id}_${_tr}" type="button" class="btn btn-info float-left" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
-            xclick($(`#qrybtn_${_id}_${_tr}`), ()=>op.doGet(this.getQueryParams(), resp=>this.setData(resp).showContentBody()));
-            this.qryOp = op;
+            (op._form = new OptionForm(op)).showContent(_pdom);
+            _pdom.append(`<button id="qrybtn_${_id}_${_tr}" type="button" class="btn btn-info float-left" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
+            xclick($(`#qrybtn_${_id}_${_tr}`), ()=>op.doGet(qryParams(), onDataChanged));
             //最后一个查询框时 监听enter
             if(op.children.length > 0) {
                 op.children[op.children.length-1].getFormValDom().keypress(e => {
                     if(e.keyCode==13) $(`#qrybtn_${_id}_${_tr}`).trigger('click');
                 });
             }
+            qryOption = op;
+            anyOption = true;
         }
-        for(let op of this.getOptions(opTypes.dlh)) {
+        for(let op of opsFunc(opTypes.dlh)) {
             let _id = op.pid();
-            $('#xboxhead').append(`<button id="dlbtn_${_id}_${_tr}" type="button" class="btn btn-secondary float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
-            xclick($(`#dlbtn_${_id}_${_tr}`), ()=>op.doDownload(this.getQueryParams()));
+            _pdom.append(`<button id="dlbtn_${_id}_${_tr}" type="button" class="btn btn-secondary float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
+            xclick($(`#dlbtn_${_id}_${_tr}`), ()=>op.doDownload(qryParams()));
+            anyOption = true;
         }
-        for(let op of this.getOptions(opTypes.add)) {   //add... btn
+        for(let op of opsFunc(opTypes.add)) {   //add... btn
             let _id = op.pid();
-            $('#xboxhead').append(`<button id="addbtn_${_id}_${_tr}" type="button" class="btn btn-success float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
-            xclick($(`#addbtn_${_id}_${_tr}`), ()=>op.popup(this.padding?this.getQueryParams():{}));
+            _pdom.append(`<button id="addbtn_${_id}_${_tr}" type="button" class="btn btn-success float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
+            xclick($(`#addbtn_${_id}_${_tr}`), ()=>op.popup(padding?qryParams():{}));
+            anyOption = true;
         }
+        return anyOption;
     }
+
     showContentBody() {//content.table(head&body)
         this.showTableHead0();
         this.showTableBody0();
     }
-    getQueryParams()  {return this.qryOp ? this.qryOp._form.getFormData0() : {};}
     isTableOption(op) {return op.type==opTypes.del||op.type==opTypes.edt||op.type==opTypes.dlr;}
     getTableOptions() {return this.options.filter(this.isTableOption);}
     hasTableOptions() {return this.options.some(this.isTableOption);}
@@ -400,7 +414,7 @@ class TableContent extends Content {
                 }
             }
             //options td
-            if(options && options.length>0) {
+            if(options && options.length > 0) {
                 let _tabletd = $(`<td id='xtd_${_tr}_${++_td}' class='align-middle text-right'></td>`);
                 _tabletr.append(_tabletd);
                 for(let op of options.filter(e=>e.type==opTypes.edt)) {
@@ -424,8 +438,7 @@ class PanelContent extends Content {
     static _ = Content.regist(2, this);
     constructor(parent) {super(parent);}
     showContent() {
-        let data = this.data;
-        if(!data) data = {};
+        let data = this.getData({});
         //empty ex
         $('#xboxhead').empty();
         $('#xboxbody').empty();
@@ -460,7 +473,6 @@ class PanelContent extends Content {
 class MarkdContent extends Content {
     static _ = Content.regist(3, this);
     constructor(parent) {super(parent);}
-
     showContent() {
         let renderer = {
             code(code, infostr, enscaped) {
@@ -490,7 +502,7 @@ class MarkdContent extends Content {
 }
 
 //0,1,2,3
-let ChartTypesArray = ['line', 'line', 'bar', 'pie'];
+let ChartTypesArray = ['table', 'line', 'bar', 'pie'];
 let ChartColors = {
     red: 'rgb(255, 99, 132)',
     orange: 'rgb(255, 159, 64)',
@@ -514,54 +526,84 @@ let ChartColorsArray = [
 class ChartContent extends Content {
     static _ = Content.regist(4, this);
     constructor(parent) {super(parent);}
+    setData(data, type, title) {
+        super.setData(data);
+        if(Number.isInteger(type)) {
+            this.chartType = type;
+            this.chartTitle= title;
+        }
+        return this;
+    }
+    setDomId(pdom) {this.idprefix = pdom.attr('id');}
+    getDomId(name) {return this.idprefix + "_" + name;}
     iniDom(_pdom) {
+        this.setDomId(_pdom);
+        _pdom.append(`
+        <div class="card card-outline">
+            <div id="${this.getDomId('xcharthead')}" class="card-header">
+                <div class="row">
+                    <div id="${this.getDomId('xchartheadbar')}" class="clearfix w-100"></div>
+                </div>
+            </div>
+            <div id="${this.getDomId('xchartbody')}" class="card-body">
+            </div>
+        </div>
+        `);
+        return this;
     }
     showContent() {
-        let data = this.data;
-        if(!data) data = {};
-        //segment
-        $('#xboxhead').empty();//for query
-        $('#xboxbody').empty();//for description
-        //
-        for(let row of data.rows) {
-            let rowHtm = $(`<div class="row"></div>`);
-            $('#xcontainer').append(rowHtm)
-            let md = 12 / row.cols.length;
-            for(let col of row.cols) {
-                let rowCol = $(`<div class="col-md-${md}"></div>`);
-                rowHtm.append(rowCol);
-                let rowCard = $(`<div class="card"></div>`);
-                rowCol.append(rowCard);
-                let canvas = $(`<canvas style="min-height: 240px; max-height: 360px; max-width: 100%;"><canvas/>`);
-                rowCard.append(canvas)
-
-                new Chart(canvas, this.makeChartConfig(col));
-            }
+        this.showContentHead();
+        this.showContentBody();
+    }
+    showContentHead() {
+        if(!TableContent.showHeadBar($(`#${this.getDomId('xchartheadbar')}`), this.getOptionsFunc(), _data=>this.set(Data).showContentBody())) {
+            $(`#${this.getDomId('xcharthead')}`).remove();
         }
     }
-
-    makeChartConfig(col) {
-        let labels = col.datas.map(d=>d.label).filter((v,i,a)=>a.indexOf(v)==i);
-        let group = col.datas.reduce((g, e) => {
-            let {set} = e;
-            g[set] = g[set] ?? [];
-            g[set].push(e);
-            return g;
-        }, {});
-        let type = ChartTypesArray[col.type];
-        let datasets = [];
+    showContentBody() {
+        let  _pdom = $(`#${this.getDomId('xchartbody')}`).empty();
+        let config = this.makeConfig({
+            type :this.chartType,
+            title:this.chartTitle,
+            datas:this.getData([])
+        });
+        if(config.type == ChartTypesArray[0]) {
+            this.showTableBody(_pdom, config);
+        } else {
+            this.showChartBody(_pdom, config);
+        }
+    }
+    showChartBody(_pdom, config) {
+        let canvas = $(`<canvas id="${this.getDomId('xcanvas')}" class="w-100"><canvas/>`)
+        _pdom.append(canvas);
+        new Chart(canvas, config);
+    }
+    showTableBody(_pdom, config) {
+        let table = $(`<table id="${this.getDomId('xtable')}" class="table table-bordered table-hover"></table>`);
+        let thead = $(`<thead bgcolor="#f8f9fa"></thead>`);
+        let tbody = $(`<tbody></tbody>`);
+        [{label:'', data:config.data.labels}].concat(config.data.datasets).forEach(_dataset => {
+            let tr = $(`<tr></tr>`);
+            [_dataset.label].concat(_dataset.data).forEach(_data => tr.append(_dataset.label ? `<td>${_data}</td>` : `<th>${_data}</th>`));
+            (_dataset.label ? tbody : thead).append(tr);
+        });
+        _pdom.append(table.append(thead).append(tbody));
+    }
+    makeConfig(_vchart) {
+        let type = ChartTypesArray[_vchart.type];
+        let labels= new Grouped('label', _vchart.datas).keys;
+        let groups= new Grouped('set', _vchart.datas);
         let index = -1;
-        for(let k in group) {
+        let datasets = [];
+        groups.forEach((k, vs) => {
             let idColor = ChartColorsArray[++index];
-            let bdColor = type == 'pie' ? 'rgb(255, 255, 255, 0.3)' : idColor;
-            let bgColor = type == 'pie' ? ChartColorsArray : idColor;
             datasets.push({
                 label: k,
-                data: group[k].map(v=>v.value),
-                borderColor: bdColor,
-                backgroundColor: bgColor,
+                data : vs.map(v=>v.value),
+                borderColor:     type == 'pie' ? 'rgb(255, 255, 255, 0.3)' : idColor,
+                backgroundColor: type == 'pie' ? ChartColorsArray : idColor,
             })
-        }
+        });
         return {
             type: type,
             data: {
@@ -576,8 +618,8 @@ class ChartContent extends Content {
                         position: 'bottom',
                     },
                     title: {
-                        display: true,
-                        text: xOrElse(col.title, '')
+                        display: !!_vchart.title,
+                        text: xOrElse(_vchart.title, '')
                     }
                 }
             }
@@ -589,8 +631,51 @@ class ChartContent extends Content {
 class CellsContent extends Content {
     static _ = Content.regist(5, this);
     constructor(parent) {super(parent);}
+    iniDom(_pdom) {
+    }
+    onInit() {
+        this.rowsCells = new Grouped('row', this.cells);
+        this.pathCells = new Grouped('path', this.cells);
+        this.rowsCells.forEach((_, cs) => {
+            let rowColW = 12;
+            let rowColN = 0;
+            cs.forEach(c => {
+                rowColW -= c.col;
+                rowColN += c.col > 0 ? 0 : 1
+            });
+            if(rowColN > 0) {
+                let cw = rowColW / rowColN || 2;
+                cs.forEach(c => c.col = c.col || cw);
+            }
+        });
+    }
+    ini(_show) {
+        let _data = {};
+        for(let _path of this.pathCells.keys) {
+            let _op = this.options.filter(e=>e.path==_path)[0];
+            _op.syncGet({}, resp=>_data[_path]=resp);
+        }
+        _show(_data);
+    }
+    getCellData(cell) {
+        let e = this.data[cell.path]
+        let d = this.pathCells.val(cell.path).length > 1 ? e[cell.pIndex] : e;
+        return d;
+    }
     showContent() {
-
+        this.rowsCells.forEach((_, rowCells) => {
+            let row = $(`<div class="row"></div>`);
+            $('#xcontainer').append(row);
+            for(let cc of rowCells) {
+                let col = $(`<div id="cell_${cc.path}_${cc.row}_${cc.pIndex}" class="col-md-${cc.col}"></div>`)
+                row.append(col);
+                Content.of(this, {
+                    type: 4,
+                    options: [],
+                    columns: []
+                }).iniDom(col).setData(this.getCellData(cc), cc.type, cc.title).showContent();
+            }
+        });
     }
 }
 
@@ -664,8 +749,9 @@ class Option extends Node {
         let c = new Option(parent);
         Object.assign(c, jOption);
         c.parent = parent;
-        if(jOption.inputs) {
-            c.children = jOption.inputs.map(jCol => (opTypes.qry==jOption.type) ? QueryColumn.of(Column.of(c, jCol)) : Column.of(c, jCol));//复制成Option独有
+        delete c.columns
+        if(jOption.columns) {
+            c.children = jOption.columns.map(jCol => (opTypes.qry==jOption.type) ? QueryColumn.of(Column.of(c, jCol)) : Column.of(c, jCol));//复制成Option独有
         }
         return c;
     }
@@ -709,6 +795,9 @@ class Option extends Node {
     }
     doGet(data, func) {
         doGet(`${this.uri()}?${$.param(data)}`, func);
+    }
+    syncGet(data, func) {
+        syncGet(`${this.uri()}?${$.param(data)}`, func);
     }
     doDownload(data) {
         doDownload(`${xHref(this.uri(), Column.packVals(xOrElse(this.children, []), col=>data[col.key]))}`);
@@ -1172,6 +1261,7 @@ class OptionForm {
     showContent(_parent) {
         let _pdom = this._pdom = xOrElse(_parent, this._pdom);
         _pdom.empty();
+        console.log(this.option);
         this.option.columns().forEach(col=>{
             col.addToForm(_pdom, xOrGet(this.data, col.key));
         });
@@ -1191,4 +1281,21 @@ class OptionForm {
             this.option.onDataChanged((this.data = resp));//change data
         });
     }
+}
+
+/*-----------------------------*/
+/*-------------Utils------------*/
+/*-----------------------------*/
+class Grouped {
+    keys = [];
+    vals = {};
+    constructor(fkey, vset) {this.fkey = fkey;(vset||[]).forEach(v=>this.add(v));}
+    add(val) {
+        let key = val[this.fkey];
+        this.keys.includes(key) || this.keys.push(key);
+        this.vals[key] = this.vals[key] || []
+        this.vals[key].push(val);
+    }
+    val(key) {return this.vals[key];}
+    forEach(func) {this.keys.forEach(k=>func(k, this.vals[k]))};
 }

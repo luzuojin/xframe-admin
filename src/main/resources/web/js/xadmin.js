@@ -11,15 +11,16 @@ function xenum(key) {
     if(key in xenumCache) {
         return xenumCache[key];
     } else {
-        let xenumData = $.parseJSON($.ajax({
-            type: "GET",
-            url: `${xurl}/${xpaths.xenum}?key=${key}`,
-            headers: {"X-Token": xtoken()},
-            cache: false,
-            async: false
-        }).responseText).data;
-        xenumCache[key] = xenumData;
-        return xenumData;//multi,key
+//        let xenumData = $.parseJSON($.ajax({
+//            type: "GET",
+//            url: `${xurl}/${xpaths.xenum}?key=${key}`,
+//            headers: {"X-Token": xtoken()},
+//            cache: false,
+//            async: false
+//        }).responseText).data;
+//        xenumCache[key] = xenumData;
+        syncGet(`${xpaths.xenum}?key=${key}`, data=>xenumCache[key]=data);
+        return xenumCache[key];//multi,key
     }
 }
 function xenumText(key, id) {
@@ -79,6 +80,15 @@ function doGet0(path, func) {
         success: func
     });
 }
+function syncGet(path, func) {
+    doResp0($.parseJSON($.ajax({
+        type: "GET",
+        url: `${xurl}/${path}`,
+        headers: {"X-Token": xtoken()},
+        cache: false,
+        async: false
+    }).responseText), func);
+}
 
 var xlatestOp;
 var httpTypes = ['_', 'get', 'post', 'put', 'delete']
@@ -100,20 +110,24 @@ function doPost0(path, op, data, func, _headers={}) {
 function doResp(func) {
     return function(resp, textStatus, xhr) {
         clrEnumCaches(xhr);
-        if(resp.status == -1) {
-            xtoast.error(xOrElse(resp.text, `${xOrEmpty(xlatestOp, 'name')} 失败`));
-        } else if(resp.status == -2) { //提示
-            xtoast.info(resp.text)
-            func(resp.data);
-        } else if(xlatestOp && xlatestOp.name) {
-            xtoast.succ(`${xlatestOp.name} 成功`);
-            func(resp.data);
-        } else {
-            func(resp.data);
-        }
+        doResp0(resp, func);
         xlatestOp = undefined;
     }
 }
+function doResp0(resp, func) {
+    if(resp.status == -1) {
+        xtoast.error(xOrElse(resp.text, `${xOrEmpty(xlatestOp, 'name')} 失败`));
+    } else if(resp.status == -2) { //提示
+        xtoast.info(resp.text)
+        func(resp.data);
+    } else if(xlatestOp && xlatestOp.name) {
+        xtoast.succ(`${xlatestOp.name} 成功`);
+        func(resp.data);
+    } else {
+        func(resp.data);
+    }
+}
+
 function clrEnumCaches(xhr) {
     if(xhr) {
         let clrEnumKeys = xhr.getResponseHeader("ClrEnumKeys");

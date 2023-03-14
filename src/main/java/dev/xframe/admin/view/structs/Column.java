@@ -119,85 +119,37 @@ public class Column {
     public int getShow() {
         return show;
     }
-    public Column setShow(int show) {
-        this.show = show;
-        return this;
-    }
     public int getType() {
         return type;
-    }
-    public Column setType(int type) {
-        this.type = type;
-        return this;
     }
     public String getKey() {
         return key;
     }
-    public Column setKey(String key) {
-        this.key = key;
-        return this;
-    }
     public String getHint() {
         return hint;
-    }
-    public Column setHint(String hint) {
-        this.hint = hint;
-        return this;
     }
     public String getEnumKey() {
         return enumKey;
     }
-    public Column setEnumKey(String enumKey) {
-        this.enumKey = enumKey;
-        return this;
-    }
     public boolean getPrimary() {
         return primary;
-    }
-    public Column setPrimary(boolean primary) {
-        this.primary = primary;
-        return this;
     }
     public boolean getCollapse() {
         return collapse;
     }
-    public Column setCollapse(boolean collapse) {
-        this.collapse = collapse;
-        return this;
-    }
     public boolean getRequired() {
         return required;
-    }
-    public Column setRequired(boolean required) {
-        this.required = required;
-        return this;
     }
     public boolean getCompact() {
         return compact;
     }
-    public Column setCompact(boolean compact) {
-        this.compact = compact;
-        return this;
-    }
     public boolean getSortable() {
         return sortable;
-    }
-    public Column setSortable(boolean sortable) {
-        this.sortable = sortable;
-        return this;
     }
     public boolean getCacheable() {
         return cacheable;
     }
-    public Column setCacheable(boolean cacheable) {
-        this.cacheable = cacheable;
-        return this;
-    }
     public String getCacheKey() {
         return cacheKey;
-    }
-    public Column setCacheKey(String cacheKey) {
-        this.cacheKey = cacheKey;
-        return this;
     }
 }

@@ -51,7 +51,7 @@ public abstract class Classic implements Content {
     
 	protected void checkIniOption() {
 		if(options.stream().filter(opt->opt.getType()== EOption.Ini).count() > 1) {
-			throw new IllegalArgumentException("Content can only exist on ini option(@HttpMethods.GET&empty(args)");
+			throw new IllegalArgumentException("Content can only exist one ini option(@HttpMethods.GET&empty(args)");
 		}
 	}
 	
