@@ -331,10 +331,12 @@ class TableContent extends Content {
     showContent() {
         $('#xboxhead').empty();
         $('#xboxbody').empty();
-        $('#xboxbody').append(`<table id="xtable" class="table table-bordered table-hover">
-                                <thead id="xthead" bgcolor="#f8f9fa"></thead>
-                                <tbody id="xtbody"></tbody>
-                                </table>`);
+        $('#xboxbody').append(`<div class="table-responsive">
+                                <table id="xtable" class="table table-bordered table-hover">
+                                    <thead id="xthead" bgcolor="#f8f9fa"></thead>
+                                    <tbody id="xtbody"></tbody>
+                                </table>
+                                </div>`);
         this.showContentHead();
         this.showContentBody();
     }
@@ -579,6 +581,7 @@ class ChartContent extends Content {
         new Chart(canvas, config);
     }
     showTableBody(_pdom, config) {
+        let tabox = $(`<div class="table-responsive"></div>`);
         let table = $(`<table id="${this.getDomId('xtable')}" class="table table-bordered table-hover"></table>`);
         let thead = $(`<thead bgcolor="#f8f9fa"></thead>`);
         let tbody = $(`<tbody></tbody>`);
@@ -587,7 +590,7 @@ class ChartContent extends Content {
             [_dataset.label].concat(_dataset.data).forEach(_data => tr.append(_dataset.label ? `<td>${_data}</td>` : `<th>${_data}</th>`));
             (_dataset.label ? tbody : thead).append(tr);
         });
-        _pdom.append(table.append(thead).append(tbody));
+        _pdom.append(tabox.append(table.append(thead).append(tbody)));
     }
     makeConfig(_vchart) {
         let type = ChartTypesArray[_vchart.type];
