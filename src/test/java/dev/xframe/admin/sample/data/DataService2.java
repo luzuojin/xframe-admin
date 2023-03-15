@@ -3,15 +3,20 @@ package dev.xframe.admin.sample.data;
 
 import dev.xframe.admin.view.EChart;
 import dev.xframe.admin.view.EContent;
+import dev.xframe.admin.view.EOption;
 import dev.xframe.admin.view.XCell;
+import dev.xframe.admin.view.XOption;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.admin.view.values.VChart;
+import dev.xframe.http.response.ContentType;
+import dev.xframe.http.response.FileResponse;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
 import dev.xframe.utils.XReflection;
 import dev.xframe.utils.XStrings;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Random;
@@ -66,6 +71,13 @@ public class DataService2 {
                 VChart.of(other.toString(), "Summer", r.nextInt(100)),
                 VChart.of(other.toString(), "Autumn", r.nextInt(100)),
                 VChart.of(other.toString(), "Winter", r.nextInt(100)));
+    }
+
+    @HttpMethods.GET("c/dl")
+    @XOption(type=EOption.Dlr)
+    public Object download(@HttpArgs.Param LocalDate date) {
+        if(date == null) date = LocalDate.now();
+        return new FileResponse.Binary(ContentType.FILE, date.toString().getBytes(StandardCharsets.UTF_8)).setFileName("dl.txt");
     }
 
     @XCell(row = 3, type = EChart.Pie, col = 4)

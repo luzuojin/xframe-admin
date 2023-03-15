@@ -16,3 +16,21 @@
 .sort-desc .desc-icon{
     color: #2d8cf0!important;
 }
+
+.btn-dl:hover, .btn-dl:focus {
+    color: #fff;
+    background-color: #20c997;
+}
+.btn-dl {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.65rem;
+    z-index: 10;
+    display: block;
+    padding: 0.25rem 0.5rem;
+    font-size: .75em;
+    color: #6c757d;
+    background-color: #fff;
+    border: 1px solid;
+    border-radius: 0.25rem;
+}

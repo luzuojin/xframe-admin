@@ -674,6 +674,7 @@ class CellsContent extends Content {
         _show(this.qryData({}));
     }
     qryData(_params) {
+        this.qryParams = _params;
         let _data = {};
         for(let _path of this.pathCells.keys) {
             let _op = this.options.filter(e=>e.path==_path)[0];
@@ -685,6 +686,10 @@ class CellsContent extends Content {
         let e = this.data[cell.path]
         let d = this.pathCells.val(cell.path).length > 1 ? e[cell.pIndex] : e;
         return d;
+    }
+    getCellDownload(cell) {
+        let rs = this.options.filter(e=>e.type==opTypes.dlr&&e.path.startsWith(cell.path + '/'));
+        return rs && rs[0];
     }
     showContent() {
         this.showContentHead();
@@ -708,6 +713,13 @@ class CellsContent extends Content {
                     options: [],
                     columns: []
                 }).iniDom(col).setData(this.getCellData(cc), cc.type, cc.title).showContent();
+                //download button
+                let dlOption = this.getCellDownload(cc);
+                if(dlOption) {
+                    let dlbtn = $(`<button id="cell_${cc.path}_${cc.row}_${cc.pIndex}_dl" type="button" class="btn-dl" title="" data-bs-original-title="dowload">Dowload</button>`);
+                    col.children(":first").append(dlbtn);
+                    xclick(dlbtn, ()=>dlOption.doDownload(this.qryParams));
+                }
             }
         });
     }
