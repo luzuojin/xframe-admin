@@ -151,14 +151,8 @@ public class HttpClient {
     }
 
     private static String readRespContent(HttpURLConnection conn, Charset charset) throws IOException {
-        InputStream input = null;
-        try {
-            input = conn.getInputStream();
+        try (InputStream input = conn.getInputStream()) {
             return new String(readFrom(input), charset);
-        } finally {
-            if(input != null) {
-                input.close();
-            }
         }
     }
     
@@ -172,14 +166,8 @@ public class HttpClient {
     }
     
     private static String readRespMessage(HttpURLConnection conn, Charset charset) throws IOException {
-        InputStream input = null;
-        try {
-            input = conn.getErrorStream();
+        try (InputStream input = conn.getErrorStream()) {
             return new String(readFrom(input), charset);
-        } finally {
-            if(input != null) {
-                input.close();
-            }
         }
     }
 

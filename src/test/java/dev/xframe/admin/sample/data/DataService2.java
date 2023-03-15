@@ -8,6 +8,8 @@ import dev.xframe.admin.view.XSegment;
 import dev.xframe.admin.view.values.VChart;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpMethods;
+import dev.xframe.utils.XReflection;
+import dev.xframe.utils.XStrings;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -17,7 +19,7 @@ import java.util.Random;
 public class DataService2 {
     Random r = new Random();
 
-    @XCell(row = 1, col = 6)
+    @XCell(row = 1, col = 4)
     @HttpMethods.GET("a")
     public Object a() {
         return Arrays.asList(
@@ -31,9 +33,15 @@ public class DataService2 {
                 VChart.of("setTwo", "Winter", r.nextInt(100)));
     }
 
-    @XCell(row = 1, col = 6, title = "DAU...")
+    @XCell(row = 1, col = 4, type = EChart.Markd)
     @HttpMethods.GET("b")
     public Object b() {
+        return XStrings.readFrom(XReflection.getResourceAsStream("sysops.md"));
+    }
+
+    @XCell(row = 1, col = 4, title = "DAU...", type = EChart.Bar)
+    @HttpMethods.GET("f")
+    public Object f() {
         return Arrays.asList(
                 VChart.of("Spring", r.nextInt(100)),
                 VChart.of("Summer", r.nextInt(100)),
@@ -55,8 +63,8 @@ public class DataService2 {
                 VChart.of("AnWinter", r.nextInt(100)));
     }
 
-    @XCell(row = 3, type = EChart.Pie)
-    @XCell(row = 3, type = EChart.Bar)
+    @XCell(row = 3, type = EChart.Pie, col = 4)
+    @XCell(row = 3, type = EChart.Line)
     @HttpMethods.GET("m")
     public Object multi() {
        return Arrays.asList(Arrays.asList(

@@ -11,7 +11,7 @@ public class JsonHelper {
     private static final JsonBridge bridge;
     static {
         try {
-            String clzName = XProperties.get(JsonBridge.class.getName());
+            String clzName = XProperties.get("xframe.admin.jsonbridge");
             Class<?> clazz = clzName != null ? Class.forName(clzName) : FastJsonBridge.class;
             bridge = XReflection.newInstance(clazz);
         } catch (ClassNotFoundException e) {

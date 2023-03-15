@@ -9,7 +9,14 @@ var opTypes = {
     dlh: 6,
     dlr: 7
 }
-
+//content types
+var cttTypes = {
+    _table: 1,
+    _panel: 2,
+    _markd: 3,
+    _chart: 4,
+    _cells: 5,
+}
 //column types
 var colTypes = {
     //text...
@@ -35,8 +42,8 @@ var colTypes = {
     _model:80,
     _list: 81,
 }
-
-var xShowcase = {//column.show
+//column.show
+var xShowcase = {
     list: function(c){return (c.show & 1) > 0;},
     edit: function(c){return (c.show & 2) > 0 && !c.primary;},
     add : function(c){return (c.show & 4) > 0;},
@@ -278,6 +285,7 @@ class Content extends Node {
            <div id="xboxbody" class="card-body">
            </div>
         </div>`);
+        return this;
     }
     show(_pdom) {
         this.ini(_data => {
@@ -298,7 +306,7 @@ class Content extends Node {
 /*-----------contents-----------*/
 /*-----------------------------*/
 class TableContent extends Content {
-    static _ = Content.regist(1, this);
+    static _ = Content.regist(cttTypes._table, this);
     sorting = new Sorting(this);
     constructor(parent) {
         super(parent);
@@ -437,7 +445,7 @@ class TableContent extends Content {
 }
 
 class PanelContent extends Content {
-    static _ = Content.regist(2, this);
+    static _ = Content.regist(cttTypes._panel, this);
     constructor(parent) {super(parent);}
     showContent() {
         let data = this.getData({});
@@ -473,7 +481,7 @@ class PanelContent extends Content {
 }
 
 class MarkdContent extends Content {
-    static _ = Content.regist(3, this);
+    static _ = Content.regist(cttTypes._markd, this);
     constructor(parent) {super(parent);}
     showContent() {
         let renderer = {
@@ -526,7 +534,7 @@ let ChartColorsArray = [
 
 /*多维数据集合展示(m*n table|chart)*/
 class ChartContent extends Content {
-    static _ = Content.regist(4, this);
+    static _ = Content.regist(cttTypes._chart, this);
     constructor(parent) {super(parent);}
     setData(data, type, title) {
         super.setData(data);
@@ -632,7 +640,7 @@ class ChartContent extends Content {
 
 //只用于ChartContent组合
 class CellsContent extends Content {
-    static _ = Content.regist(5, this);
+    static _ = Content.regist(cttTypes._cells, this);
     constructor(parent) {super(parent);}
     iniDom(_pdom) {
     }
@@ -673,7 +681,7 @@ class CellsContent extends Content {
                 let col = $(`<div id="cell_${cc.path}_${cc.row}_${cc.pIndex}" class="col-md-${cc.col}"></div>`)
                 row.append(col);
                 Content.of(this, {
-                    type: 4,
+                    type: cc.type == -1 ? cttTypes._markd : cttTypes._chart,
                     options: [],
                     columns: []
                 }).iniDom(col).setData(this.getCellData(cc), cc.type, cc.title).showContent();
