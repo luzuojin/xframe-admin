@@ -11,8 +11,8 @@ import dev.xframe.http.service.rest.HttpMethods;
 import java.util.Arrays;
 import java.util.Random;
 
-@Rest("chart/chart1")
-@XSegment(name = "图表测试1", type = EContent.Chart, desc = "DAU...", chart = EChart.Table)
+@Rest("chart/tabs1/chart1")
+@XSegment(name = "单图Content", type = EContent.Chart, desc = "DAU...", chart = EChart.Table)
 public class DataService {
 
     @HttpMethods.GET

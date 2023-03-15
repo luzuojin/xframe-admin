@@ -1,5 +1,7 @@
 package dev.xframe.admin.view.structs;
 
+import java.util.Objects;
+
 public class Navi implements Comparable<Navi> {
 
 	protected String name;
@@ -26,6 +28,19 @@ public class Navi implements Comparable<Navi> {
 	}
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Navi navi = (Navi) o;
+		return Objects.equals(path, navi.path);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(path);
 	}
 
 	@Override

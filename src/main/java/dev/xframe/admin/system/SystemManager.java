@@ -6,7 +6,7 @@ import dev.xframe.admin.system.privilege.Privilege;
 import dev.xframe.admin.system.role.Role;
 import dev.xframe.admin.system.user.User;
 import dev.xframe.admin.view.structs.Navi;
-import dev.xframe.admin.view.structs.Symbol;
+import dev.xframe.admin.view.structs.Wrapper;
 import dev.xframe.admin.view.values.VEnum;
 import dev.xframe.admin.view.values.VTree;
 import dev.xframe.inject.Bean;
@@ -42,7 +42,7 @@ public class SystemManager implements Loadable {
             VTree ptree = new VTree(c.getPath(), c.getName());
             privileges.add(new Privilege(c.getName(), c.getPath()));
             for (Navi navi : c.getNavis()) {
-                if(!(navi instanceof Symbol)) {
+                if(!(navi instanceof Wrapper)) {
                     privileges.add(new Privilege("・"+navi.getName(), c.getPath() + "/" + navi.getPath()));
                     ptree.child(new VTree(c.getPath() + "/" + navi.getPath(), navi.getName()));
                 }

@@ -73,9 +73,9 @@ public class Catalog {
 					throw new IllegalStateException( String.format("Chapter[%s] of Segment[%s] not found", paths[0], xseg));
 				}
 				if(paths.length == 3) {//三级菜单
-					parent = (Navigate) Symbol.unwrap(parent.findOrAdd(paths[1], Symbol.wrap(parent.path, new Navigate(paths[1]))));
+					parent = (Navigate) Wrapper.unwrap(parent.findOrAdd(paths[1], Wrapper.wrap(parent.path, new Navigate(paths[1]))));
 				}
-				parent.getNavis().add(Symbol.wrap(parent.path, new Segment(paths[paths.length-1], xseg, parseContent(xseg, clazz))));
+				parent.getNavis().add(Wrapper.wrap(parent.path, new Segment(paths[paths.length-1], xseg, parseContent(xseg, clazz))));
             }
         }
         this.setChapters(chapters.values().stream().peek(c->Collections.sort(c.getNavis())).sorted().collect(Collectors.toList()));

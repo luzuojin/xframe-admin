@@ -1261,7 +1261,6 @@ class OptionForm {
     showContent(_parent) {
         let _pdom = this._pdom = xOrElse(_parent, this._pdom);
         _pdom.empty();
-        console.log(this.option);
         this.option.columns().forEach(col=>{
             col.addToForm(_pdom, xOrGet(this.data, col.key));
         });

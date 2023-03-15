@@ -12,8 +12,8 @@ import dev.xframe.http.service.rest.HttpMethods;
 import java.util.Arrays;
 import java.util.Random;
 
-@Rest("chart/chart2")
-@XSegment(name = "图表测试2", type = EContent.Cells)
+@Rest("chart/tabs2/chart2")
+@XSegment(name = "多图组合", type = EContent.Cells)
 public class DataService2 {
     Random r = new Random();
 
