@@ -7,10 +7,12 @@ import dev.xframe.admin.view.XCell;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.admin.view.values.VChart;
 import dev.xframe.http.service.Rest;
+import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
 import dev.xframe.utils.XReflection;
 import dev.xframe.utils.XStrings;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -51,16 +53,19 @@ public class DataService2 {
 
     @XCell(row = 2, type = EChart.Table)
     @HttpMethods.GET("c")
-    public Object c() {
+    public Object c(@HttpArgs.Param LocalDate date) {
+        if(date == null) date = LocalDate.now();
+        LocalDate other = date.plusDays(1);
+        Random r = new Random();
         return Arrays.asList(
-                VChart.of("ThSpring", r.nextInt(100)),
-                VChart.of("ThSummer", r.nextInt(100)),
-                VChart.of("ThAutumn", r.nextInt(100)),
-                VChart.of("ThWinter", r.nextInt(100)),
-                VChart.of("AnSpring", r.nextInt(100)),
-                VChart.of("AnSummer", r.nextInt(100)),
-                VChart.of("AnAutumn", r.nextInt(100)),
-                VChart.of("AnWinter", r.nextInt(100)));
+                VChart.of(date.toString(), "Spring", r.nextInt(100)),
+                VChart.of(date.toString(), "Summer", r.nextInt(100)),
+                VChart.of(date.toString(), "Autumn", r.nextInt(100)),
+                VChart.of(date.toString(), "Winter", r.nextInt(100)),
+                VChart.of(other.toString(), "Spring", r.nextInt(100)),
+                VChart.of(other.toString(), "Summer", r.nextInt(100)),
+                VChart.of(other.toString(), "Autumn", r.nextInt(100)),
+                VChart.of(other.toString(), "Winter", r.nextInt(100)));
     }
 
     @XCell(row = 3, type = EChart.Pie, col = 4)

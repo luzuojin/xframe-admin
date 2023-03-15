@@ -566,7 +566,7 @@ class ChartContent extends Content {
         this.showContentBody();
     }
     showContentHead() {
-        if(!TableContent.showHeadBar($(`#${this.getDomId('xchartheadbar')}`), this.getOptionsFunc(), _data=>this.set(Data).showContentBody())) {
+        if(!TableContent.showHeadBar($(`#${this.getDomId('xchartheadbar')}`), this.getOptionsFunc(), _data=>this.setData(_data).showContentBody())) {
             $(`#${this.getDomId('xcharthead')}`).remove();
         }
     }
@@ -643,6 +643,13 @@ class CellsContent extends Content {
     static _ = Content.regist(cttTypes._cells, this);
     constructor(parent) {super(parent);}
     iniDom(_pdom) {
+        _pdom.append(`
+            <div id="xcontenthead" class="card">
+                <div id="xquerybox" class="card-header"></div>
+            </div>
+            <div id="xcontentbody" class="w-100">
+            </div>
+        `);
     }
     onInit() {
         this.rowsCells = new Grouped('row', this.cells);
@@ -659,14 +666,20 @@ class CellsContent extends Content {
                 cs.forEach(c => c.col = c.col || cw);
             }
         });
+        this.options.filter(op=>op.type==opTypes.qry).forEach(op => {
+            op.doGet = (_params, onDataChanged) => onDataChanged(this.qryData(_params));
+        });
     }
     ini(_show) {
+        _show(this.qryData({}));
+    }
+    qryData(_params) {
         let _data = {};
         for(let _path of this.pathCells.keys) {
             let _op = this.options.filter(e=>e.path==_path)[0];
-            _op.syncGet({}, resp=>_data[_path]=resp);
+            _op.syncGet(_params, resp=>_data[_path]=resp);
         }
-        _show(_data);
+        return _data;
     }
     getCellData(cell) {
         let e = this.data[cell.path]
@@ -674,9 +687,19 @@ class CellsContent extends Content {
         return d;
     }
     showContent() {
+        this.showContentHead();
+        this.showContentBody();
+    }
+    showContentHead() {
+        if(!TableContent.showHeadBar($('#xquerybox'), this.getOptionsFunc(), _data=>this.setData(_data).showContentBody())) {
+           $('#xcontenthead').remove();
+        }
+    }
+    showContentBody() {
+        $('#xcontentbody').empty();
         this.rowsCells.forEach((_, rowCells) => {
             let row = $(`<div class="row"></div>`);
-            $('#xcontainer').append(row);
+            $('#xcontentbody').append(row);
             for(let cc of rowCells) {
                 let col = $(`<div id="cell_${cc.path}_${cc.row}_${cc.pIndex}" class="col-md-${cc.col}"></div>`)
                 row.append(col);
