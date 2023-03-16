@@ -184,7 +184,7 @@ class Tab extends Segment {
     }
     showTabNavis(_pdom) {
         _pdom.append(`
-            <div id="xtabs" class="card card-primary card-outline card-outline-tabs">
+            <div id="xtabs" class="card card-primary card-outline card-outline-tabs bg-light">
                 <div class="card-header p-0 border-bottom-0">
                     <ul id="xtabNavis" class="nav nav-tabs" role="tablist"></ul>
                 </div>
