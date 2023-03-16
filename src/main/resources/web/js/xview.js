@@ -109,7 +109,7 @@ class Chapter extends Navi {
     show() {
         let htm = `<li class="nav-item has-treeview">
                     <a id="vchapter_${this.pid()}_link" class="nav-link" href="javascript:void(0);">
-                      <i class="nav-icon fab fa-gg"/>
+                      <i class="nav-icon fas fa-layer-group"/>
                       <p>
                         ${this.name}
                         <i class="right fas fa-angle-left"/>
@@ -145,7 +145,7 @@ class Segment extends Navi {
         let htm =`
                 <li class="nav-item">
                     <a id="vseg_${this.pid()}" class="nav-link" href="javascript:void(0);">
-                      <i class="fas fa-paperclip"/>
+                      <i class="far fa-circle"/>
                       <p>${this.name}</p>
                     </a>
                 </li>`;
@@ -706,7 +706,7 @@ class CellsContent extends Content {
             let row = $(`<div class="row"></div>`);
             $('#xcontentbody').append(row);
             for(let cc of rowCells) {
-                let col = $(`<div id="cell_${cc.path}_${cc.row}_${cc.pIndex}" class="col-md-${cc.col}"></div>`)
+                let col = $(`<div id="xcell_${cc.path}_${cc.row}_${cc.pIndex}" class="col-md-${cc.col}"></div>`)
                 row.append(col);
                 Content.of(this, {
                     type: cc.type == -1 ? cttTypes._markd : cttTypes._chart,
@@ -716,7 +716,7 @@ class CellsContent extends Content {
                 //download button
                 let dlOption = this.getCellDownload(cc);
                 if(dlOption) {
-                    let dlbtn = $(`<button id="cell_${cc.path}_${cc.row}_${cc.pIndex}_dl" type="button" class="btn-dl" title="" data-bs-original-title="dowload">Dowload</button>`);
+                    let dlbtn = $(`<button id="xcell_${cc.path}_${cc.row}_${cc.pIndex}_dl" type="button" class="btn-dl" title="" data-bs-original-title="Dowload">${dlOption.name}</button>`);
                     col.children(":first").append(dlbtn);
                     xclick(dlbtn, ()=>dlOption.doDownload(this.qryParams));
                 }
