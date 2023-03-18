@@ -264,7 +264,7 @@ function isLocalAutoLogin() {
     return isLocalUrl() && location.hash != reloginHash;
 }
 
-const _inputs = [
+const _columns = [
     {key:"name",hint:"用户名",type:colTypes._text,show:13},
     {key:"passw",hint:"密码",type:colTypes._pass,show:15}
 ];
@@ -281,7 +281,7 @@ function showUser(user, _isAutoLogin) {
         Option.of(_navi, {
             name: "登出",
             type: opTypes.del,
-            inputs: _inputs
+            columns: _columns
         }).doPost({name: xuser.name, passw: ''}, ()=>{
             if(_isAutoLogin)
                 location.hash = reloginHash;
@@ -292,7 +292,7 @@ function showUser(user, _isAutoLogin) {
         let op = Option.of(_navi, {
             name: "修改密码",
             type: opTypes.edt,
-            inputs: _inputs
+            columns: _columns
         });
         op.popup({name: xuser.name, passw: ''});
     });
@@ -302,7 +302,7 @@ function doLogin() {
     let op = Option.of(_navi, {
         name: "登录",
         type: opTypes.add,
-        inputs: _inputs
+        columns: _columns
     });
     let _isAutoLogin = false;
     let cb = op.onDataChanged = data=>{
