@@ -275,7 +275,7 @@ class Content extends Node {
         return this.getOptions.bind(this);
     }
     iniDom(_pdom) {
-        _pdom.append(
+        this.xc = new XContainer(_pdom).append(
         `<div id="xcontent" class="card card-outline">
             <div class="card-header">
                 <div class="row">
@@ -313,7 +313,7 @@ class TableContent extends Content {
     }
     //change cached data(s)
     onDataChanged(op, data) {
-        if(op.type == opTypes.qry || Array.isArray(data) || (data.data && Array.isArray(data.data))) {
+        if(op.type == opTypes.qry || Array.isArray(data) || (data && data.data && Array.isArray(data.data))) {
             this.setData(data);
         } else if(data){
             let _datas = this.sorting.originalData();
@@ -358,29 +358,26 @@ class TableContent extends Content {
         let qryParams = () => qryOption ? qryOption._form.getFormData0() : {};
         let _tr = 0;
         for(let op of opsFunc(opTypes.qry)) {//query box
-            let _id = op.pid();
             (op._form = new OptionForm(op)).showContent(_pdom);
-            _pdom.append(`<button id="qrybtn_${_id}_${_tr}" type="button" class="btn btn-info float-left" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
-            xclick($(`#qrybtn_${_id}_${_tr}`), ()=>op.doGet(qryParams(), onDataChanged));
+            let qrybtn = $(`<button type="button" class="btn btn-info float-left" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`).appendTo(_pdom);
+            xclick(qrybtn, ()=>op.doGet(qryParams(), onDataChanged));
             //最后一个查询框时 监听enter
             if(op.children.length > 0) {
                 op.children[op.children.length-1].getFormValDom().keypress(e => {
-                    if(e.keyCode==13) $(`#qrybtn_${_id}_${_tr}`).trigger('click');
+                    if(e.keyCode==13) qrybtn.trigger('click');
                 });
             }
             qryOption = op;
             anyOption = true;
         }
         for(let op of opsFunc(opTypes.dlh)) {
-            let _id = op.pid();
-            _pdom.append(`<button id="dlbtn_${_id}_${_tr}" type="button" class="btn btn-secondary float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
-            xclick($(`#dlbtn_${_id}_${_tr}`), ()=>op.doDownload(qryParams()));
+            let dlbtn = $(`<button type="button" class="btn btn-secondary float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`).appendTo(_pdom);
+            xclick(dlbtn, ()=>op.doDownload(qryParams()));
             anyOption = true;
         }
         for(let op of opsFunc(opTypes.add)) {   //add... btn
-            let _id = op.pid();
-            _pdom.append(`<button id="addbtn_${_id}_${_tr}" type="button" class="btn btn-success float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`);
-            xclick($(`#addbtn_${_id}_${_tr}`), ()=>op.popup(padding?qryParams():{}));
+            let addbtn = $(`<button type="button" class="btn btn-success float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`).appendTo(_pdom);
+            xclick(addbtn, ()=>op.popup(padding?qryParams():{}));
             anyOption = true;
         }
         return anyOption;
@@ -397,47 +394,40 @@ class TableContent extends Content {
     showTableBody0() {TableContent.showTableBody($('#xtbody'), this.columns, this.data, this.getTableOptions());}
 
     static showTableHead(_pdom, columns, hasOps=false) {
-        let _tabletr = $(`<tr id='xtr_0'/>`);
-        _pdom.empty();
-        _pdom.append(_tabletr);
+        let _tabletr = $(`<tr id='xtr_0'/>`).appendTo(_pdom.empty());
         for(let column of columns){
             if(xShowcase.list(column)) {
-                _tabletr.append(`<th id='xtd_0_${column.pid()}' class='align-middle'>${column.hint}</th>`);
-                Sorting.show($(`#xtd_0_${column.pid()}`), column);
+                let _tableth = $(`<th class='align-middle'>${column.hint}</th>`).appendTo(_tabletr);
+                Sorting.show(_tableth, column);
             }
         }
         if(hasOps)//options td head
-            _tabletr.append(`<th id='xtd_0_0' class='align-middle text-right'>Options</th>`);
+            _tabletr.append(`<th class='align-middle text-right'>Options</th>`);
     }
     static showTableBody(_pdom, columns, data, options) {
         _pdom.empty();
-        let _tr = 0;
         for(let model of data) {
-            let _tabletr = $(`<tr id='xtr_${++_tr}'/>`);
-            _pdom.append(_tabletr)
-            var _td = 0;
+            let _tabletr = $(`<tr />`).appendTo(_pdom);
             for(let column of columns){
                 if(xShowcase.list(column)) {
-                    let _tabletd = $(`<td id='xtd_${_tr}_${++_td}' class='align-middle'></td>`);
-                    _tabletr.append(_tabletd);
+                    let _tabletd = $(`<td class='align-middle'></td>`).appendTo(_tabletr);
                     column.addToTable(_tabletd, column.getTextFrom(model));
                 }
             }
             //options td
             if(options && options.length > 0) {
-                let _tabletd = $(`<td id='xtd_${_tr}_${++_td}' class='align-middle text-right'></td>`);
-                _tabletr.append(_tabletd);
+                let _tabletd = $(`<td class='align-middle text-right'></td>`).appendTo(_tabletr);
                 for(let op of options.filter(e=>e.type==opTypes.edt)) {
-                    _tabletd.append(`<button id="edtbtn_${op.pid()}_${_tr}" type="button" class="btn btn-sm btn-outline-info" style="margin-right:5px">${op.name}</button>`);
-                    xclick($(`#edtbtn_${op.pid()}_${_tr}`), ()=>op.popup(model));
+                    let edtbtn = $(`<button type="button" class="btn btn-sm btn-outline-info" style="margin-right:5px">${op.name}</button>`).appendTo(_tabletd);
+                    xclick(edtbtn, ()=>op.popup(model));
                 }
                 for(let op of options.filter(e=>e.type==opTypes.dlr)) {
-                    _tabletd.append(`<button id="dlbtn_${op.pid()}_${_tr}" type="button" class="btn btn-sm btn-outline-secondary" style="margin-right:5px">${op.name}</button>`);
-                    xclick($(`#dlbtn_${op.pid()}_${_tr}`), ()=>op.doDownload(model));
+                    let dlbtn = $(`<button type="button" class="btn btn-sm btn-outline-secondary" style="margin-right:5px">${op.name}</button>`).appendTo(_tabletd);
+                    xclick(dlbtn, ()=>op.doDownload(model));
                 }
                 for(let op of options.filter(e=>e.type==opTypes.del)) {
-                    _tabletd.append(`<button id="delbtn_${op.pid()}_${_tr}" type="button" class="btn btn-sm btn-outline-danger">${op.name}</button>`);
-                    xclick($(`#delbtn_${op.pid()}_${_tr}`), ()=>op.popup(model));
+                    let delbtn =$(`<button type="button" class="btn btn-sm btn-outline-danger">${op.name}</button>`).appendTo(_tabletd);
+                    xclick(delbtn, ()=>op.popup(model));
                 }
             }
         }
@@ -461,17 +451,17 @@ class PanelContent extends Content {
         formOption._form = new OptionForm(formOption, data)
         formOption._form.showContent($('#xpanel_form'));
         //add button row
-        $('#xboxbody').append(`<div id="xpanel_btnrow" class="form-group row"></div>`);
+        let btnrow = $(`<div class="form-group row"></div>`).appendTo($('#xboxbody'));
         for(let op of this.options) {
             if(op.type == opTypes.del) {
-                $('#xpanel_btnrow').append(`<div class="col-sm-2 m-auto"><button id="xpanel_delbtn_${op.path}" type="button" class="btn btn-block bg-danger">${op.name}</button></div>`);
-                xclick($(`#xpanel_delbtn_${op.path}`), ()=>this.submit(op, formOption._form.getFormData()));
+                let delbtn = $(`<div class="col-sm-2 m-auto"><button type="button" class="btn btn-block bg-danger">${op.name}</button></div>`).appendTo(btnrow);
+                xclick(delbtn, ()=>this.submit(op, formOption._form.getFormData()));
             } else if(op.type == opTypes.edt) {
-                $('#xpanel_btnrow').append(`<div class="col-sm-2 m-auto"><button id="xpanel_edtbtn_${op.path}" type="button" class="btn btn-block bg-info">${op.name}</button></div>`);
-                xclick($(`#xpanel_edtbtn_${op.path}`), ()=>this.submit(op, formOption._form.getFormData()));
+                let edtbtn = $(`<div class="col-sm-2 m-auto"><button type="button" class="btn btn-block bg-info">${op.name}</button></div>`).appendTo(btnrow);
+                xclick(edtbtn, ()=>this.submit(op, formOption._form.getFormData()));
             } else if(op.type == opTypes.dlh || op.type == opTypes.dlr) {
-                $('#xpanel_btnrow').append(`<div class="col-sm-2 m-auto"><button id="xpanel_dlbtn_${op.path}" type="button" class="btn btn-block bg-secondary">${op.name}</button></div>`);
-                xclick($(`#xpanel_dlbtn_${op.path}`), ()=>op.doDownload(formOption._form.getFormData()));
+                let dlbtn = $(`<div class="col-sm-2 m-auto"><button type="button" class="btn btn-block bg-secondary">${op.name}</button></div>`).appendTo(btnrow);
+                xclick(dlbtn, ()=>op.doDownload(formOption._form.getFormData()));
             }
         }
     }
@@ -507,7 +497,7 @@ class MarkdContent extends Content {
         };
         marked.use({renderer});
         let text = marked(this.data);
-        $('#xcontent').html(`<div class="card-body">${text}</div>`);
+        this.xc.child('xcontent').html(`<div class="card-body">${text}</div>`);
     }
 }
 
@@ -544,21 +534,17 @@ class ChartContent extends Content {
         }
         return this;
     }
-    setDomId(pdom) {this.idprefix = pdom.attr('id');}
-    getDomId(name) {return this.idprefix + "_" + name;}
     iniDom(_pdom) {
-        this.setDomId(_pdom);
-        _pdom.append(`
-        <div class="card card-outline">
-            <div id="${this.getDomId('xcharthead')}" class="card-header">
+        this.xc = new XContainer(_pdom).append(
+        `<div class="card card-outline">
+            <div id="xcharthead" class="card-header">
                 <div class="row">
-                    <div id="${this.getDomId('xchartheadbar')}" class="clearfix w-100"></div>
+                    <div id="xchartheadbar" class="clearfix w-100"></div>
                 </div>
             </div>
-            <div id="${this.getDomId('xchartbody')}" class="card-body">
+            <div id="xchartbody" class="card-body">
             </div>
-        </div>
-        `);
+        </div>`);
         return this;
     }
     showContent() {
@@ -566,12 +552,12 @@ class ChartContent extends Content {
         this.showContentBody();
     }
     showContentHead() {
-        if(!TableContent.showHeadBar($(`#${this.getDomId('xchartheadbar')}`), this.getOptionsFunc(), _data=>this.setData(_data).showContentBody())) {
-            $(`#${this.getDomId('xcharthead')}`).remove();
+        if(!TableContent.showHeadBar(this.xc.child('xchartheadbar'), this.getOptionsFunc(), _data=>this.setData(_data).showContentBody())) {
+            this.xc.child('xcharthead').remove();
         }
     }
     showContentBody() {
-        let  _pdom = $(`#${this.getDomId('xchartbody')}`).empty();
+        let  _pdom = this.xc.child('xchartbody').empty();
         let config = this.makeConfig({
             type :this.chartType,
             title:this.chartTitle,
@@ -584,13 +570,12 @@ class ChartContent extends Content {
         }
     }
     showChartBody(_pdom, config) {
-        let canvas = $(`<canvas id="${this.getDomId('xcanvas')}" class="w-100"><canvas/>`)
-        _pdom.append(canvas);
+        let canvas = $(`<canvas class="w-100"><canvas/>`).appendTo(_pdom);
         new Chart(canvas, config);
     }
     showTableBody(_pdom, config) {
         let tabox = $(`<div class="table-responsive"></div>`);
-        let table = $(`<table id="${this.getDomId('xtable')}" class="table table-bordered table-hover"></table>`);
+        let table = $(`<table class="table table-bordered table-hover"></table>`);
         let thead = $(`<thead bgcolor="#f8f9fa"></thead>`);
         let tbody = $(`<tbody></tbody>`);
         [{label:'', data:config.data.labels}].concat(config.data.datasets).forEach(_dataset => {
@@ -643,13 +628,12 @@ class CellsContent extends Content {
     static _ = Content.regist(cttTypes._cells, this);
     constructor(parent) {super(parent);}
     iniDom(_pdom) {
-        _pdom.append(`
-            <div id="xcontenthead" class="card">
+        this.xc = new XContainer(_pdom).append(
+            `<div id="xcontenthead" class="card">
                 <div id="xquerybox" class="card-header"></div>
             </div>
             <div id="xcontentbody" class="w-100">
-            </div>
-        `);
+            </div>`);
     }
     onInit() {
         this.rowsCells = new Grouped('row', this.cells);
@@ -703,11 +687,9 @@ class CellsContent extends Content {
     showContentBody() {
         $('#xcontentbody').empty();
         this.rowsCells.forEach((_, rowCells) => {
-            let row = $(`<div class="row"></div>`);
-            $('#xcontentbody').append(row);
+            let row = $(`<div class="row"></div>`).appendTo($('#xcontentbody'));
             for(let cc of rowCells) {
-                let col = $(`<div id="xcell_${cc.path}_${cc.row}_${cc.pIndex}" class="col-md-${cc.col}"></div>`)
-                row.append(col);
+                let col = $(`<div class="col-md-${cc.col}"></div>`).appendTo(row);
                 Content.of(this, {
                     type: cc.type == -1 ? cttTypes._markd : cttTypes._chart,
                     options: [],
@@ -716,8 +698,7 @@ class CellsContent extends Content {
                 //download button
                 let dlOption = this.getCellDownload(cc);
                 if(dlOption) {
-                    let dlbtn = $(`<button id="xcell_${cc.path}_${cc.row}_${cc.pIndex}_dl" type="button" class="btn-dl" title="" data-bs-original-title="Dowload">${dlOption.name}</button>`);
-                    col.children(":first").append(dlbtn);
+                    let dlbtn = $(`<button type="button" class="btn-dl" title="" data-bs-original-title="Dowload">${dlOption.name}</button>`).appendTo(col.children(":first"));
                     xclick(dlbtn, ()=>dlOption.doDownload(this.qryParams));
                 }
             }
@@ -1151,13 +1132,14 @@ class QueryColumn extends Column {
     }
 }
 
+let CollaspeId = 0;
 class NestColumn extends Column {
     static _ = Column.regist([colTypes._model], this);
     onColValChanged(col, val) {
         this.parent.onColValChanged(col, val);
     }
     addToTable(_parent, val) {
-        let _pid = _parent.attr("id");
+        let _pid = ++ CollaspeId;
         let _ntable = $(`<table class="table table-bordered table-hover table-sm text-sm mb-0"></table>`);
         let _nthead = this.collapse
             ? $(`<thead data-toggle="collapse" data-target="#collaspse_${_pid}" aria-controls="collaspse_${_pid}" aria-expanded="true"></thead>`)
@@ -1343,4 +1325,12 @@ class Grouped {
     }
     val(key) {return this.vals[key];}
     forEach(func) {this.keys.forEach(k=>func(k, this.vals[k]))};
+}
+
+//dom parent
+class XContainer {
+    constructor(htm) {this.dom = htm;}
+    empty() {this.dom.empty(); return this;}
+    child(id) {return this.dom.find(`#${id}`);}
+    append(htm){this.dom.append(htm);return this;}
 }

@@ -100,4 +100,13 @@ public class DataService2 {
                        VChart.of("setTwo", "Winter", r.nextInt(100))));
     }
 
+    @XCell(row = 4, col = 4, type = EChart.Markd)
+    @XCell(row = 4, col = 4, type = EChart.Markd)
+    @XCell(row = 4, col = 4, type = EChart.Markd)
+    @HttpMethods.GET("mkddd")
+    public Object mkddd() {
+        String s = XStrings.readFrom(XReflection.getResourceAsStream("sysops.md"));
+        return new String[]{s, s, s};
+    }
+
 }
