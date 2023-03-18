@@ -66,7 +66,7 @@ public interface Content {
         return parseModelColumns0(model, new ArrayList<>());
     }
     static List<Column> parseModelColumns0(Class<?> model, List<Column> columns) {
-        if(!Object.class.equals(model.getSuperclass())) {
+        if((model.getSuperclass()) != null) {
             parseModelColumns0(model.getSuperclass(), columns);
         }
         Field[] fields = model.getDeclaredFields();

@@ -1,6 +1,7 @@
 package dev.xframe.admin.view.structs;
 
 import dev.xframe.admin.view.EColumn;
+import dev.xframe.admin.view.EShowcase;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.utils.XProperties;
 import dev.xframe.utils.XStrings;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Objects;
 
 public class Column {
 
@@ -112,6 +114,13 @@ public class Column {
         this.cacheable = xc.cacheable() || !XStrings.isEmpty(this.cacheKey);
     }
 
+    public Column(String key, EColumn type, String hint) {
+        this.key = key;
+        this.type = type.val;
+        this.hint = hint;
+        this.show = EShowcase.Full;
+    }
+
     public static Column of(String key) {
         return new Column(key, EColumn.Text, XColumn.Default);
     }
@@ -151,5 +160,17 @@ public class Column {
     }
     public String getCacheKey() {
         return cacheKey;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Column column = (Column) o;
+        return Objects.equals(key, column.key);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
     }
 }

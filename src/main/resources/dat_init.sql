@@ -21,8 +21,16 @@ CREATE TABLE IF NOT EXISTS `T_USER` (
   `Email` varchar(64) NOT NULL,
   `Passw` varchar(128) NOT NULL,
   `Roles` varchar(128) NOT NULL,
+  `Type` int(11) NOT NULL,
   `Ctime` timestamp NOT NULL
 ) DEFAULT CHARSET=utf8;
 
 INSERT INTO `T_USER` VALUES ('admin', '10086', 'admin@xframe.dev', '21232f297a57a5a743894a0e4a801fc3', '1001', now());
 INSERT INTO `T_USER` VALUES ('local', '10010', 'local@xframe.dev', '21232f297a57a5a743894a0e4a801fc3', '1001', now());
+
+
+CREATE TABLE IF NOT EXISTS `T_VALUES` (
+    `Key` varchar(128) NOT NULL PRIMARY KEY,
+    `Val` varchar(512) NOT NULL,
+    `Comment` varchar(512)
+) DEFAULT CHARSET=utf8

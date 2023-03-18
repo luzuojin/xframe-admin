@@ -1,11 +1,11 @@
 package dev.xframe.admin.system.user;
 
-import java.sql.Timestamp;
-
 import dev.xframe.admin.system.SysEnumKeys;
 import dev.xframe.admin.view.EColumn;
 import dev.xframe.admin.view.EShowcase;
 import dev.xframe.admin.view.XColumn;
+
+import java.sql.Timestamp;
 
 public class User {
 
@@ -19,22 +19,30 @@ public class User {
 	private String passw;
 	@XColumn(value="角色", enumKey= SysEnumKeys.ROLE_LIST, type= EColumn.Mult, required=true)
 	private int[] roles;
+	@XColumn(value="类型", enumKey = SysEnumKeys.USER_TYPES)
+	private int type;
 	@XColumn(value="创建时间", show= EShowcase.ListEdel, type= EColumn.Datetime)
 	private Timestamp ctime;
 	
 	public User() {
 	}
 	
-	public User(String name, String phone, String email, String passw) {
+	public User(String name, String phone, String email, int type) {
 		this.name = name;
 		this.phone = phone;
 		this.email = email;
-		this.passw = passw;
+		this.type = type;
+		this.roles = new int[0];
+		this.passw = "*";
 		this.newCTime();
 	}
 
 	public void newCTime() {
 		this.ctime = new Timestamp(System.currentTimeMillis());
+	}
+
+	public boolean roled() {
+		return this.roles != null && this.roles.length > 0;
 	}
 	
 	public String getName() {
@@ -61,6 +69,12 @@ public class User {
 	public void setPassw(String passw) {
 		this.passw = passw;
 	}
+	public int getType() {
+		return type;
+	}
+	public void setType(int type) {
+		this.type = type;
+	}
 	public Timestamp getCtime() {
 		return ctime;
 	}
@@ -73,7 +87,7 @@ public class User {
     public void setRoles(int[] roles) {
         this.roles = roles;
     }
-    
+
     @Override
 	public int hashCode() {
 		final int prime = 31;
@@ -98,5 +112,4 @@ public class User {
 			return false;
 		return true;
 	}
-	
 }

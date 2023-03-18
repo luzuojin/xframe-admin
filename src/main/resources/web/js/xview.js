@@ -815,7 +815,7 @@ class Option extends Node {
         return this.path ? `${this.parent.uri()}/${this.path}` : this.parent.uri();
     }
     pid() {
-        return this.path ? `${this.parent.pid()}_${this.type}_${this.path}` : `${this.parent.pid()}_${this.type}`;
+        return this.path ? `${this.parent.pid()}_${this.type||0}_${this.path}` : `${this.parent.pid()}_${this.type||0}`;
     }
     onColValChanged(col, val) {
         //do variant??
@@ -1074,7 +1074,7 @@ class BoolColumn extends Column {
     }
     setValToFormDom(dom, val) {
         dom.change(function(){dom.val(this.checked);});//this:changed event
-        if(val) dom.attr('checked', val).trigger('change');
+        if(val && !!JSON.parse(String(val))) dom.attr('checked', val).trigger('change');//support boolean string
     }
 }
 class FileColumn extends Column {

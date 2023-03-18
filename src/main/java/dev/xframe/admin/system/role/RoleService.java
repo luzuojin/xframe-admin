@@ -12,7 +12,7 @@ import dev.xframe.http.service.rest.HttpMethods;
 import dev.xframe.inject.Inject;
 
 @Rest("system/role")
-@XSegment(name="角色列表", model=Role.class)
+@XSegment(name="角色列表", model=Role.class, order = 100)
 public class RoleService {
 	
 	@Inject

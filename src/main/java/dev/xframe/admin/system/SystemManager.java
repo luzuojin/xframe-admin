@@ -5,6 +5,7 @@ import dev.xframe.admin.system.auth.UserPrivileges;
 import dev.xframe.admin.system.privilege.Privilege;
 import dev.xframe.admin.system.role.Role;
 import dev.xframe.admin.system.user.User;
+import dev.xframe.admin.system.user.UserInterfaces;
 import dev.xframe.admin.view.structs.Navi;
 import dev.xframe.admin.view.structs.Wrapper;
 import dev.xframe.admin.view.values.VEnum;
@@ -76,6 +77,8 @@ public class SystemManager implements Loadable {
         basicRole.addPrivilege(new Privilege("Basic", "basic"));
 
         basicMgr.registEnumValue(SysEnumKeys.PRIVILEGE_TREE, () -> ptrees);
+
+        basicMgr.registEnumValue(SysEnumKeys.USER_TYPES, () -> UserInterfaces.get());
     }
 
     void addPrivilege(Privilege p) {

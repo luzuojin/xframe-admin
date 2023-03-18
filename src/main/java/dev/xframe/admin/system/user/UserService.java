@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Rest("system/user")
-@XSegment(name="用户列表", model=User.class)//path use @http.path
+@XSegment(name="用户列表", model=User.class, order = 90)//path use @http.path
 public class UserService {
 	
     @Inject

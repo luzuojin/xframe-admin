@@ -1,8 +1,5 @@
 package dev.xframe.admin.system.oplog;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-
 import dev.xframe.admin.conf.LogicException;
 import dev.xframe.admin.system.SysEnumKeys;
 import dev.xframe.admin.view.EColumn;
@@ -14,8 +11,11 @@ import dev.xframe.http.service.rest.HttpMethods;
 import dev.xframe.inject.Inject;
 import dev.xframe.utils.XStrings;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+
 @Rest("system/oplog")
-@XSegment(name="操作日志", model=OpLog.class)
+@XSegment(name="操作日志", model=OpLog.class, order = 70)
 public class OpLogService {
     
     @Inject

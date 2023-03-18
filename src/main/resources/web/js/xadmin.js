@@ -140,7 +140,7 @@ function clrEnumCaches(xhr) {
 }
 
 function doDownload(path) {
-    window.open(path);
+    window.open(path, '_self');
 }
 
 var xtoast = {
@@ -157,7 +157,8 @@ var xtoast = {
     },
     succ : function(msg) {this.show('success', msg)},
     error: function(msg) {this.show('error', msg)},
-    info : function(msg) {this.show('info', msg)}
+    info : function(msg) {this.show('info', msg)},
+    warn : function(msg) {this.show('warning', msg)}
 }
 
 function xclick(btn, func) {
@@ -313,6 +314,9 @@ function doLogin() {
             if(resp.status == -1) {
                 op.popup();
             } else {
+                if(resp.text) {//-2
+                    xtoast.warn(resp.text);
+                }
                 cb(resp.data);
             }
         }
