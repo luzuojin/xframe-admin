@@ -36,6 +36,7 @@ public class UserService {
 	@HttpMethods.POST
 	public Object add(@HttpArgs.Body User user) {
 	    validateUser(user);
+		user.setType(UserInterfaces.TypeNormal);
 		user.newCTime();
 		sysRepo.addUser(user);//sync
 		XEnumKeys.clear(SysEnumKeys.USER_LIST);

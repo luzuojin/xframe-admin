@@ -4,9 +4,8 @@ import dev.xframe.admin.conf.LogicException;
 import dev.xframe.admin.system.auth.AuthManager;
 import dev.xframe.admin.system.auth.OpUser;
 import dev.xframe.admin.system.user.User;
-import dev.xframe.admin.system.user.UserInterfaces;
-import dev.xframe.admin.system.user.UserInterfaces.Internal;
 import dev.xframe.admin.system.user.UserInterface;
+import dev.xframe.admin.system.user.UserInterfaces;
 import dev.xframe.admin.view.values.VLogin;
 import dev.xframe.admin.view.values.VResp;
 import dev.xframe.admin.view.values.VUser;
@@ -30,20 +29,20 @@ public class ProfileService {
     public Object login(Request req, @HttpArgs.Body VLogin data) {
         User user = sysRepo.fetchUser(data.getName());
         if(user == null) {
-            int type = Internal.tryValidate(data.getName(), data.getPassw());
+            int type = UserInterfaces.Internal.tryValidate(data.getName(), data.getPassw());
             if(type == -1) {
                 throw new LogicException("用户不存在");
             }
             //extended user, new for this system
-            UserInterface uv = Internal.getInterface(type);
-            user = new User(data.getName(), uv.makePhone(data.getName()), uv.makeEmail(data.getName()), type);
+            UserInterface ui = UserInterfaces.Internal.getInterface(type);
+            user = new User(data.getName(), ui.makePhone(data.getName()), ui.makeEmail(data.getName()), type);
             sysRepo.addUser(user);
+        } else if(user.getType() != UserInterfaces.TypeNormal) {
+            UserInterfaces.Internal.getInterface(user.getType()).validate(data.getName(), data.getPassw());
         } else if(OpUser.isLocalUser(user.getName())) {//内网用户,只在内网ip访问时生效(admin权限),可删除该用户
             if(!authMgr.isLocalHost(req)){
                 throw new LogicException("非内网访问");
             }
-        } else if(user.getType() != 0) {
-            UserInterfaces.Internal.getInterface(user.getType()).validate(data.getName(), data.getPassw());
         } else if(!user.getPassw().equals(data.getPassw())) {
             throw new LogicException("密码错误");
         }

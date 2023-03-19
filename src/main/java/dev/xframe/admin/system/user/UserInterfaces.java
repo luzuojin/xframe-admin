@@ -12,11 +12,13 @@ import java.util.TreeSet;
 
 public class UserInterfaces {
 
+    public static final int TypeNormal = 1;
+
     static final TreeSet<VEnum> TypedNames = new TreeSet<>(Comparator.comparing(VEnum::getId));
     static final Map<Integer, UserInterface> TypedInterfaces = new HashMap<>();
 
     static {
-        TypedNames.add(new VEnum(0, "Noraml"));
+        TypedNames.add(new VEnum(TypeNormal, "Normal"));
     }
 
     public static List<VEnum> get() {

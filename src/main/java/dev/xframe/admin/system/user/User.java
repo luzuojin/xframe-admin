@@ -19,7 +19,7 @@ public class User {
 	private String passw;
 	@XColumn(value="角色", enumKey= SysEnumKeys.ROLE_LIST, type= EColumn.Mult, required=true)
 	private int[] roles;
-	@XColumn(value="类型", enumKey = SysEnumKeys.USER_TYPES)
+	@XColumn(value="类型", show= EShowcase.ListEdel, enumKey = SysEnumKeys.USER_TYPES)
 	private int type;
 	@XColumn(value="创建时间", show= EShowcase.ListEdel, type= EColumn.Datetime)
 	private Timestamp ctime;
