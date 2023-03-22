@@ -32,9 +32,9 @@ public class LdapInterface implements Loadable, UserInterface {
     }
     private void registSettings() {
         SettingColumns.reg("xframe.admin.ldap", EColumn.Bool, "Ldap", s->reloadSettings());
-        SettingColumns.reg("xframe.admin.ldap.url", EColumn.Text, "Ldap.url");
-        SettingColumns.reg("xframe.admin.ldap.principal", EColumn.Text, "Ldap.principal");
-        SettingColumns.reg("xframe.admin.ldap.maildomain", EColumn.Text, "Ldap.maildomain");
+        SettingColumns.reg("xframe.admin.ldap.url", EColumn.Text, "Ldap.url", "ldap://127.0.0.1:389/");
+        SettingColumns.reg("xframe.admin.ldap.principal", EColumn.Text, "Ldap.principal", "ou=people,dc=xframe,dc=dev");
+        SettingColumns.reg("xframe.admin.ldap.maildomain", EColumn.Text, "Ldap.maildomain", "xframe.dev");
     }
     private void reloadSettings() {
         if(XOptional.mapToBool(sysRepo.getSetting("xframe.admin.ldap"), Boolean::parseBoolean, false)) {

@@ -21,6 +21,7 @@ public class Column {
 
     private int type;
     private String key;
+    private String name;
     private String hint;
     private String enumKey;
 
@@ -102,7 +103,8 @@ public class Column {
     public Column(String key, EColumn type, XColumn xc) {
         this.key = key;
         this.type = type.val;
-        this.hint = XStrings.orElse(xc.value(), firstToUpperCase(key));
+        this.name = XStrings.orElse(xc.value(), firstToUpperCase(key));
+        this.hint = xc.hint();
         this.enumKey = xc.enumKey();
         this.show = xc.show();
         this.primary = xc.primary();
@@ -114,9 +116,10 @@ public class Column {
         this.cacheable = xc.cacheable() || !XStrings.isEmpty(this.cacheKey);
     }
 
-    public Column(String key, EColumn type, String hint) {
+    public Column(String key, EColumn type, String name, String hint) {
         this.key = key;
         this.type = type.val;
+        this.name = name;
         this.hint = hint;
         this.show = EShowcase.Full;
     }
@@ -134,8 +137,8 @@ public class Column {
     public String getKey() {
         return key;
     }
-    public String getHint() {
-        return hint;
+    public String getName() {
+        return name;
     }
     public String getEnumKey() {
         return enumKey;
@@ -160,6 +163,9 @@ public class Column {
     }
     public String getCacheKey() {
         return cacheKey;
+    }
+    public String getHint() {
+        return hint;
     }
 
     @Override

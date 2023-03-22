@@ -284,8 +284,8 @@ function isLocalAutoLogin() {
 }
 
 const _columns = [
-    {key:"name",hint:"用户名",type:colTypes._text,show:13},
-    {key:"passw",hint:"密码",type:colTypes._pass,show:15}
+    {key:"name",name:"用户名",type:colTypes._text,show:13},
+    {key:"passw",name:"密码",type:colTypes._pass,show:15}
 ];
 const _navi = new Navi(new Navi(null, '用户', 'basic'), 'unused', 'profile');//segment->content->option
 

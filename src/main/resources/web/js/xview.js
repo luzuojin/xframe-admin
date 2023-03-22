@@ -397,7 +397,7 @@ class TableContent extends Content {
         let _tabletr = $(`<tr id='xtr_0'/>`).appendTo(_pdom.empty());
         for(let column of columns){
             if(xShowcase.list(column)) {
-                let _tableth = $(`<th class='align-middle'>${column.hint}</th>`).appendTo(_tabletr);
+                let _tableth = $(`<th class='align-middle'>${column.name}</th>`).appendTo(_tabletr);
                 Sorting.show(_tableth, column);
             }
         }
@@ -947,7 +947,7 @@ class Column {
     }
     doAddToForm(_parent, val) {
         let formValHtm = this.makeFormValHtm();
-        let labelHtm = this.hint;
+        let labelHtm = this.name;
         if(this.required){  //validation
             formValHtm = `${formValHtm}<div class="invalid-feedback">${this.invalidText()}</div>`;
             labelHtm   = `<span class="text-danger pr-1">*</span>${labelHtm}`;
@@ -964,14 +964,14 @@ class Column {
                 </div>`;
     }
     makeFormValHtm() {    //dlgHtmFunc
-        return `<input id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint}" type="text">`;
+        return `<input id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint||this.name}" type="text">`;
     }
     setValToFormDom(dom, val) {//dlgMakeFunc
         if(isPrimitive(val) || val) dom.val(val).trigger('change')
     }
     //for validation
     invalidText(){
-        return `${this.hint} 不能为空`;
+        return `${this.name} 不能为空`;
     }
     validateAndPromptFormVal(op, val){
         let isValid = !Column.showInForm(op, this) || this.validateFormVal(op, val);
@@ -986,13 +986,13 @@ class Column {
 class AreaColumn extends Column {
     static _ = Column.regist([colTypes._area], this);
     makeFormValHtm() {    //dlgHtmFunc
-        return `<textarea id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint}" rows="8"/>`;
+        return `<textarea id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint||this.name}" rows="8"/>`;
     }
 }
 class PasswordColumn extends Column {
     static _ = Column.regist([colTypes._pass], this);
     makeFormValHtm() {    //dlgHtmFunc
-        return `<input id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint}" type="password">`;
+        return `<input id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint||this.name}" type="password">`;
     }
     getFormVal() {        //dlgDataFunc
         return $.md5(super.getFormVal());
@@ -1001,7 +1001,7 @@ class PasswordColumn extends Column {
 class NumberColumn extends Column {
     static _ = Column.regist([colTypes._numb], this);
     makeFormValHtm() {    //dlgHtmFunc
-        return `<input id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint}" type="number">`;
+        return `<input id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint||this.name}" type="number">`;
     }
 }
 class DateTimeColumn extends Column {
@@ -1028,7 +1028,7 @@ class TimeColumn extends Column {
 class EnumColumn extends Column {
     static _ = Column.regist([colTypes._enum, colTypes._mult], this);
     makeFormValHtm() {
-        return `<select id="dinput_${this.pid()}" class="form-control select2" data-placeholder="${this.hint}"></select>`;
+        return `<select id="dinput_${this.pid()}" class="form-control select2" data-placeholder="${this.hint||this.name}"></select>`;
     }
     setValToFormDom(dom, val) {
         xselect2(dom, this, this.parent && this.parent.type == opTypes.qry);
