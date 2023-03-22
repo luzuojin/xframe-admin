@@ -1,6 +1,7 @@
 var xurl = (location.origin.startsWith("http") || location.origin.startsWith("https")) ? location.origin : "http://127.0.0.1:8001";
 var xpaths = {
     catalog: "basic/catalog",
+    xexts  : "basic/extensions",
     xenum  : "basic/enum",
     upload : "basic/upload",
     preview: "basic/preview"
@@ -11,14 +12,6 @@ function xenum(key) {
     if(key in xenumCache) {
         return xenumCache[key];
     } else {
-//        let xenumData = $.parseJSON($.ajax({
-//            type: "GET",
-//            url: `${xurl}/${xpaths.xenum}?key=${key}`,
-//            headers: {"X-Token": xtoken()},
-//            cache: false,
-//            async: false
-//        }).responseText).data;
-//        xenumCache[key] = xenumData;
         syncGet(`${xpaths.xenum}?key=${key}`, data=>xenumCache[key]=data);
         return xenumCache[key];//multi,key
     }
@@ -45,6 +38,11 @@ function xenumText(key, id) {
         return simpleText(id);
     }
 }
+function xenumHasZero(key) {
+    return xenum(key).filter(e=>e.id=='0').length > 0;
+}
+
+
 function xConcat(left, delimiter, right) {
     return (left && right) ? `${left}${delimiter}${right}` : (left ? left : (right ? right : ''));
 }
@@ -54,8 +52,8 @@ function xOrElse(val, oth) {
 function xOrEmpty(val) {
     return xOrElse(val, '');
 }
-function xOrGet(val, key) {
-    return val ? val[key] : undefined;
+function xOrGet(val, key, oth=undefined) {
+    return val ? val[key] : oth;
 }
 
 function isPrimitive(val) {
@@ -64,7 +62,7 @@ function isPrimitive(val) {
 
 //pack href
 function xHref(path, params) {
-    return `${xurl}/${path}?X-Token=${xtoken()}&${$.param(params)}`;
+    return `${xurl}/${path}?${$.param(getHeaders())}&${$.param(params)}`;
 }
 
 function doGet(path, func) {
@@ -75,7 +73,7 @@ function doGet0(path, func) {
     $.ajax({
         type: 'get',
         url: `${xurl}/${path}`,
-        headers: {"X-Token": xtoken()},
+        headers: getHeaders(),
         dataType: 'json',
         success: func
     });
@@ -84,7 +82,7 @@ function syncGet(path, func) {
     doResp0($.parseJSON($.ajax({
         type: "GET",
         url: `${xurl}/${path}`,
-        headers: {"X-Token": xtoken()},
+        headers: getHeaders(),
         cache: false,
         async: false
     }).responseText), func);
@@ -102,7 +100,7 @@ function doPost0(path, op, data, func, _headers={}) {
         type: httpTypes[op.type],
         url: `${xurl}/${path}`,
         data: JSON.stringify(data),
-        headers: Object.assign({"X-Token": xtoken()}, _headers),
+        headers: getHeaders(_headers),
         dataType: 'json',
         success: func
     });
@@ -242,10 +240,31 @@ function initial() {
     });
 }
 
+// extensions
+function loadExts(onLoaded) {   //load extension files
+    syncGet(`${xpaths.xexts}`, async files=>{
+       for(let file of files)
+           await new Promise(resolve=>$.getScript(`${xurl}/${file}`, _=>resolve()));
+       onLoaded();
+   });
+}
+
+var xExtendions = [];
+function regExtension(ext) {
+    xExtendions.push(ext);
+}
+function callExts(fn) {
+    xExtendions.filter(ext=>fn in ext).forEach(ext=>ext[fn]());
+}
+
 // profile
 var xuser;
-function xtoken() {
-    return xuser ? xuser.token : '';
+var xheaders = {};
+function getHeaders(_headers={}) {
+    return Object.assign({}, {"X-Token": xOrGet(xuser, 'token', '')}, xheaders, _headers);
+}
+function setHeader(key, val) {
+    xheaders[key] = val;
 }
 
 //不严谨. 内网访问判定-自动登录
@@ -308,6 +327,7 @@ function doLogin() {
     let cb = op.onDataChanged = data=>{
         showUser(data, _isAutoLogin);
         showCatalog();  //show
+        callExts('onLogin');
     };
     if(_isAutoLogin = isLocalAutoLogin()) {
         let cb0 = resp=>{
@@ -327,6 +347,8 @@ function doLogin() {
 }
 
 $(function () {
-    initial();
-    doLogin();
+    loadExts(() => {//init after load extensions
+        initial();
+        doLogin();
+    });
 });

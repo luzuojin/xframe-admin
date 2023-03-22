@@ -35,7 +35,12 @@ public class BasicService {
 	public Object getEnum(@HttpArgs.Param String key) {
 		return basicMgr.getEnumValue(key);
 	}
-    
+
+	@HttpMethods.GET("extensions")
+	public Object getExtensions() {
+		return basicMgr.getExtensions();
+	}
+
     @HttpMethods.POST("upload")
     public Object upload(@HttpArgs.Body MultiPart mp) throws IOException {
     	FileUpload fu = (FileUpload) mp.getBodyHttpData("file");

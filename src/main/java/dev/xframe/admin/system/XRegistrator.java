@@ -12,4 +12,6 @@ public interface XRegistrator {
 
     void registNaviValue(String key, Supplier<List<Navi>> func);
 
+    void registExtension(String extensionJsFile);
+
 }

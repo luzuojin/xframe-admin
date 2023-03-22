@@ -1,18 +1,20 @@
 package dev.xframe.admin.system;
 
 import dev.xframe.admin.system.auth.UserPrivileges;
-import dev.xframe.admin.view.structs.Chapter;
-import dev.xframe.admin.view.structs.Navi;
-import dev.xframe.admin.view.structs.Catalog;
-import dev.xframe.admin.view.values.VEnum;
 import dev.xframe.admin.view.XChapter;
 import dev.xframe.admin.view.XSegment;
+import dev.xframe.admin.view.structs.Catalog;
+import dev.xframe.admin.view.structs.Chapter;
+import dev.xframe.admin.view.structs.Navi;
+import dev.xframe.admin.view.values.VEnum;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Loadable;
 import dev.xframe.inject.code.Clazz;
 import dev.xframe.inject.code.Codes;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -25,6 +27,8 @@ public class BasicManager implements Loadable, XRegistrator {
 
 	private Map<String, Supplier<List<VEnum>>> enumValues = new HashMap<>();
 	private Map<String, Supplier<List<Navi>>>  naviValues = new HashMap<>();
+
+	private LinkedHashSet<String> extensions = new LinkedHashSet<>();
 
 	@Override
 	public void load() {
@@ -59,5 +63,13 @@ public class BasicManager implements Loadable, XRegistrator {
 	}
 	public List<Navi> getNaviValue(String key) {
 		return naviValues.get(key).get();
+	}
+
+	@Override
+	public void registExtension(String extensionJsFile) {
+		this.extensions.add(extensionJsFile);
+	}
+	public Collection<String> getExtensions() {
+		return extensions;
 	}
 }

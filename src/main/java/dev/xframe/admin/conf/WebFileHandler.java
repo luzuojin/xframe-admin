@@ -1,5 +1,6 @@
 package dev.xframe.admin.conf;
 
+import dev.xframe.admin.system.BasicManager;
 import dev.xframe.admin.system.auth.AuthManager;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;
@@ -42,6 +43,8 @@ public class WebFileHandler implements Eventual {
     private ServiceDirectory serviceDir;
     @Inject
     private AuthManager authMgr;
+    @Inject
+    private BasicManager basicMgr;
     
     private Map<String, Response> caches = new HashMap<>();
 
@@ -75,9 +78,14 @@ public class WebFileHandler implements Eventual {
                 XPaths.listRelativizeFiles(root).forEach(this::makeHandler);
             }
             makeIndexHtmlHandler();
+            makeExtensionsHandler();
         } catch (Exception e) {
             XCaught.throwException(e);
         }
+    }
+
+    private void makeExtensionsHandler() {
+        basicMgr.getExtensions().forEach(extFile->this.makeHandler0(extFile, extFile, false));
     }
 
     private void makeIndexHtmlHandler() throws IOException {

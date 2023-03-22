@@ -1032,7 +1032,7 @@ class EnumColumn extends Column {
     }
     setValToFormDom(dom, val) {
         xselect2(dom, this, this.parent && this.parent.type == opTypes.qry);
-        if(val && val != 0) dom.val(val).trigger('change');
+        if(val || (val==0 && xenumHasZero(this.enumKey))) dom.val(val).trigger('change');
     }
 }
 class TreeColumn extends Column {
