@@ -359,7 +359,7 @@ class TableContent extends Content {
         let _tr = 0;
         for(let op of opsFunc(opTypes.qry)) {//query box
             (op._form = new OptionForm(op)).showContent(_pdom);
-            let qrybtn = $(`<button type="button" class="btn btn-info float-left" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`).appendTo(_pdom);
+            let qrybtn = $(`<button type="button" class="btn btn-info float-left ml-2">${op.name}</button>`).appendTo(_pdom);
             xclick(qrybtn, ()=>op.doGet(qryParams(), onDataChanged));
             //最后一个查询框时 监听enter
             if(op.children.length > 0) {
@@ -371,12 +371,12 @@ class TableContent extends Content {
             anyOption = true;
         }
         for(let op of opsFunc(opTypes.dlh)) {
-            let dlbtn = $(`<button type="button" class="btn btn-secondary float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`).appendTo(_pdom);
+            let dlbtn = $(`<button type="button" class="btn btn-secondary float-right mr-2">${op.name}</button>`).appendTo(_pdom);
             xclick(dlbtn, ()=>op.doDownload(qryParams()));
             anyOption = true;
         }
         for(let op of opsFunc(opTypes.add)) {   //add... btn
-            let addbtn = $(`<button type="button" class="btn btn-success float-right" style="margin-left:7.5px;margin-right:7.5px;">${op.name}</button>`).appendTo(_pdom);
+            let addbtn = $(`<button type="button" class="btn btn-success float-right mr-2">${op.name}</button>`).appendTo(_pdom);
             xclick(addbtn, ()=>op.popup(padding?qryParams():{}));
             anyOption = true;
         }
@@ -418,15 +418,15 @@ class TableContent extends Content {
             if(options && options.length > 0) {
                 let _tabletd = $(`<td class='align-middle text-right'></td>`).appendTo(_tabletr);
                 for(let op of options.filter(e=>e.type==opTypes.edt)) {
-                    let edtbtn = $(`<button type="button" class="btn btn-sm btn-outline-info" style="margin-right:5px">${op.name}</button>`).appendTo(_tabletd);
+                    let edtbtn = $(`<button type="button" class="btn btn-sm btn-outline-info mr-1">${op.name}</button>`).appendTo(_tabletd);
                     xclick(edtbtn, ()=>op.popup(model));
                 }
                 for(let op of options.filter(e=>e.type==opTypes.dlr)) {
-                    let dlbtn = $(`<button type="button" class="btn btn-sm btn-outline-secondary" style="margin-right:5px">${op.name}</button>`).appendTo(_tabletd);
+                    let dlbtn = $(`<button type="button" class="btn btn-sm btn-outline-secondary mr-1">${op.name}</button>`).appendTo(_tabletd);
                     xclick(dlbtn, ()=>op.doDownload(model));
                 }
                 for(let op of options.filter(e=>e.type==opTypes.del)) {
-                    let delbtn =$(`<button type="button" class="btn btn-sm btn-outline-danger">${op.name}</button>`).appendTo(_tabletd);
+                    let delbtn =$(`<button type="button" class="btn btn-sm btn-outline-danger mr-1">${op.name}</button>`).appendTo(_tabletd);
                     xclick(delbtn, ()=>op.popup(model));
                 }
             }
@@ -1050,7 +1050,7 @@ class BoolColumn extends Column {
     makeFormValHtm() {
         return `<div class="form-control custom-control custom-switch custom-switch-on-primary">
                     <input id="dinput_${this.pid()}" type="checkbox" class="custom-control-input" value="false">
-                    <label for="dinput_${this.pid()}" class="custom-control-label" style="margin-left:7.5px;"/>
+                    <label for="dinput_${this.pid()}" class="custom-control-label ml-2"/>
                 </div>`;
     }
     setValToFormDom(dom, val) {
