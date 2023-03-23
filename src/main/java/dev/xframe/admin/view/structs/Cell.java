@@ -47,4 +47,14 @@ public class Cell implements Comparable<Cell> {
         cell.pIndex=pIndex;
         return cell;
     }
+    public static Cell of(String path, String title, int type, int row, int col) {
+        Cell cell = new Cell();
+        cell.path = path;
+        cell.title= title;
+        cell.type = type;
+        cell.row  = row;
+        cell.col  = col;
+        return cell;
+    }
+
 }

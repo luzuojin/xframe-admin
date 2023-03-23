@@ -11,12 +11,12 @@ public class Navigate extends Navi {
 	public Navigate(String path) {
 		super(path, path, 10);
 	}
-	public Navigate(String name, String path, int order) {
-		super(name, path, order);
+	public Navigate(String path, String name, int order) {
+		super(path, name, order);
 	}
 
 	protected Navigate(Navi navi, Navigate navigate) {
-		super(navi.name, navi.path, navi.order);
+		super(navi.path, navi.name, navi.order);
 		this.navis = navigate.navis;
 	}
 

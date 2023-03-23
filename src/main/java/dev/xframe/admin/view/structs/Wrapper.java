@@ -17,7 +17,7 @@ public class Wrapper extends Navi {
     protected Navi origin;
 
     public Wrapper(String parent, Navi navi) {
-        super(navi.name, navi.path, navi.order);
+        super(navi.path, navi.name, navi.order);
         this.parent = parent;
         this.origin = navi;
     }

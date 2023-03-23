@@ -1,5 +1,6 @@
 package dev.xframe.admin.system;
 
+import dev.xframe.admin.view.structs.Chapter;
 import dev.xframe.admin.view.structs.Navi;
 import dev.xframe.admin.view.values.VEnum;
 
@@ -13,5 +14,7 @@ public interface XRegistrator {
     void registNaviValue(String key, Supplier<List<Navi>> func);
 
     void registExtension(String extensionJsFile);
+
+    void registChapters(Supplier<List<Chapter>> func);
 
 }

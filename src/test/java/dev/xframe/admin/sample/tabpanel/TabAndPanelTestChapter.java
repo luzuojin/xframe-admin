@@ -19,7 +19,7 @@ public class TabAndPanelTestChapter implements Loadable {
 
 	@Override
 	public void load() {
-		xReg.registNaviValue("panel", ()->Arrays.asList(new Navi("动态一一", "d1"), new Navi("动态一二", "d2")));
+		xReg.registNaviValue("panel", ()->Arrays.asList(new Navi("d1", "动态一一"), new Navi("d2", "动态一二")));
 		xReg.registEnumValue(PanelTest.PANEL_ROLE_KEY, ()->Arrays.asList(new VEnum("1001", "测试一"), new VEnum("1002", "测试二")));
 	}
 

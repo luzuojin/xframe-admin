@@ -17,7 +17,10 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Bean
@@ -27,8 +30,9 @@ public class BasicManager implements Loadable, XRegistrator {
 
 	private Map<String, Supplier<List<VEnum>>> enumValues = new HashMap<>();
 	private Map<String, Supplier<List<Navi>>>  naviValues = new HashMap<>();
+	private Set<Supplier<List<Chapter>>> chapterValues = new LinkedHashSet<>();
 
-	private LinkedHashSet<String> extensions = new LinkedHashSet<>();
+	private Set<String> extensions = new LinkedHashSet<>();
 
 	@Override
 	public void load() {
@@ -40,15 +44,17 @@ public class BasicManager implements Loadable, XRegistrator {
 	}
 	
 	public List<Chapter> getChapters() {
-		return catalog.getChapters();
+		return Catalog.sortChapters(Stream.concat(Stream.of(catalog.getChapters()), chapterValues.stream().map(Supplier::get)).flatMap(List::stream).collect(Collectors.toList()));
 	}
 
-	public Catalog getCatalog() {
-	    return catalog;
-	}
-	
 	public Catalog getCatalog(UserPrivileges privileges) {
-		return catalog.copyBy(privileges);
+		Catalog catalog = this.catalog.duplicate();
+		for (Chapter chapter : getChapters()) {
+			if (privileges.test(chapter.getPath())) {
+				catalog.getChapters().add(chapter.copyBy(chapter.getPath(), privileges));
+			}
+		}
+		return catalog;
 	}
 	
     public List<VEnum> getEnumValue(String key) {
@@ -71,5 +77,10 @@ public class BasicManager implements Loadable, XRegistrator {
 	}
 	public Collection<String> getExtensions() {
 		return extensions;
+	}
+
+	@Override
+	public void registChapters(Supplier<List<Chapter>> func) {
+		chapterValues.add(func);
 	}
 }

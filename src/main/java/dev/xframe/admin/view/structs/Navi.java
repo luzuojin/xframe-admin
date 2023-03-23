@@ -8,10 +8,10 @@ public class Navi implements Comparable<Navi> {
 	protected String path;
 	protected int order;
 	
-	public Navi(String name, String path) {
-	    this(name, path, 10);
+	public Navi(String path, String name) {
+	    this(path, name, 10);
 	}
-	public Navi(String name, String path, int order) {
+	public Navi(String path, String name, int order) {
 		this.name = name;
 		this.path = path;
 		this.order = order;
@@ -53,7 +53,7 @@ public class Navi implements Comparable<Navi> {
 	}
 
 	protected Navi duplicateBy(Navi navi) {
-		return new Navi(navi.name, navi.path, navi.order);
+		return new Navi(navi.path, navi.name, navi.order);
 	}
 
 }

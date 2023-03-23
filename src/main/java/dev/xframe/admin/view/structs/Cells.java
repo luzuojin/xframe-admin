@@ -21,6 +21,10 @@ public class Cells extends Classic {
     public List<Cell> getCells() {
         return cells;
     }
+    public void setCells(List<Cell> cells) {
+        this.cells = cells;
+    }
+
     @Override
     public Content parseFrom(XSegment xseg, Class<?> declaring) {
         this.options = Content.parseOptions(declaring, xseg.model());

@@ -117,8 +117,11 @@ public class Column {
     }
 
     public Column(String key, EColumn type, String name, String hint) {
+        this(key, type.val, name, hint);
+    }
+    public Column(String key, int type, String name, String hint) {
         this.key = key;
-        this.type = type.val;
+        this.type = type;
         this.name = name;
         this.hint = hint;
         this.show = EShowcase.Full;

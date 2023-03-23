@@ -18,7 +18,7 @@ public class DataChapter implements Loadable {
 
     @Override
     public void load() {
-        xReg.registNaviValue("chart", () -> Arrays.asList(new Navi("图表测试1", "tabs1"),new Navi("图表测试2", "tabs2")));
+        xReg.registNaviValue("chart", () -> Arrays.asList(new Navi("tabs1", "图表测试1"),new Navi("tabs2", "图表测试2")));
     }
 
 }

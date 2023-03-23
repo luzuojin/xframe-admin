@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Catalog {
@@ -40,21 +39,20 @@ public class Catalog {
 	}
 
 	public void setChapters(List<Chapter> chapters) {
-		this.chapters = chapters;
+		this.chapters = sortChapters(chapters);
 	}
-	
-	public Catalog copyBy(Predicate<String> predicate) {
-	    Catalog s = new Catalog();
-	    s.name = this.name;
-	    s.icon = this.icon;
-	    for (Chapter chapter : this.chapters) {
-	        if(predicate.test(chapter.getPath())) {
-	            s.chapters.add(chapter.copyBy(chapter.getPath(), predicate));
-	        }
-        }
-	    return s;
+
+	public static List<Chapter> sortChapters(List<Chapter> chapters) {
+		return chapters.stream().peek(c->Collections.sort(c.getNavis())).sorted().collect(Collectors.toList());
 	}
-	
+
+	public Catalog duplicate() {
+		Catalog s = new Catalog();
+		s.name = this.name;
+		s.icon = this.icon;
+		return s;
+	}
+
 	public void parseFrom(List<Class<?>> classes) {
 		Map<String, Chapter> chapters = new LinkedHashMap<>();
         for (Class<?> clazz : classes) {
@@ -78,7 +76,7 @@ public class Catalog {
 				parent.getNavis().add(Wrapper.wrap(parent.path, new Segment(paths[paths.length-1], xseg, parseContent(xseg, clazz))));
             }
         }
-        this.setChapters(chapters.values().stream().peek(c->Collections.sort(c.getNavis())).sorted().collect(Collectors.toList()));
+        this.setChapters(new ArrayList<>(chapters.values()));
 	}
 
 	Content parseContent(XSegment xseg, Class<?> declaring) {

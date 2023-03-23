@@ -31,6 +31,5 @@ INSERT INTO `T_USER` VALUES ('local', '10010', 'local@xframe.dev', '21232f297a57
 
 CREATE TABLE IF NOT EXISTS `T_VALUES` (
     `Key` varchar(128) NOT NULL PRIMARY KEY,
-    `Val` varchar(512) NOT NULL,
-    `Comment` varchar(512)
+    `Val` varchar(65535) NOT NULL
 ) DEFAULT CHARSET=utf8

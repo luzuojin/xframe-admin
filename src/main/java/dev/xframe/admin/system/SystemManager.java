@@ -11,8 +11,8 @@ import dev.xframe.admin.view.structs.Wrapper;
 import dev.xframe.admin.view.values.VEnum;
 import dev.xframe.admin.view.values.VTree;
 import dev.xframe.inject.Bean;
+import dev.xframe.inject.Eventual;
 import dev.xframe.inject.Inject;
-import dev.xframe.inject.Loadable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Bean
-public class SystemManager implements Loadable {
+public class SystemManager implements Eventual {
     
     @Inject
     private SystemRepo sysRepo;
@@ -34,12 +34,12 @@ public class SystemManager implements Loadable {
     private RolePrivileges basicRole;
     
     @Override
-    public void load() {
+    public void eventuate() {
         privileges.add(Privilege.WHOLE);
 
         List<VEnum> ptrees = new ArrayList<>();
         ptrees.add(new VTree("_", "全部"));
-        basicMgr.getCatalog().getChapters().forEach(c->{
+        basicMgr.getChapters().forEach(c->{
             VTree ptree = new VTree(c.getPath(), c.getName());
             privileges.add(new Privilege(c.getName(), c.getPath()));
             for (Navi navi : c.getNavis()) {
