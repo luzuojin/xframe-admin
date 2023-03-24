@@ -4,20 +4,22 @@ import dev.xframe.admin.store.StoreKey;
 import dev.xframe.admin.system.role.Role;
 import dev.xframe.admin.system.settings.Setting;
 import dev.xframe.admin.system.user.User;
+import dev.xframe.admin.utils.ProvideHelper;
 import dev.xframe.inject.Repository;
 import dev.xframe.jdbc.TypeQuery;
 import dev.xframe.utils.XOptional;
 
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 @Repository
 public class SystemRepo {
 	
-	private TypeQuery<User> userQuery = 
-			TypeQuery.newBuilder(User.class).setTable(StoreKey.DAT, "T_USER").build();
+	private TypeQuery<User> userQuery =
+			(TypeQuery<User>) TypeQuery.newBuilder(ProvideHelper.provided(User.class)).setTable(StoreKey.DAT, "T_USER").build();
 	
 	private TypeQuery<Role> roleQuery =
-			TypeQuery.newBuilder(Role.class).setTable(StoreKey.DAT, "T_ROLE").build();
+			(TypeQuery<Role>) TypeQuery.newBuilder(ProvideHelper.provided(Role.class)).setTable(StoreKey.DAT, "T_ROLE").build();
 
 	private TypeQuery<Setting> settingQuery =
 			TypeQuery.newBuilder(Setting.class).setTable(StoreKey.DAT, "T_VALUES").build();

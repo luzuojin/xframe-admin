@@ -1,5 +1,6 @@
 package dev.xframe.admin.view.structs;
 
+import dev.xframe.admin.utils.ProvideHelper;
 import dev.xframe.admin.view.XAdapter;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XSegment;
@@ -63,7 +64,7 @@ public interface Content {
     }
 
     static List<Column> parseModelColumns(Class<?> model) {
-        return parseModelColumns0(model, new ArrayList<>());
+        return parseModelColumns0(ProvideHelper.provided(model), new ArrayList<>());
     }
     static List<Column> parseModelColumns0(Class<?> model, List<Column> columns) {
         if((model.getSuperclass()) != null) {

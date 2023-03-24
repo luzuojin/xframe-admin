@@ -1,18 +1,18 @@
-package dev.xframe.admin.system.privilege;
-
-import dev.xframe.admin.view.XColumn;
+package dev.xframe.admin.system.auth;
 
 public class Privilege {
+
+    public static final Privilege Admin = new Privilege("_", "全部") {
+        @Override
+        public boolean match(String path) {
+            return true;
+        }
+    };
 	
-	public static final String WHOLE_PATH = "_";
-	public static final Privilege WHOLE = new Privilege("全部", WHOLE_PATH);
-	
-	@XColumn("模块名")
-	private String name;
-	@XColumn("访问路径")
-	private String path;
-	
-	public Privilege(String name, String path) {
+	protected String path;
+    protected String name;
+
+	public Privilege(String path, String name) {
 		this.name = name;
 		this.path = path;
 	}
@@ -36,6 +36,10 @@ public class Privilege {
         int result = 1;
         result = prime * result + ((path == null) ? 0 : path.hashCode());
         return result;
+    }
+
+    public boolean match(String path) {
+        return this.path.equals(path) || this.path.startsWith(path + "/") || path.startsWith(this.path + "/");
     }
 
     @Override

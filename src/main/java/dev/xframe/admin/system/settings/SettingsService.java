@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Rest("system/settings/")
+@Rest("xsystem/settings/")
 @XSegment(name="全局配置", type = EContent.Panel, desc = "全局配置", order = 80)
 public class SettingsService {
 

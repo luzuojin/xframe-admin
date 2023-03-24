@@ -4,25 +4,27 @@ import dev.xframe.admin.system.SysEnumKeys;
 import dev.xframe.admin.view.EColumn;
 import dev.xframe.admin.view.EShowcase;
 import dev.xframe.admin.view.XColumn;
+import dev.xframe.inject.Providable;
 
 import java.sql.Timestamp;
 
+@Providable
 public class User {
 
 	@XColumn(value="用户名", show= EShowcase.xorEdit, primary=true, required=true)
-	private String name;
+	protected String name;
 	@XColumn(value="手机", required=true)
-	private String phone;
+	protected String phone;
 	@XColumn(value="邮箱", required=true)
-	private String email;
+	protected String email;
 	@XColumn(value="密码", show= EShowcase.Add, type= EColumn.Pass, required=true)
-	private String passw;
+	protected String passw;
 	@XColumn(value="角色", enumKey= SysEnumKeys.ROLE_LIST, type= EColumn.Mult, required=true)
-	private int[] roles;
+	protected int[] roles;
 	@XColumn(value="类型", show= EShowcase.ListEdel, enumKey = SysEnumKeys.USER_TYPES)
-	private int type;
+	protected int type;
 	@XColumn(value="创建时间", show= EShowcase.ListEdel, type= EColumn.Datetime)
-	private Timestamp ctime;
+	protected Timestamp ctime;
 	
 	public User() {
 	}

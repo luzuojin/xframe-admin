@@ -2,6 +2,7 @@ package dev.xframe.admin.conf;
 
 import dev.xframe.admin.system.auth.AuthManager;
 import dev.xframe.admin.utils.JsonHelper;
+import dev.xframe.admin.utils.ProvideHelper;
 import dev.xframe.admin.view.values.VResp;
 import dev.xframe.http.Request;
 import dev.xframe.http.Response;
@@ -51,7 +52,7 @@ public class HttpConfigurator extends HttpConfigSetter {
     }
 
     private Object createObject(Class<?> type, byte[] data) {
-        return JsonHelper.parseObject(data, type);
+        return JsonHelper.parseObject(data, ProvideHelper.provided(type));
     }
 
     @Override

@@ -16,7 +16,7 @@ import dev.xframe.utils.XStrings;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Rest("system/user")
+@Rest("xsystem/user")
 @XSegment(name="用户列表", model=User.class, order = 90)//path use @http.path
 public class UserService {
 	
@@ -61,10 +61,10 @@ public class UserService {
     @HttpMethods.PUT
 	public Object edit(@HttpArgs.Body User user) {
 		User ex = sysRepo.fetchUser(user.getName());
-		ex.setEmail(user.getEmail());
-		ex.setPhone(user.getPhone());
-		ex.setRoles(user.getRoles());
-		sysRepo.saveUser(ex);//sync
+		//sync can`t edit fields
+		user.setCtime(ex.getCtime());
+		user.setPassw(ex.getPassw());
+		sysRepo.saveUser(user);
 		return clearPass(user);
 	}
 	
@@ -82,12 +82,6 @@ public class UserService {
 		if(!XStrings.isEmpty(name)) {
 			return datas.stream().filter(u->u.getName().contains(name)).collect(Collectors.toList());
 		}
-//		if(!XStrings.isEmpty(phone)) {
-//			return datas.stream().filter(u->u.getPhone().contains(phone)).collect(Collectors.toList());
-//		}
-//		if(!XStrings.isEmpty(email)) {
-//			return datas.stream().filter(u->u.getEmail().contains(email)).collect(Collectors.toList());
-//		}
 		return datas;
 	}
 	

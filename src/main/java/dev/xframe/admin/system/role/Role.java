@@ -4,11 +4,14 @@ import dev.xframe.admin.system.SysEnumKeys;
 import dev.xframe.admin.view.EColumn;
 import dev.xframe.admin.view.EShowcase;
 import dev.xframe.admin.view.XColumn;
+import dev.xframe.inject.Providable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Providable
 public class Role {
+
     public static final int op_qry = 0;
     public static final int op_add = 1;
     public static final int op_edt = 2;
@@ -16,16 +19,13 @@ public class Role {
     public static final int op_all = 7;
 
     @XColumn(value="#", show= EShowcase.ListEdel, primary=true)
-    private int id;
-    
+	protected int id;
 	@XColumn(value="角色", required=true)
-	private String name;
-	
+	protected String name;
 	@XColumn(value="权限", enumKey= SysEnumKeys.PRIVILEGE_TREE, type= EColumn.Tree, required=true)
-	private List<String> authorities = new ArrayList<>();
-	
+	protected List<String> authorities = new ArrayList<>();
 	@XColumn(value="操作", enumKey= SysEnumKeys.ROLE_OPTIONS, type= EColumn.Mult, required=true)
-    private int[] options;
+	protected int[] options;
 	
 	public int getId() {
         return id;
