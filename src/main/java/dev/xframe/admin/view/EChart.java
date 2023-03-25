@@ -1,14 +1,9 @@
 package dev.xframe.admin.view;
 
-public enum EChart {
-    Markd   (-1),   //only used by CellsContent: @XCell.type
-    Table   (0),
-    Line    (1),
-    Bar     (2),
-    Pie     (3),
-    ;
-    public final int val;
-    EChart(int val) {
-        this.val = val;
-    }
+public interface EChart {
+    int Markd   =-1;   //only used by CellsContent: @XCell.type
+    int Table   = 0;
+    int Line    = 1;
+    int Bar     = 2;
+    int Pie     = 3;
 }

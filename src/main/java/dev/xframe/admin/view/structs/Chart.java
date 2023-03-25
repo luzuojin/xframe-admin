@@ -13,7 +13,7 @@ public class Chart extends Classic {
     public Content parseFrom(XSegment xseg, Class<?> declaring) {
         this.options = Content.parseOptions(declaring, xseg.model());
         this.checkIniOption();
-        this.chartType = xseg.chart().val;
+        this.chartType = xseg.chart();
         this.chartTitle = xseg.desc();
         return this;
     }

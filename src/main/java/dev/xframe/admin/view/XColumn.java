@@ -14,7 +14,7 @@ public @interface XColumn {
 	String value() default "";
 	String hint() default "";
 	/**类型 @see 常量XColumn.type_...*/
-	EColumn type() default EColumn.Text;
+	int type() default EColumn.Text;
 	/**显示配置 @see 常量XColumn.list...etc*/
 	int show() default EShowcase.Full;
 	/**下拉列表时获取下拉菜单的关键字 @see BasicContext.registEnumValue*/
@@ -35,7 +35,7 @@ public @interface XColumn {
 	String cacheKey() default "";
 
 	XColumn Default = new XColumn(){
-		public EColumn type() {return EColumn.Text;}
+		public int type() {return EColumn.Text;}
 		public String value() {return "";}
 		public String hint() {return "";}
 		public int show() {return EShowcase.Full;}

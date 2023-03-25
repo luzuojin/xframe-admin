@@ -1,5 +1,6 @@
 package dev.xframe.admin.view.structs;
 
+import dev.xframe.admin.view.EContent;
 import dev.xframe.admin.view.XChapter;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Service;
@@ -80,7 +81,7 @@ public class Catalog {
 	}
 
 	Content parseContent(XSegment xseg, Class<?> declaring) {
-		return xseg.type().fac.get().parseFrom(xseg, declaring);
+		return EContent.Factory.newInstance(xseg.type()).parseFrom(xseg, declaring);
 	}
 	
 }

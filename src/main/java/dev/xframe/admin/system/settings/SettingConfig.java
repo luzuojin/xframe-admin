@@ -8,7 +8,7 @@ public class SettingConfig {
     public final Column column;
     public final String defaultValue;
     public final SettingListener listener;
-    public SettingConfig(String key, EColumn type, String name, String hint, String defaultValue, SettingListener listener) {
+    public SettingConfig(String key, int type, String name, String hint, String defaultValue, SettingListener listener) {
         String columnKye = key.replace(".", "_");
         this.originKey = key;
         this.column = new Column(columnKye, type, name, hint);

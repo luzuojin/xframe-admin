@@ -18,8 +18,8 @@ public abstract class Classic implements Content {
 	protected List<Column> columns = Collections.emptyList();
 	protected List<Option> options = Collections.emptyList();
 	
-	protected Classic(EContent type) {
-		this.type = type.val;
+	protected Classic(int type) {
+		this.type = type;
 	}
 	
 	public int getType() {

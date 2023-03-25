@@ -45,18 +45,18 @@ public class CustomComponent implements Loadable {
     @Override
     public void load() {
         List<VEnum> colEnums = Arrays.asList(
-                new VEnum(EColumn.Text.val, "文本"),
-                new VEnum(EColumn.Number.val, "数字"),
-                new VEnum(EColumn.Date.val, "日期"),
-                new VEnum(EColumn.Time.val, "时间"),
-                new VEnum(EColumn.Datetime.val, "日期&时间")
+                new VEnum(EColumn.Text, "文本"),
+                new VEnum(EColumn.Number, "数字"),
+                new VEnum(EColumn.Date, "日期"),
+                new VEnum(EColumn.Time, "时间"),
+                new VEnum(EColumn.Datetime, "日期&时间")
         );
         List<VEnum> cttEnums = Arrays.asList(
-                new VEnum(EChart.Table.val, "表格"),
-                new VEnum(EChart.Line.val, "折线图"),
-                new VEnum(EChart.Pie.val, "饼图"),
-                new VEnum(EChart.Bar.val, "柱状图"),
-                new VEnum(EChart.Markd.val, "Markdown")
+                new VEnum(EChart.Table, "表格"),
+                new VEnum(EChart.Line, "折线图"),
+                new VEnum(EChart.Pie, "饼图"),
+                new VEnum(EChart.Bar, "柱状图"),
+                new VEnum(EChart.Markd, "Markdown")
         );
         xReg.registEnumValue(DYNAMIC_COL_TYPES, () -> colEnums);
         xReg.registEnumValue(DYNAMIC_CEL_TYPES, () -> cttEnums);

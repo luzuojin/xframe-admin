@@ -41,7 +41,7 @@ public class Cell implements Comparable<Cell> {
         Cell cell = new Cell();
         cell.path = path;
         cell.title= xc.title();
-        cell.type = xc.type().val;
+        cell.type = xc.type();
         cell.row  = xc.row();
         cell.col  = xc.col();
         cell.pIndex=pIndex;

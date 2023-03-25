@@ -51,7 +51,7 @@ public class Column {
      * @param jtype field.type
      * @param ctype field.componentType
      */
-    static EColumn inferType(XColumn xc, Class<?> jtype, Class<?> ctype, String key) {
+    static int inferType(XColumn xc, Class<?> jtype, Class<?> ctype, String key) {
         if(xc.type() == EColumn.Text) {
             if(!XStrings.isEmpty(xc.enumKey()))
                 return isMulti(jtype) ? EColumn.Mult : EColumn.Enum;
@@ -96,13 +96,13 @@ public class Column {
     public static Column of(String key, XColumn xc, Type type) {
         Class<?> jCls = getRawType(type);
         Class<?> cCls = getComponentType(type);
-        EColumn colType = inferType(xc, jCls, cCls, key);
-        return colType.isNested() ? new Nested(key, colType, xc, Content.parseModelColumns(cCls)) : new Column(key, colType, xc);
+        int colType = inferType(xc, jCls, cCls, key);
+        return EColumn.isNested(colType) ? new Nested(key, colType, xc, Content.parseModelColumns(cCls)) : new Column(key, colType, xc);
     }
 
-    public Column(String key, EColumn type, XColumn xc) {
+    public Column(String key, int type, XColumn xc) {
         this.key = key;
-        this.type = type.val;
+        this.type = type;
         this.name = XStrings.orElse(xc.value(), firstToUpperCase(key));
         this.hint = xc.hint();
         this.enumKey = xc.enumKey();
@@ -111,14 +111,11 @@ public class Column {
         this.collapse = xc.collapse();
         this.compact = xc.compact();
         this.required = xc.required();
-        this.sortable = xc.sortable() && !type.isNested();
+        this.sortable = xc.sortable() && !EColumn.isNested(type);
         this.cacheKey = xc.cacheKey();
         this.cacheable = xc.cacheable() || !XStrings.isEmpty(this.cacheKey);
     }
 
-    public Column(String key, EColumn type, String name, String hint) {
-        this(key, type.val, name, hint);
-    }
     public Column(String key, int type, String name, String hint) {
         this.key = key;
         this.type = type;

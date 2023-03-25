@@ -1,29 +1,25 @@
 package dev.xframe.admin.view;
 
-public enum EColumn {
-    Text    (0),    //文本
-    Area    (1),    //大段文本
-    Number  (2),    //数字
-    Pass    (3),    //密码
-    Phone   (4),    //手机号
-    Email   (5),    //邮箱
-    Bool    (20),   //check radio
-    Enum    (21),   //下拉框 @see XRegistrator.registEnumValue
-    Mult    (22),   //下拉框(多选)
-    Tree    (23),   //下拉框(树状多选)
-    Datetime(30),   //日期+时间
-    Date    (31),   //日期
-    Time    (32),   //仅时间
-    File    (40),   //文件
-    Imag    (41),   //图片
-    Model   (80),   //对应object
-    List    (81),   //object list
-    ;
-    public final int val;
-    EColumn(int val) {
-        this.val = val;
-    }
-    public boolean isNested() {
-        return this == Model || this == List;
+public interface EColumn {
+    int Text    = 0;    //文本
+    int Area    = 1;    //大段文本
+    int Number  = 2;    //数字
+    int Pass    = 3;    //密码
+    int Phone   = 4;    //手机号
+    int Email   = 5;    //邮箱
+    int Bool    = 20;   //check radio
+    int Enum    = 21;   //下拉框 @see XRegistrator.registEnumValue
+    int Mult    = 22;   //下拉框(多选)
+    int Tree    = 23;   //下拉框(树状多选)
+    int Datetime= 30;   //日期+时间
+    int Date    = 31;   //日期
+    int Time    = 32;   //仅时间
+    int File    = 40;   //文件
+    int Imag    = 41;   //图片
+    int Model   = 80;   //对应object
+    int List    = 81;   //object list
+
+    static boolean isNested(int ecol) {
+        return ecol == Model || ecol == List;
     }
 }

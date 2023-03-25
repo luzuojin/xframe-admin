@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Repeatable(XCells.class)
 public @interface XCell {
 
-    EChart type() default EChart.Line;
+    int type() default EChart.Line;
 
     String title() default "";
     /**

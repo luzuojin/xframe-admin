@@ -12,7 +12,7 @@ public class Nested extends Column {
 
 	private List<Column> columns;
 
-	public Nested(String key, EColumn type, XColumn xc, List<Column> columns) {
+	public Nested(String key, int type, XColumn xc, List<Column> columns) {
 		super(key, type, xc);
 		this.columns = columns;
 	}

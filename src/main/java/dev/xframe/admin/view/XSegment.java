@@ -15,7 +15,7 @@ public @interface XSegment {
 	
 	String name();
 
-	EContent type() default EContent.Table;
+	int type() default EContent.Table;
 
 	Class<?> model() default void.class;
 
@@ -26,7 +26,7 @@ public @interface XSegment {
 	String desc() default "";//description
 
 	//for chart content
-	EChart chart() default EChart.Table;
+	int chart() default EChart.Table;
 
 	//order[large---small]
 	int order() default 10;
