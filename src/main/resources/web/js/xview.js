@@ -542,8 +542,8 @@ class ChartContent extends Content {
                     <div id="xchartheadbar" class="clearfix w-100"></div>
                 </div>
             </div>
-            <div id="xchartbody" class="card-body">
-            </div>
+            <div id="xchartitle" class="card-header"></div>
+            <div id="xchartbody" class="card-body"></div>
         </div>`);
         return this;
     }
@@ -555,12 +555,16 @@ class ChartContent extends Content {
         if(!TableContent.showHeadBar(this.xc.child('xchartheadbar'), this.getOptionsFunc(), _data=>this.setData(_data).showContentBody())) {
             this.xc.child('xcharthead').remove();
         }
+        if(!!this.chartTitle) {
+            this.xc.child('xchartitle').html($(`<span>${this.chartTitle}</span>`));
+        } else {
+            this.xc.child('xchartitle').remove();
+        }
     }
     showContentBody() {
         let  _pdom = this.xc.child('xchartbody').empty();
         let config = this.makeConfig({
             type :this.chartType,
-            title:this.chartTitle,
             datas:this.getData([])
         });
         if(config.type == ChartTypesArray[0]) {
@@ -570,12 +574,12 @@ class ChartContent extends Content {
         }
     }
     showChartBody(_pdom, config) {
-        let canvas = $(`<canvas class="w-100"><canvas/>`).appendTo(_pdom);
+        let canvas = $(`<canvas class="w-100" style="max-height:360px;"><canvas/>`).appendTo(_pdom);
         new Chart(canvas, config);
     }
     showTableBody(_pdom, config) {
         let tabox = $(`<div class="table-responsive"></div>`);
-        let table = $(`<table class="table table-bordered table-hover"></table>`);
+        let table = $(`<table class="table table-bordered table-hover table-sm"></table>`);
         let thead = $(`<thead bgcolor="#f8f9fa"></thead>`);
         let tbody = $(`<tbody></tbody>`);
         [{label:'', data:config.data.labels}].concat(config.data.datasets).forEach(_dataset => {
@@ -612,10 +616,6 @@ class ChartContent extends Content {
                     legend: {
                         display: true,
                         position: 'bottom',
-                    },
-                    title: {
-                        display: !!_vchart.title,
-                        text: xOrElse(_vchart.title, '')
                     }
                 }
             }
