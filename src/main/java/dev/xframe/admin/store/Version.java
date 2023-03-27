@@ -1,12 +1,13 @@
 package dev.xframe.admin.store;
 
+import dev.xframe.utils.XReflection;
+
 import java.sql.Timestamp;
 import java.util.regex.Pattern;
 
-import dev.xframe.admin.view.XColumn;
-
 public class Version {
 
+    private String component;
     /**
      * format: 0.0
      */
@@ -14,18 +15,24 @@ public class Version {
     
     private Timestamp upTime;
     
-    @XColumn(show=0)
     private String sqlPath;
     
     public Version() {
     }
     
     public Version(String version, String sqlPath) {
+        this.component = XReflection.getCallerClass().getName();
         this.version = toInt(version);
         this.sqlPath = sqlPath;
         this.upTime = new Timestamp(System.currentTimeMillis());
     }
-    
+
+    public String getComponent() {
+        return component;
+    }
+    public void setComponent(String component) {
+        this.component = component;
+    }
     public int getVersion() {
         return version;
     }
@@ -44,7 +51,7 @@ public class Version {
     public void setSqlPath(String sqlPath) {
         this.sqlPath = sqlPath;
     }
-    
+
     public static String toStr(int version) {
     	return (version / 1000) + "." + (version % 1000);
     }
@@ -52,5 +59,5 @@ public class Version {
     	String[] args = version.split(Pattern.quote("."));
     	return Integer.parseInt(args[0]) * 1000 + Integer.parseInt(args[1]);
     }
-    
+
 }

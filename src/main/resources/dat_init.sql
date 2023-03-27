@@ -1,18 +1,20 @@
 CREATE TABLE IF NOT EXISTS `T_VERSION_DAT` (
-  `Version` int NOT NULL PRIMARY KEY,
-  `UpTime` timestamp NOT NULL
+  `Component` varchar(128) NOT NULL,
+  `Version` int NOT NULL,
+  `UpTime` timestamp NOT NULL,
+  PRIMARY KEY(`Component`, `Version`)
 ) DEFAULT CHARSET=utf8;
 
-INSERT INTO `T_VERSION_DAT` VALUES ('0', now());
 
 CREATE TABLE IF NOT EXISTS `T_ROLE` (
   `Id` int(11) NOT NULL PRIMARY KEY,
   `Name` varchar(64) NOT NULL,
   `Authorities` varchar(1024) NOT NULL,
+  `AuthReversed` tinyint(1) NOT NULL,
   `Options` varchar(32) NOT NULL
 ) DEFAULT CHARSET=utf8;
 
-INSERT INTO `T_ROLE` VALUES (1001, 'Admin', '_', '7');
+INSERT INTO `T_ROLE` VALUES (1001, 'Admin', '_', 0, '7');
 
 
 CREATE TABLE IF NOT EXISTS `T_USER` (

@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS `T_VERSION_LOG` (
-  `Version` int NOT NULL PRIMARY KEY,
-  `UpTime` timestamp NOT NULL
+  `Component` varchar(128) NOT NULL,
+  `Version` int NOT NULL,
+  `UpTime` timestamp NOT NULL,
+  PRIMARY KEY(`Component`, `Version`)
 ) DEFAULT CHARSET=utf8;
-
-INSERT INTO `T_VERSION_LOG` VALUES ('0', now());
 
 CREATE TABLE IF NOT EXISTS `T_OP_LOG` (
   `Name` varchar(64) NOT NULL,

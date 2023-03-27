@@ -1,6 +1,6 @@
 package dev.xframe.admin.store;
 
-import dev.xframe.inject.Bean;
+import dev.xframe.inject.Configurator;
 import dev.xframe.inject.Inject;
 import dev.xframe.inject.Loadable;
 import dev.xframe.jdbc.JdbcEnviron;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static dev.xframe.admin.store.StoreConfigurator.readScripts;
 
-@Bean
+@Configurator
 public class VersionManager implements Loadable  {
 	
 	@Inject
@@ -47,15 +47,11 @@ public class VersionManager implements Loadable  {
 	}
 	
 	public void update(StoreKey key, Version version) {
-	    int v = fetch(key).stream().mapToInt(Version::getVersion).max().orElse(-1);
-	    if(v == -1) {
-	    	throw new IllegalArgumentException("History versions error");
-	    }
-	    XLogger.info("Current {} version: {}", key, Version.toStr(v));
-	    if(version.getVersion() > v) {
+	    int intv = fetch(key).stream().filter(v->version.getComponent().equals(v.getComponent())).mapToInt(Version::getVersion).max().orElse(0);
+	    if(version.getVersion() > intv) {
 			readScripts(version.getSqlPath()).forEach(script->runScript(key, script));
 	    	addVersion(key, version);
-	    	XLogger.info("Updated version: {}", Version.toStr(version.getVersion()));
+	    	XLogger.info("Updated [{}] version {} to {}", version.getComponent(), Version.toStr(intv), Version.toStr(version.getVersion()));
 	    }
 	}
 
