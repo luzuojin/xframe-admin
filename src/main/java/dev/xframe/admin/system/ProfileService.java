@@ -2,18 +2,19 @@ package dev.xframe.admin.system;
 
 import dev.xframe.admin.conf.LogicException;
 import dev.xframe.admin.system.auth.AuthManager;
-import dev.xframe.admin.system.auth.OpUser;
 import dev.xframe.admin.system.user.User;
 import dev.xframe.admin.system.user.UserInterface;
 import dev.xframe.admin.system.user.UserInterfaces;
+import dev.xframe.admin.utils.MD5;
+import dev.xframe.admin.utils.ProvideHelper;
 import dev.xframe.admin.view.values.VLogin;
-import dev.xframe.admin.view.values.VResp;
 import dev.xframe.admin.view.values.VUser;
 import dev.xframe.http.Request;
 import dev.xframe.http.service.Rest;
 import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
 import dev.xframe.inject.Inject;
+import dev.xframe.utils.XReflection;
 
 @Rest("basic/profile")
 public class ProfileService {
@@ -35,7 +36,13 @@ public class ProfileService {
             }
             //extended user, new for this system
             UserInterface ui = UserInterfaces.Internal.getInterface(type);
-            user = new User(data.getName(), ui.makePhone(data.getName()), ui.makeEmail(data.getName()), type);
+            user = XReflection.newInstance(ProvideHelper.provided(User.class));
+            user.setType(type);
+            user.setName(data.getName());
+            user.setEmail(ui.makeEmail(data.getName()));
+            user.setPhone(ui.makePhone(data.getName()));
+            user.setRoles(new int[0]);
+            user.newCTime();
             sysRepo.addUser(user);
         } else if(user.getType() != UserInterfaces.TypeNormal) {
             UserInterfaces.Internal.getInterface(user.getType()).validate(data.getName(), data.getPassw());
@@ -43,12 +50,11 @@ public class ProfileService {
             if(!authMgr.isLocalHost(req)){
                 throw new LogicException("非内网访问");
             }
-        } else if(!user.getPassw().equals(data.getPassw())) {
+        } else if(!user.getPassw().equals(MD5.encrypt(data.getPassw()))) {
             throw new LogicException("密码错误");
         }
         //处理token/权限
-        VUser vUser = new VUser(user.getName(), authMgr.regist(sysMgr.getPrivileges(user)));
-        return user.roled() ? vUser : VResp.hint("未分配角色,请联系系统管理员!!!", vUser);
+        return new VUser(user.getName(), authMgr.regist(sysMgr.getPrivileges(user)), user.roled());
     }
 
     @HttpMethods.DELETE
@@ -60,7 +66,7 @@ public class ProfileService {
     @HttpMethods.PUT
     public Object profile(@HttpArgs.Body VLogin data) {
         User user = sysRepo.fetchUser(data.getName());
-        user.setPassw(data.getPassw());
+        user.setPassw(MD5.encrypt(data.getPassw()));
         sysRepo.saveUser(user);
         return "{}";
     }

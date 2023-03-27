@@ -4,10 +4,12 @@ public class VUser {
 	
 	private String name;
 	private String token;
+	private boolean roled;
 	
-	public VUser(String name, String token) {
+	public VUser(String name, String token, boolean roled) {
 	    this.name = name;
 	    this.token = token;
+		this.roled = roled;
     }
 	
     public String getName() {
@@ -22,5 +24,10 @@ public class VUser {
 	public void setToken(String token) {
 		this.token = token;
 	}
-
+	public boolean isRoled() {
+		return roled;
+	}
+	public void setRoled(boolean roled) {
+		this.roled = roled;
+	}
 }

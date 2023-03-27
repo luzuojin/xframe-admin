@@ -326,17 +326,18 @@ function doLogin() {
     let _isAutoLogin = false;
     let cb = op.onDataChanged = data=>{
         showUser(data, _isAutoLogin);
-        showCatalog();  //show
-        callExts('onLogin');
+        if(data.roled) {
+           showCatalog();  //show
+           callExts('onLogin');
+        } else {
+            xtoast.warn('未分配权限,请联系管理员!!!');
+        }
     };
     if(_isAutoLogin = isLocalAutoLogin()) {
         let cb0 = resp=>{
             if(resp.status == -1) {
                 op.popup();
             } else {
-                if(resp.text) {//-2
-                    xtoast.warn(resp.text);
-                }
                 cb(resp.data);
             }
         }

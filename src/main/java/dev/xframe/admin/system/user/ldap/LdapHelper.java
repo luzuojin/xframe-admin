@@ -4,6 +4,7 @@ import dev.xframe.utils.XLogger;
 import dev.xframe.utils.XStrings;
 
 import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import java.util.Hashtable;
@@ -24,6 +25,8 @@ public class LdapHelper {
             env.put(Context.SECURITY_CREDENTIALS, password);
             ctx = new InitialLdapContext(env, null);
             return true;
+        } catch (NamingException e) {
+            XLogger.warn("Ldap user[{}] validate failed cause:\n{}", uid, e.getMessage());
         } catch (Throwable e) {
             XLogger.warn("Ldap user[{}] validate failed cause:\n{}", uid, XStrings.getStackTrace(e));
         } finally {

@@ -994,9 +994,9 @@ class PasswordColumn extends Column {
     makeFormValHtm() {    //dlgHtmFunc
         return `<input id="dinput_${this.pid()}" class="form-control" placeholder="${this.hint||this.name}" type="password">`;
     }
-    getFormVal() {        //dlgDataFunc
-        return $.md5(super.getFormVal());
-    }
+//    getFormVal() {        //dlgDataFunc
+//        return $.md5(super.getFormVal());
+//    }
 }
 class NumberColumn extends Column {
     static _ = Column.regist([colTypes._numb], this);

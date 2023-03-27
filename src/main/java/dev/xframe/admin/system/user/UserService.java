@@ -5,6 +5,7 @@ import dev.xframe.admin.system.SysEnumKeys;
 import dev.xframe.admin.system.SystemManager;
 import dev.xframe.admin.system.SystemRepo;
 import dev.xframe.admin.system.XEnumKeys;
+import dev.xframe.admin.utils.MD5;
 import dev.xframe.admin.view.XColumn;
 import dev.xframe.admin.view.XSegment;
 import dev.xframe.http.service.Rest;
@@ -37,6 +38,7 @@ public class UserService {
 	public Object add(@HttpArgs.Body User user) {
 	    validateUser(user);
 		user.setType(UserInterfaces.TypeNormal);
+		user.setPassw(MD5.encrypt(user.getPassw()));
 		user.newCTime();
 		sysRepo.addUser(user);//sync
 		XEnumKeys.clear(SysEnumKeys.USER_LIST);
