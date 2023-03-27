@@ -1,6 +1,7 @@
 package dev.xframe.admin.system.auth;
 
 import dev.xframe.admin.system.SystemManager;
+import dev.xframe.admin.system.user.User;
 import dev.xframe.http.Request;
 import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;
@@ -36,12 +37,13 @@ public class AuthManager implements Loadable {
         ScheduledExecutor.period(this::clearExpiryUser, 10, TimeUnit.MINUTES);
 
         addUnblockedPath(Unblocked.of("basic/profile", HttpMethod.POST));
+        addUnblockedPath(Unblocked.of("basic/extensions", HttpMethod.GET));
     }
 
     public void clearExpiryUser() {
         tokenMap.keySet().forEach(key->{
             UserPrivileges p = tokenMap.get(key);
-            if(!OpUser.isLocalUser(p.getUsername()) && isInactive(p.getLastActiveTime())) {//1hours
+            if(!p.getUser().isTrusted() && isInactive(p.getLastActiveTime())) {//1hours
                 tokenMap.remove(key);
             }
         });
@@ -59,11 +61,11 @@ public class AuthManager implements Loadable {
     }
 
     public String regist(UserPrivileges privileges) {
-        String username = privileges.getUsername();
-        OpUser.set(username);
+        User user = privileges.getUser();
+        OpUser.set(user);
         //del old token 
-        UserPrivileges ex = userMap.put(username, privileges);
-        if(ex != null && ex.getToken() != null && !OpUser.isLocalUser(username))//local user不顶号
+        UserPrivileges ex = userMap.put(user.getName(), privileges);
+        if(ex != null && ex.getToken() != null && !user.isTrusted())//local user不顶号
             tokenMap.remove(ex.getToken());
         //add new token
         String token = UUID.randomUUID().toString();
@@ -77,11 +79,11 @@ public class AuthManager implements Loadable {
         userMap.remove(name);
     }
 
-    public String getAuthUsername(Request req) {
+    public User getAuthUser(Request req) {
         String token = getXToken(req);
         if(token != null) {
             UserPrivileges p = tokenMap.get(token);
-            if(p != null) return p.getUsername();
+            if(p != null) return p.getUser();
         }
         return null;
     }
@@ -104,9 +106,9 @@ public class AuthManager implements Loadable {
         if(unblockedMatch(req.method(), path)) {
             return false;
         }
-        if(!isPrivilegePath(path) && isLocalHost(req)) {
-            return false;
-        }
+        //if(!isPrivilegePath(path) && isLocalHost(req)) {
+        //    return false;
+        //}
         return !hasPrivilege(req.method(), path);
     }
 
@@ -128,7 +130,7 @@ public class AuthManager implements Loadable {
         return XStrings.orElse(req.getHeader(REAL_IP_KEY), req.remoteHost());
     }
     public boolean hasPrivilege(HttpMethod method, String path) {
-        String username = OpUser.get();
+        String username = OpUser.getName();
         if(username == null) {
             return false;
         }

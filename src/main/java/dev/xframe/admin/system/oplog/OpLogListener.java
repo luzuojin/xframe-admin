@@ -18,7 +18,7 @@ public class OpLogListener implements HttpListener {
 
     @Override
     public void onAccessComplete(Request req, Response resp) {//succ ops
-        String user = OpUser.get();
+        String user = OpUser.getName();
         if(user == null) return;
         HttpMethod method = req.method();
         if(!method.equals(HttpMethod.GET) && !method.equals(HttpMethod.OPTIONS)) {

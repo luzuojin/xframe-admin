@@ -14,27 +14,8 @@ import java.util.stream.Collectors;
 
 public class Catalog {
 	
-	private String name;
-	private String icon;
-	
 	private List<Chapter> chapters = new ArrayList<>();
 	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getIcon() {
-		return icon;
-	}
-
-	public void setIcon(String icon) {
-		this.icon = icon;
-	}
-
 	public List<Chapter> getChapters() {
 		return chapters;
 	}
@@ -48,10 +29,7 @@ public class Catalog {
 	}
 
 	public Catalog duplicate() {
-		Catalog s = new Catalog();
-		s.name = this.name;
-		s.icon = this.icon;
-		return s;
+		return new Catalog();
 	}
 
 	public void parseFrom(List<Class<?>> classes) {

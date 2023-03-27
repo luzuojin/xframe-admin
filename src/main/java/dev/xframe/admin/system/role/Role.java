@@ -24,6 +24,8 @@ public class Role {
 	protected String name;
 	@XColumn(value="权限", enumKey= SysEnumKeys.PRIVILEGE_TREE, type= EColumn.Tree, required=true)
 	protected List<String> authorities = new ArrayList<>();
+	@XColumn(value="权限反选", type= EColumn.Bool)
+	protected boolean authReversed;
 	@XColumn(value="操作", enumKey= SysEnumKeys.ROLE_OPTIONS, type= EColumn.Mult, required=true)
 	protected int[] options;
 	
@@ -44,6 +46,12 @@ public class Role {
 	}
 	public void setAuthorities(List<String> authorities) {
 		this.authorities = authorities;
+	}
+	public boolean getAuthReversed() {
+		return authReversed;
+	}
+	public void setAuthReversed(boolean authReversed) {
+		this.authReversed = authReversed;
 	}
 	public int[] getOptions() {
         return options;

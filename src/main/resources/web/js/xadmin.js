@@ -212,7 +212,7 @@ function xtreeselect(e, col) {
     return e.comboTree({
         source: d,
         isMultiple: true,
-        cascadeSelect: true,
+        cascadeSelect: false,
         isolatedSelectable: true,
         collapse: true
     });

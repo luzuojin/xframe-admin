@@ -90,6 +90,27 @@ public class User {
         this.roles = roles;
     }
 
+	//for extends
+	public boolean readable(String path) {
+		return accessable(path);
+	}
+	public boolean creatable(String path) {
+		return accessable(path);
+	}
+	public boolean editable(String path) {
+		return accessable(path);
+	}
+	public boolean deletable(String path) {
+		return accessable(path);
+	}
+	public boolean accessable(String path) {
+		return false;
+	}
+
+	public boolean isTrusted() {
+		return "local".equals(this.name);
+	}
+
     @Override
 	public int hashCode() {
 		final int prime = 31;
@@ -114,4 +135,5 @@ public class User {
 			return false;
 		return true;
 	}
+
 }

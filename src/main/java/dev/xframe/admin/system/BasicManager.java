@@ -37,9 +37,6 @@ public class BasicManager implements Loadable, XRegistrator {
 	@Override
 	public void load() {
 		catalog = new Catalog();
-		catalog.setName("XFrameAdmin");
-		catalog.setIcon("img/xframe.png");
-		
 		catalog.parseFrom(Codes.getScannedClasses(Clazz.filter(XChapter.class, XSegment.class)));
 	}
 	
@@ -50,8 +47,9 @@ public class BasicManager implements Loadable, XRegistrator {
 	public Catalog getCatalog(UserPrivileges privileges) {
 		Catalog catalog = this.catalog.duplicate();
 		for (Chapter chapter : getChapters()) {
-			if (privileges.test(chapter.getPath())) {
-				catalog.getChapters().add(chapter.copyBy(chapter.getPath(), privileges));
+			Chapter privileged = chapter.copyBy(chapter.getPath(), privileges);
+			if(!privileged.getNavis().isEmpty()) {
+				catalog.getChapters().add(privileged);
 			}
 		}
 		return catalog;

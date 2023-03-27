@@ -39,7 +39,7 @@ public class ProfileService {
             sysRepo.addUser(user);
         } else if(user.getType() != UserInterfaces.TypeNormal) {
             UserInterfaces.Internal.getInterface(user.getType()).validate(data.getName(), data.getPassw());
-        } else if(OpUser.isLocalUser(user.getName())) {//内网用户,只在内网ip访问时生效(admin权限),可删除该用户
+        } else if(user.isTrusted()) {//内网用户,只在内网ip访问时生效(admin权限),可删除该用户
             if(!authMgr.isLocalHost(req)){
                 throw new LogicException("非内网访问");
             }

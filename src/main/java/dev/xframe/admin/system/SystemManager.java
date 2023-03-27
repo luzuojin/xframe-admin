@@ -41,6 +41,8 @@ public class SystemManager implements Eventual {
         privileges.add(Privilege.Admin);
 
         List<VEnum> ptrees = new ArrayList<>();
+        ptrees.add(new VEnum(Privilege.Admin.getPath(), Privilege.Admin.getName()));
+
         basicMgr.getChapters().forEach(c->{
             VTree ptree = new VTree(c.getPath(), c.getName());
             privileges.add(new Privilege(c.getPath(), c.getName()));
@@ -92,7 +94,7 @@ public class SystemManager implements Eventual {
     }
 
     public UserPrivileges getPrivileges(User user) {
-        UserPrivileges p = new UserPrivileges(user.getName());
+        UserPrivileges p = new UserPrivileges(user);
         for (int role : user.getRoles()) {
             Optional.ofNullable(this.roles.get(role)).ifPresent(r -> p.add(toRolePrivileges(r)));
         }
@@ -102,10 +104,10 @@ public class SystemManager implements Eventual {
     private RolePrivileges toRolePrivileges(Role x) {
         RolePrivileges p = new RolePrivileges();
         p.setOptions(x.getOptions());
+        p.setReversed(x.getAuthReversed());
         x.getAuthorities().forEach(a->p.addPrivilege(getPrivilege(a)));
         return p;
     }
-
 
     public List<Role> getRoles() {
         return new ArrayList<>(roles.values());

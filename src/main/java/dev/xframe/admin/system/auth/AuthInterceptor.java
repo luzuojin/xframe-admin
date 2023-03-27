@@ -17,7 +17,7 @@ public class AuthInterceptor implements HttpInterceptor {
 
     public Response intercept(Request req) {
         //设置ThreadLocal变量
-        OpUser.set(authMgr.getAuthUsername(req));
+        OpUser.set(authMgr.getAuthUser(req));
         OpHost.set(AuthManager.getRemoteHost(req));
 
         if(authMgr.isReqIllegal(req)) {

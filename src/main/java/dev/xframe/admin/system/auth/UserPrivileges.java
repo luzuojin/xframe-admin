@@ -1,12 +1,14 @@
 package dev.xframe.admin.system.auth;
 
+import dev.xframe.admin.system.user.User;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
 public class UserPrivileges implements Predicate<String> {
     
-    private String username;
+    private User user;
     
     private Set<RolePrivileges> rolePrivileges = new HashSet<>();
     
@@ -14,8 +16,8 @@ public class UserPrivileges implements Predicate<String> {
     
     private String token;
     
-    public UserPrivileges(String username) {
-        this.username = username;
+    public UserPrivileges(User user) {
+        this.user = user;
         this.lastActiveTime = System.currentTimeMillis();
     }
 
@@ -27,8 +29,12 @@ public class UserPrivileges implements Predicate<String> {
         this.token = token;
     }
 
-    public String getUsername() {
-        return username;
+    public User getUser() {
+        return user;
+    }
+
+    public String getUserName() {
+        return user.getName();
     }
 
     public UserPrivileges add(RolePrivileges rolePrivilege) {
@@ -39,16 +45,16 @@ public class UserPrivileges implements Predicate<String> {
     }
     
     public boolean readable(String path) {
-        return rolePrivileges.stream().anyMatch(rp->rp.readable(path));
+        return rolePrivileges.stream().anyMatch(rp->rp.readable(path)) || user.readable(path);
     }
     public boolean creatable(String path) {
-        return rolePrivileges.stream().anyMatch(rp->rp.creatable(path));
+        return rolePrivileges.stream().anyMatch(rp->rp.creatable(path)) || user.creatable(path);
     }
     public boolean editable(String path) {
-        return rolePrivileges.stream().anyMatch(rp->rp.editable(path));
+        return rolePrivileges.stream().anyMatch(rp->rp.editable(path)) || user.editable(path);
     }
     public boolean deletable(String path) {
-        return rolePrivileges.stream().anyMatch(rp->rp.deletable(path));
+        return rolePrivileges.stream().anyMatch(rp->rp.deletable(path)) || user.deletable(path);
     }
 
     public long getLastActiveTime() {

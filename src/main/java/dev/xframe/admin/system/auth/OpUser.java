@@ -1,23 +1,22 @@
 package dev.xframe.admin.system.auth;
 
+import dev.xframe.admin.system.user.User;
 import dev.xframe.utils.XThreadLocal;
+
+import java.util.Optional;
 
 public class OpUser {
     
-    public static final String LocalUserName = "local";
+    private static final XThreadLocal<User> Scoped = new XThreadLocal<>();
     
-    private static XThreadLocal<String> OpUser = new XThreadLocal<>();
-    
-    public static void set(String username) {
-        OpUser.set(username);
+    public static void set(User user) {
+        Scoped.set(user);
     }
-    
-    public static String get() {
-        return OpUser.get();
+    public static User get() {
+        return Scoped.get();
     }
-    
-    public static boolean isLocalUser(String username) {
-        return LocalUserName.equals(username);
+    public static String getName() {
+        return Optional.ofNullable(Scoped.get()).map(User::getName).orElse(null);
     }
 
 }
