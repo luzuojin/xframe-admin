@@ -542,7 +542,7 @@ class ChartContent extends Content {
                     <div id="xchartheadbar" class="clearfix w-100"></div>
                 </div>
             </div>
-            <div id="xchartitle" class="card-header"></div>
+            <div id="xchartitle" class="card-title text-primary"></div>
             <div id="xchartbody" class="card-body d-flex align-items-center justify-content-center"></div>
         </div>`);
         return this;
@@ -580,11 +580,11 @@ class ChartContent extends Content {
         new Chart(canvas, config);
     }
     showTextBody(_pdom, config) {
+        let colored = e => (e && e.startsWith('#')) ? `var(--${e.substring(1)}, ${e})` : `var(--gray-dark)`;
         let dataset = config.data.datasets[0];
-        let color = (dataset.label && dataset.label.startsWith('#')) ? dataset.label : '#555';
         _pdom.append($(`
             <div class="text-center">
-                <span style="color:${color}; font-size:4rem; font-weight:700;">${dataset.data[0]}</span>
+                <span style="color:${colored(dataset.label)}; font-size:4rem; font-weight:700;">${dataset.data[0]}</span>
                 <br/>
                 <span>${config.data.labels[0]}</span>
             </div>
@@ -592,13 +592,14 @@ class ChartContent extends Content {
     }
     showTableBody(_pdom, config) {
         let tabox = $(`<div class="table-responsive"></div>`);
-        let table = $(`<table class="table table-bordered table-hover table-sm mb-0"></table>`);
-        let thead = $(`<thead bgcolor="#f8f9fa"></thead>`);
+        let table = $(`<table class="table table-bordered table-hover table-sm table-pin mb-0"></table>`);
+        let thead = $(`<thead></thead>`);
         let tbody = $(`<tbody></tbody>`);
-        [{label:'', data:config.data.labels}].concat(config.data.datasets).forEach(_dataset => {
-            let tr = $(`<tr></tr>`);
-            [_dataset.label].concat(_dataset.data).forEach(_data => tr.append(_dataset.label ? `<td>${_data}</td>` : `<th>${_data}</th>`));
-            (_dataset.label ? tbody : thead).append(tr);
+        let thr =   $(`<tr></tr>`).appendTo(thead).append(`<th></th>`);
+        config.data.labels.forEach(_label => thr.append(`<th>${_label}</th>`));
+        config.data.datasets.forEach(_dataset => {
+            let tdr = $(`<tr></tr>`).appendTo(tbody).append(`<td>${_dataset.label}</td>`);
+            _dataset.data.forEach(_data => tdr.append(`<td>${_data}</td>`));
         });
         _pdom.append(tabox.append(table.append(thead).append(tbody)));
     }

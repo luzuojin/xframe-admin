@@ -109,9 +109,9 @@ public class DataService2 {
     public Object mkddd() {
         return new List[]{
                 Arrays.asList(VChart.of("#6610f2", "Spring", r.nextInt(100000))),
-                Arrays.asList(VChart.of("#6610f2", "Summer", r.nextInt(100000))),
-                Arrays.asList(VChart.of("#6610f2", "Autumn", r.nextInt(100000))),
-                Arrays.asList(VChart.of("#6610f2", "Winter", r.nextInt(100000)))
+                Arrays.asList(VChart.of("#info", "Summer", r.nextInt(100000))),
+                Arrays.asList(VChart.of("#ffc107", "Autumn", r.nextInt(100000))),
+                Arrays.asList(VChart.of("#pink", "Winter", r.nextInt(100000)))
         };
     }
 }

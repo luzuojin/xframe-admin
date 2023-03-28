@@ -34,3 +34,27 @@
     border: 1px solid;
     border-radius: 0.25rem;
 }
+
+.card-title {
+    padding: 0.5rem 1.25rem;
+    margin-bottom: -1.5rem;
+}
+
+.table-pin thead {
+    background-color: #f8f9fa;
+}
+.table-pin th:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #f8f9fa;
+    z-index: 1;
+}
+.table-pin td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #ffffff;
+    z-index: 1;
+}
+.table-pin tbody>tr:hover td {
+   background-color:#f0f0f0!important;
+}
