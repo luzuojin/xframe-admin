@@ -276,7 +276,7 @@ class Content extends Node {
     }
     iniDom(_pdom) {
         this.xc = new XContainer(_pdom).append(
-        `<div id="xcontent" class="card card-outline">
+        `<div id="xcontent" class="card card-outline w-100">
             <div class="card-header">
                 <div class="row">
                     <div id="xboxhead" class="clearfix w-100"></div>
@@ -502,7 +502,7 @@ class MarkdContent extends Content {
 }
 
 //0,1,2,3
-let ChartTypesArray = ['table', 'line', 'bar', 'pie'];
+let ChartTypesArray = ['table', 'line', 'bar', 'pie', 'number'];
 let ChartColors = {
     red: 'rgb(255, 99, 132)',
     orange: 'rgb(255, 159, 64)',
@@ -536,14 +536,14 @@ class ChartContent extends Content {
     }
     iniDom(_pdom) {
         this.xc = new XContainer(_pdom).append(
-        `<div class="card card-outline">
+        `<div class="card card-outline w-100">
             <div id="xcharthead" class="card-header">
                 <div class="row">
                     <div id="xchartheadbar" class="clearfix w-100"></div>
                 </div>
             </div>
             <div id="xchartitle" class="card-header"></div>
-            <div id="xchartbody" class="card-body"></div>
+            <div id="xchartbody" class="card-body d-flex align-items-center justify-content-center"></div>
         </div>`);
         return this;
     }
@@ -569,6 +569,8 @@ class ChartContent extends Content {
         });
         if(config.type == ChartTypesArray[0]) {
             this.showTableBody(_pdom, config);
+        } else if(config.type == ChartTypesArray[4]) {
+            this.showTextBody(_pdom, config);
         } else {
             this.showChartBody(_pdom, config);
         }
@@ -577,9 +579,20 @@ class ChartContent extends Content {
         let canvas = $(`<canvas class="w-100" style="max-height:360px;"><canvas/>`).appendTo(_pdom);
         new Chart(canvas, config);
     }
+    showTextBody(_pdom, config) {
+        let dataset = config.data.datasets[0];
+        let color = (dataset.label && dataset.label.startsWith('#')) ? dataset.label : '#555';
+        _pdom.append($(`
+            <div class="text-center">
+                <span style="color:${color}; font-size:4rem; font-weight:700;">${dataset.data[0]}</span>
+                <br/>
+                <span>${config.data.labels[0]}</span>
+            </div>
+        `));
+    }
     showTableBody(_pdom, config) {
         let tabox = $(`<div class="table-responsive"></div>`);
-        let table = $(`<table class="table table-bordered table-hover table-sm"></table>`);
+        let table = $(`<table class="table table-bordered table-hover table-sm mb-0"></table>`);
         let thead = $(`<thead bgcolor="#f8f9fa"></thead>`);
         let tbody = $(`<tbody></tbody>`);
         [{label:'', data:config.data.labels}].concat(config.data.datasets).forEach(_dataset => {
@@ -689,7 +702,7 @@ class CellsContent extends Content {
         this.rowsCells.forEach((_, rowCells) => {
             let row = $(`<div class="row"></div>`).appendTo($('#xcontentbody'));
             for(let cc of rowCells) {
-                let col = $(`<div class="col-md-${cc.col}"></div>`).appendTo(row);
+                let col = $(`<div class="col-md-${cc.col} d-flex"></div>`).appendTo(row);
                 Content.of(this, {
                     type: cc.type == -1 ? cttTypes._markd : cttTypes._chart,
                     options: [],

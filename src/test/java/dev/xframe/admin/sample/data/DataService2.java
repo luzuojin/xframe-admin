@@ -19,6 +19,7 @@ import dev.xframe.utils.XStrings;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 @Rest("chart/tabs2/chart2")
@@ -100,13 +101,17 @@ public class DataService2 {
                        VChart.of("setTwo", "Winter", r.nextInt(100))));
     }
 
-    @XCell(row = 4, col = 4, type = EChart.Markd)
-    @XCell(row = 4, col = 4, type = EChart.Markd)
-    @XCell(row = 4, col = 4, type = EChart.Markd)
+    @XCell(row = 0, col = 3, type = EChart.Number)
+    @XCell(row = 0, col = 3, type = EChart.Number)
+    @XCell(row = 0, col = 3, type = EChart.Number)
+    @XCell(row = 0, col = 3, type = EChart.Number)
     @HttpMethods.GET("mkddd")
     public Object mkddd() {
-        String s = XStrings.readFrom(XReflection.getResourceAsStream("sysops.md"));
-        return new String[]{s, s, s};
+        return new List[]{
+                Arrays.asList(VChart.of("#6610f2", "Spring", r.nextInt(100000))),
+                Arrays.asList(VChart.of("#6610f2", "Summer", r.nextInt(100000))),
+                Arrays.asList(VChart.of("#6610f2", "Autumn", r.nextInt(100000))),
+                Arrays.asList(VChart.of("#6610f2", "Winter", r.nextInt(100000)))
+        };
     }
-
 }
