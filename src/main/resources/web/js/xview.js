@@ -564,8 +564,8 @@ class ChartContent extends Content {
     showContentBody() {
         let  _pdom = this.xc.child('xchartbody').empty();
         let config = this.makeConfig({
-            type :this.chartType,
-            datas:this.getData([])
+            type:this.chartType,
+            data:this.getData([])
         });
         if(config.type == ChartTypesArray[0]) {
             this.showTableBody(_pdom, config);
@@ -595,7 +595,7 @@ class ChartContent extends Content {
         let table = $(`<table class="table table-bordered table-hover table-sm table-pin mb-0"></table>`);
         let thead = $(`<thead></thead>`);
         let tbody = $(`<tbody></tbody>`);
-        let thr =   $(`<tr></tr>`).appendTo(thead).append(`<th></th>`);
+        let thr =   $(`<tr></tr>`).appendTo(thead).append(`<th>${config.data.setLabel}</th>`);
         config.data.labels.forEach(_label => thr.append(`<th>${_label}</th>`));
         config.data.datasets.forEach(_dataset => {
             let tdr = $(`<tr></tr>`).appendTo(tbody).append(`<td>${_dataset.label}</td>`);
@@ -605,24 +605,19 @@ class ChartContent extends Content {
     }
     makeConfig(_vchart) {
         let type = ChartTypesArray[_vchart.type];
-        let labels= new Grouped('label', _vchart.datas).keys;
-        let groups= new Grouped('set', _vchart.datas);
         let index = -1;
-        let datasets = [];
-        groups.forEach((k, vs) => {
+        _vchart.data.datasets.forEach(dataset => {
             let idColor = ChartColorsArray[++index];
-            datasets.push({
-                label: k,
-                data : vs.map(v=>v.value),
-                borderColor:     type == 'pie' ? 'rgb(255, 255, 255, 0.3)' : idColor,
-                backgroundColor: type == 'pie' ? ChartColorsArray : idColor,
-            })
-        });
+            dataset.data = dataset.datas;
+            dataset.borderColor     = type == 'pie' ? 'rgb(255, 255, 255, 0.3)' : idColor;
+            dataset.backgroundColor = type == 'pie' ? ChartColorsArray : idColor;
+        })
         return {
             type: type,
             data: {
-                labels: labels,
-                datasets: datasets
+                setLabel: _vchart.data.metadata.label,
+                labels:   _vchart.data.metadata.datas,
+                datasets: _vchart.data.datasets
             },
             options: {
                 responsive: true,

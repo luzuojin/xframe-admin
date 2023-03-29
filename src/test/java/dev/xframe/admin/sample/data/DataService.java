@@ -20,30 +20,22 @@ public class DataService {
     @HttpMethods.GET
     public Object ini() {
         Random r = new Random();
-        return Arrays.asList(
-                    VChart.of("setOne", "Spring", r.nextInt(100)),
-                    VChart.of("setOne", "Summer", r.nextInt(100)),
-                    VChart.of("setOne", "Autumn", r.nextInt(100)),
-                    VChart.of("setOne", "Winter", r.nextInt(100)),
-                    VChart.of("setTwo", "Spring", r.nextInt(100)),
-                    VChart.of("setTwo", "Summer", r.nextInt(100)),
-                    VChart.of("setTwo", "Autumn", r.nextInt(100)),
-                    VChart.of("setTwo", "Winter", r.nextInt(100)));
+        return VChart.of(
+                    VChart.metadata(Arrays.asList("Spring", "Summer", "Autumn", "Winter")),
+                Arrays.asList(
+                    VChart.dataset("setOne", Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100))),
+                    VChart.dataset("setTwo", Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)))
+                ));
     }
-
     @HttpMethods.GET("fetch")
     public Object fetch(@HttpArgs.Param LocalDate date) {
         Random r = new Random();
         LocalDate other = date.plusDays(1);
-        return Arrays.asList(
-                VChart.of(date.toString(), "Spring", r.nextInt(100)),
-                VChart.of(date.toString(), "Summer", r.nextInt(100)),
-                VChart.of(date.toString(), "Autumn", r.nextInt(100)),
-                VChart.of(date.toString(), "Winter", r.nextInt(100)),
-                VChart.of(other.toString(), "Spring", r.nextInt(100)),
-                VChart.of(other.toString(), "Summer", r.nextInt(100)),
-                VChart.of(other.toString(), "Autumn", r.nextInt(100)),
-                VChart.of(other.toString(), "Winter", r.nextInt(100)));
+        return VChart.of(
+                    VChart.metadata(Arrays.asList("Spring", "Summer", "Autumn", "Winter")),
+                Arrays.asList(
+                    VChart.dataset(date.toString(), Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100))),
+                    VChart.dataset(other.toString(), Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)))
+                ));
     }
-
 }

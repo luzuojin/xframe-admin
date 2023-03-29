@@ -14,15 +14,12 @@ public class CustomQueryService {
     @HttpMethods.GET
     public Object get(@HttpArgs.Path int cell) {
         Random r = new Random();
-        return Arrays.asList(
-                VChart.of("setOne", "Spring", r.nextInt(100)),
-                VChart.of("setOne", "Summer", r.nextInt(100)),
-                VChart.of("setOne", "Autumn", r.nextInt(100)),
-                VChart.of("setOne", "Winter", r.nextInt(100)),
-                VChart.of("setTwo", "Spring", r.nextInt(100)),
-                VChart.of("setTwo", "Summer", r.nextInt(100)),
-                VChart.of("setTwo", "Autumn", r.nextInt(100)),
-                VChart.of("setTwo", "Winter", r.nextInt(100)));
+        return VChart.of(
+                VChart.metadata(Arrays.asList("Spring", "Summer", "Autumn", "Winter")),
+            Arrays.asList(
+                VChart.dataset("setOne", Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100))),
+                VChart.dataset("setTwo", Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)))
+            ));
     }
 
 }
