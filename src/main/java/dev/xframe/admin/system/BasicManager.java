@@ -38,10 +38,11 @@ public class BasicManager implements Loadable, XRegistrator {
 	public void load() {
 		catalog = new Catalog();
 		catalog.parseFrom(Codes.getScannedClasses(Clazz.filter(XChapter.class, XSegment.class)));
+		catalog.makeOrdered();
 	}
 	
 	public List<Chapter> getChapters() {
-		return Catalog.sortChapters(Stream.concat(Stream.of(catalog.getChapters()), chapterValues.stream().map(Supplier::get)).flatMap(List::stream).collect(Collectors.toList()));
+		return Stream.concat(Stream.of(catalog.getChapters()), chapterValues.stream().map(Supplier::get)).flatMap(List::stream).collect(Collectors.toList());
 	}
 
 	public Catalog getCatalog(UserPrivileges privileges) {
@@ -52,7 +53,7 @@ public class BasicManager implements Loadable, XRegistrator {
 				catalog.getChapters().add(privileged);
 			}
 		}
-		return catalog;
+		return catalog.makeOrdered();
 	}
 	
     public List<VEnum> getEnumValue(String key) {

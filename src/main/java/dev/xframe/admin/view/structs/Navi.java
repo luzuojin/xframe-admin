@@ -56,4 +56,8 @@ public class Navi implements Comparable<Navi> {
 		return new Navi(navi.path, navi.name, navi.order);
 	}
 
+	public void makeOrdered() {
+		//if has children
+	}
+
 }

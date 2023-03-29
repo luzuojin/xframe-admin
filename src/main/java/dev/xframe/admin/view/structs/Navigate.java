@@ -1,6 +1,7 @@
 package dev.xframe.admin.view.structs;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +40,11 @@ public class Navigate extends Navi {
 	}
 	public void setNavis(List<Navi> navis) {
 		this.navis = navis;
+	}
+
+	public void makeOrdered() {
+		this.navis.forEach(Navi::makeOrdered);
+		Collections.sort(this.navis);
 	}
 
 }

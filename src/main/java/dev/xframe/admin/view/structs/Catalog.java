@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Catalog {
 	
@@ -21,11 +20,13 @@ public class Catalog {
 	}
 
 	public void setChapters(List<Chapter> chapters) {
-		this.chapters = sortChapters(chapters);
+		this.chapters = chapters;
 	}
 
-	public static List<Chapter> sortChapters(List<Chapter> chapters) {
-		return chapters.stream().peek(c->Collections.sort(c.getNavis())).sorted().collect(Collectors.toList());
+	public Catalog makeOrdered() {
+		this.chapters.forEach(Chapter::makeOrdered);
+		Collections.sort(this.chapters);
+		return this;
 	}
 
 	public Catalog duplicate() {
