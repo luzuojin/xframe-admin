@@ -8,39 +8,38 @@ import java.util.List;
  */
 public class VChart {
 
-    public final VData<String> metadata;
-    public final List<VData<Number>> datasets;
-    public VChart(VData<String> metadata, List<VData<Number>> datasets) {
+    public final VData metadata;
+    public final List<VData> datasets;
+    public VChart(VData metadata, List<VData> datasets) {
         this.metadata = metadata;
         this.datasets = datasets;
     }
 
-    @SafeVarargs
-    public static VChart of(VData<String> metadata, VData<Number>... datasets) {
+    public static VChart of(VData metadata, VData... datasets) {
         return of(metadata, Arrays.asList(datasets));
     }
-    public static VChart of(VData<String> metadata, List<VData<Number>> datasets) {
+    public static VChart of(VData metadata, List<VData> datasets) {
         return new VChart(metadata, datasets);
     }
 
-    public static VData<String> metadata(List<String> datas) {
+    public static VData metadata(List<String> datas) {
         return metadata("", datas);
     }
-    public static VData<String> metadata(String label, List<String> datas) {
-        return new VData<String>(label, datas);
+    public static VData metadata(String label, List<String> datas) {
+        return new VData(label, datas);
     }
 
-    public static VData<Number> dataset(List<Number> datas) {
+    public static VData dataset(List<String> datas) {
         return dataset("", datas);
     }
-    public static VData<Number> dataset(String label, List<Number> datas) {
-        return new VData<>(label, datas);
+    public static VData dataset(String label, List<String> datas) {
+        return new VData(label, datas);
     }
 
-    public static class VData<T> {
+    public static class VData {
         public final String label;
-        public final List<T> datas;
-        public VData(String label, List<T> datas) {
+        public final List<String> datas;
+        public VData(String label, List<String> datas) {
             this.label = label;
             this.datas = datas;
         }

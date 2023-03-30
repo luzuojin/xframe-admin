@@ -12,9 +12,11 @@ import dev.xframe.http.service.rest.HttpMethods;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Rest("chart/tabs1/chart1")
-@XSegment(name = "单图Content", type = EContent.Chart, desc = "DAU...", chart = EChart.Table)
+@XSegment(name = "单图Content", type = EContent.Chart, desc = "DAU...")
 public class DataService {
 
     @HttpMethods.GET
@@ -23,10 +25,11 @@ public class DataService {
         return VChart.of(
                     VChart.metadata(Arrays.asList("Spring", "Summer", "Autumn", "Winter")),
                 Arrays.asList(
-                    VChart.dataset("setOne", Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100))),
-                    VChart.dataset("setTwo", Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)))
+                    VChart.dataset("setOne", Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList())),
+                    VChart.dataset("setTwo", Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList()))
                 ));
     }
+
     @HttpMethods.GET("fetch")
     public Object fetch(@HttpArgs.Param LocalDate date) {
         Random r = new Random();
@@ -34,8 +37,8 @@ public class DataService {
         return VChart.of(
                     VChart.metadata(Arrays.asList("Spring", "Summer", "Autumn", "Winter")),
                 Arrays.asList(
-                    VChart.dataset(date.toString(), Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100))),
-                    VChart.dataset(other.toString(), Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)))
+                    VChart.dataset(date.toString(), Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList())),
+                    VChart.dataset(other.toString(), Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList()))
                 ));
     }
 }

@@ -7,6 +7,8 @@ import dev.xframe.http.service.rest.HttpMethods;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Rest("{chapter}/{segment}/{tablet}/{cell}")
 public class CustomQueryService {
@@ -17,8 +19,8 @@ public class CustomQueryService {
         return VChart.of(
                 VChart.metadata(Arrays.asList("Spring", "Summer", "Autumn", "Winter")),
             Arrays.asList(
-                VChart.dataset("setOne", Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100))),
-                VChart.dataset("setTwo", Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)))
+                VChart.dataset("setOne", Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList())),
+                VChart.dataset("setTwo", Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList()))
             ));
     }
 

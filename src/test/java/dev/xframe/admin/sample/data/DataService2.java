@@ -20,6 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Rest("chart/tabs2/chart2")
 @XSegment(name = "多图组合", type = EContent.Cells)
@@ -32,8 +34,8 @@ public class DataService2 {
         return VChart.of(
                     VChart.metadata(Arrays.asList("Spring", "Summer", "Autumn", "Winter")),
                 Arrays.asList(
-                    VChart.dataset("setOne", Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100))),
-                    VChart.dataset("setTwo", Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)))
+                    VChart.dataset("setOne", Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList())),
+                    VChart.dataset("setTwo", Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList()))
                 ));
     }
 
@@ -49,7 +51,7 @@ public class DataService2 {
         return VChart.of(
                 VChart.metadata(Arrays.asList("Spring", "Summer", "Autumn", "Winter")),
                 Arrays.asList(
-                        VChart.dataset(Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)))
+                        VChart.dataset(Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList()))
                 ));
     }
 
@@ -62,8 +64,8 @@ public class DataService2 {
         return VChart.of(
                     VChart.metadata("Date", Arrays.asList("Spring", "Summer", "Autumn", "Winter")),
                 Arrays.asList(
-                    VChart.dataset(date.toString(), Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100))),
-                    VChart.dataset(other.toString(), Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)))
+                    VChart.dataset(date.toString(), Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList())),
+                    VChart.dataset(other.toString(), Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList()))
                 ));
     }
 
@@ -82,13 +84,13 @@ public class DataService2 {
                VChart.of(
                        VChart.metadata(Arrays.asList("Spring", "Summer", "Autumn", "Winter")),
                    Arrays.asList(
-                       VChart.dataset(Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)))
+                       VChart.dataset(Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList()))
                    )),
                VChart.of(
                        VChart.metadata(Arrays.asList("Spring", "Summer", "Autumn", "Winter")),
                    Arrays.asList(
-                       VChart.dataset("setOne", Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100))),
-                       VChart.dataset("setTwo", Arrays.asList(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)))
+                       VChart.dataset("setOne", Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList())),
+                       VChart.dataset("setTwo", Stream.of(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100)).map(Object::toString).collect(Collectors.toList()))
                    )));
     }
 
@@ -99,10 +101,10 @@ public class DataService2 {
     @HttpMethods.GET("mkddd")
     public Object mkddd() {
         return Arrays.asList(
-            VChart.of(VChart.metadata(Arrays.asList("Spring")), VChart.dataset("#6610f2", Arrays.asList(r.nextInt(100000)))),
-            VChart.of(VChart.metadata(Arrays.asList("Summer")), VChart.dataset("#info", Arrays.asList(r.nextInt(100000)))),
-            VChart.of(VChart.metadata(Arrays.asList("Autumn")), VChart.dataset("#ffc107", Arrays.asList(r.nextInt(100000)))),
-            VChart.of(VChart.metadata(Arrays.asList("Winter")), VChart.dataset("#pink", Arrays.asList(r.nextInt(100000))))
+            VChart.of(VChart.metadata(Arrays.asList("Spring")), VChart.dataset("#6610f2", Stream.of(r.nextInt(100000)).map(Object::toString).collect(Collectors.toList()))),
+            VChart.of(VChart.metadata(Arrays.asList("Summer")), VChart.dataset("#info", Stream.of(r.nextInt(100000)).map(Object::toString).collect(Collectors.toList()))),
+            VChart.of(VChart.metadata(Arrays.asList("Autumn")), VChart.dataset("#ffc107", Stream.of(r.nextInt(100000)).map(Object::toString).collect(Collectors.toList()))),
+            VChart.of(VChart.metadata(Arrays.asList("Winter")), VChart.dataset("#pink", Stream.of(r.nextInt(100000)).map(Object::toString).collect(Collectors.toList())))
         );
     }
 }
