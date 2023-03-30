@@ -40,16 +40,20 @@
     margin-bottom: -1.5rem;
 }
 
-.table-pin thead {
-    background-color: #f8f9fa;
-}
-.table-pin th:first-child {
+.table-pin thead>tr>th:first-child {
     position: sticky;
     left: 0;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 2;
+}
+.table-pin thead>tr>th:not(:first-child) {
+    position: sticky;
+    top: 0;
     background-color: #f8f9fa;
     z-index: 1;
 }
-.table-pin td:first-child {
+.table-pin tbody>tr>td:first-child {
     position: sticky;
     left: 0;
     background-color: #ffffff;

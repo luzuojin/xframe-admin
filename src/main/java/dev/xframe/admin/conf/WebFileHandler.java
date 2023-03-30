@@ -17,9 +17,9 @@ import dev.xframe.utils.XProperties;
 import dev.xframe.utils.XStrings;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,6 +33,7 @@ import java.util.jar.JarFile;
 @Bean
 public class WebFileHandler implements Eventual {
     
+    private static final String RootRedirect  = "xframe.admin.rootredirect";
     private static final String TitlePropKey  = "xframe.admin.title";
     private static final String IconPropKey   = "xframe.admin.icon";
     private static final String IndexFileName = "index.html";
@@ -80,7 +81,7 @@ public class WebFileHandler implements Eventual {
             makeIndexHtmlHandler();
             makeExtensionsHandler();
         } catch (Exception e) {
-            XCaught.throwException(e);
+            throw XCaught.throwException(e);
         }
     }
 
@@ -91,9 +92,12 @@ public class WebFileHandler implements Eventual {
     private void makeIndexHtmlHandler() throws IOException {
         if(XProperties.get(TitlePropKey) != null || XProperties.get(IconPropKey) != null) {
             File file = new File(root, IndexFileName);
-            InputStream input = isDirectory ? new FileInputStream(file) : WebFileHandler.class.getClassLoader().getResourceAsStream(toInsidePath(file.getPath()));
+            InputStream input = isDirectory ? Files.newInputStream(file.toPath()) : WebFileHandler.class.getClassLoader().getResourceAsStream(toInsidePath(file.getPath()));
             byte[] indexBytes = parseIndexHtml(input);
             makeHandler1(IndexFileName, ()->new FileResponse.Binary(ContentType.HTML, indexBytes));
+            if(XProperties.getAsBool(RootRedirect, true)) {
+                makeHandler1("", ()->new FileResponse.Binary(ContentType.HTML, indexBytes));
+            }
             //icon file handler
             String icon = XProperties.get(IconPropKey);
             if(icon != null) {
@@ -149,7 +153,7 @@ public class WebFileHandler implements Eventual {
         try (JarFile jarFile = new JarFile(path);) {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
-                JarEntry entry = (JarEntry) entries.nextElement();
+                JarEntry entry = entries.nextElement();
                 String file = entry.getName();
                 if(file.startsWith(xdir) && !entry.isDirectory()) {
                     files.add(file.substring(xdir.length()));

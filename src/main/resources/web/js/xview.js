@@ -543,7 +543,7 @@ class ChartContent extends Content {
                 </div>
             </div>
             <div id="xchartitle" class="card-title text-primary"></div>
-            <div id="xchartbody" class="card-body d-flex align-items-center justify-content-center"></div>
+            <div id="xchartbody" class="card-body d-flex align-items-top justify-content-center"></div>
         </div>`);
         return this;
     }
@@ -591,8 +591,8 @@ class ChartContent extends Content {
         `));
     }
     showTableBody(_pdom, config) {
-        let tabox = $(`<div class="table-responsive"></div>`);
-        let table = $(`<table class="table table-bordered table-hover table-sm table-pin mb-0"></table>`);
+        let tabox = $(`<div class="table-responsive" style="max-height:540px;"></div>`);
+        let table = $(`<table class="table table-bordered table-hover table-sm table-pin mb-0 text-nowrap"></table>`);
         let thead = $(`<thead></thead>`);
         let tbody = $(`<tbody></tbody>`);
         let thr =   $(`<tr></tr>`).appendTo(thead).append(`<th>${config.data.setLabel}</th>`);
@@ -708,7 +708,7 @@ class CellsContent extends Content {
                 let dlOption = this.getCellDownload(cc);
                 if(dlOption) {
                     let dlbtn = $(`<button type="button" class="btn-dl" title="" data-bs-original-title="Dowload">${dlOption.name}</button>`).appendTo(col.children(":first"));
-                    xclick(dlbtn, ()=>dlOption.doDownload(this.qryParams));
+                    xclick(dlbtn, ()=>dlOption.doDownload(this.qryParams, true));
                 }
             }
         });
@@ -835,8 +835,9 @@ class Option extends Node {
     syncGet(data, func) {
         syncGet(`${this.uri()}?${$.param(data)}`, func);
     }
-    doDownload(data) {
-        doDownload(`${xHref(this.uri(), Column.packVals(xOrElse(this.children, []), col=>data[col.key]))}`);
+    doDownload(data, fullData=false) {
+        let _params = fullData ? data : Column.packVals(xOrElse(this.children, []), col=>data[col.key]);
+        doDownload(`${xHref(this.uri(), _params)}`);
     }
     popup(data) {
         (this._form = new OptionForm(this, data)).show();

@@ -234,6 +234,7 @@ function initial() {
     $('#xdialog').on('shown.bs.modal', function(){
         $('#xdialog').focus();
         $(document).on('keyup', function(e){
+            if(($(e.target).attr('id') || '').startsWith("dinput_")) return;//foucs input
             if(e.keyCode==13) {$("#xdialog_submit").trigger('click');}
             if(e.keyCode==27) {$("#xdialog_close").trigger('click');}
         });
