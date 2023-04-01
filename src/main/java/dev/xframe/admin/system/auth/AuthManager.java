@@ -7,6 +7,7 @@ import dev.xframe.inject.Bean;
 import dev.xframe.inject.Inject;
 import dev.xframe.inject.Loadable;
 import dev.xframe.task.scheduled.ScheduledExecutor;
+import dev.xframe.utils.XProperties;
 import dev.xframe.utils.XStrings;
 import io.netty.handler.codec.http.HttpMethod;
 
@@ -22,6 +23,8 @@ public class AuthManager implements Loadable {
 
     private static final String TOKEN_KEY   = "X-Token";
     private static final String REAL_IP_KEY = "X-Real-IP";
+    //转发了之后才使用x-real-ip代替remotehost
+    private static final boolean REDIRECTED = XProperties.getAsBool("xframe.admin.redirected", false);
 
     @Inject
     private SystemManager sysMgr;
@@ -70,6 +73,7 @@ public class AuthManager implements Loadable {
         //add new token
         String token = UUID.randomUUID().toString();
         privileges.setToken(token);
+        privileges.setHost(OpHost.get());
         tokenMap.put(token, privileges);
         return token;
     }
@@ -127,7 +131,7 @@ public class AuthManager implements Loadable {
         return addr.isSiteLocalAddress() || addr.isLoopbackAddress();
     }
     public static String getRemoteHost(Request req) {//优先X-Real-IP (nginx?)
-        return XStrings.orElse(req.getHeader(REAL_IP_KEY), req.remoteHost());
+        return REDIRECTED ? XStrings.orElse(req.getHeader(REAL_IP_KEY), req.remoteHost()) : req.remoteHost();
     }
     public boolean hasPrivilege(HttpMethod method, String path) {
         String username = OpUser.getName();

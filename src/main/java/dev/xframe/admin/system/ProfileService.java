@@ -2,6 +2,8 @@ package dev.xframe.admin.system;
 
 import dev.xframe.admin.conf.LogicException;
 import dev.xframe.admin.system.auth.AuthManager;
+import dev.xframe.admin.system.auth.OpHost;
+import dev.xframe.admin.system.auth.UserPrivileges;
 import dev.xframe.admin.system.user.User;
 import dev.xframe.admin.system.user.UserInterface;
 import dev.xframe.admin.system.user.UserInterfaces;
@@ -15,6 +17,7 @@ import dev.xframe.http.service.rest.HttpArgs;
 import dev.xframe.http.service.rest.HttpMethods;
 import dev.xframe.inject.Inject;
 import dev.xframe.utils.XReflection;
+import dev.xframe.utils.XStrings;
 
 @Rest("basic/profile")
 public class ProfileService {
@@ -28,6 +31,15 @@ public class ProfileService {
 	
     @HttpMethods.POST
     public Object login(Request req, @HttpArgs.Body VLogin data) {
+        if(XStrings.isEmpty(data.getPassw())) {//用户Token登录
+            UserPrivileges up = authMgr.getPrivileges(req);
+            if(up != null && OpHost.get().equals(up.getHost())) {
+                return new VUser(up.getUserName(), up.getToken(), up.getUser().roled());
+            }
+            if(!User.isTrusted(data.getName())) {//非Trusted用户直接拒绝
+                throw new LogicException("授权已过期");
+            }
+        }
         User user = sysRepo.fetchUser(data.getName());
         if(user == null) {
             int type = UserInterfaces.Internal.tryValidate(data.getName(), data.getPassw());

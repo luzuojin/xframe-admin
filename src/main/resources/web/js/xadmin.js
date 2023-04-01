@@ -91,7 +91,7 @@ function syncGet(path, func) {
 var xlatestOp;
 var httpTypes = ['_', 'get', 'post', 'put', 'delete']
 function doPost(path, op, data, func, _headers={}) {
-    doPost0(path, op, data, doResp(func), _headers);   
+    doPost0(path, op, data, doResp(func), _headers);
 }
 function doPost0(path, op, data, func, _headers={}) {
     if(!data)return;
@@ -258,17 +258,7 @@ function callExts(fn) {
     xExtendions.filter(ext=>fn in ext).forEach(ext=>ext[fn]());
 }
 
-// profile
-var xuser;
-var xheaders = {};
-function getHeaders(_headers={}) {
-    return Object.assign({}, {"X-Token": xOrGet(xuser, 'token', '')}, xheaders, _headers);
-}
-function setHeader(key, val) {
-    xheaders[key] = val;
-}
-
-//不严谨. 内网访问判定-自动登录
+//profile 不严谨. 内网访问判定-自动登录
 function isLocalUrl() {
     if( xurl.startsWith('http://127.0.0.') ||
         xurl.startsWith('http://10.') ||
@@ -279,9 +269,22 @@ function isLocalUrl() {
     }
     return false;
 }
-const reloginHash = '#!auto';
-function isLocalAutoLogin() {
-    return isLocalUrl() && location.hash != reloginHash;
+const _reloginHash = '#!auto';
+const _usrStoreKey = 'xadminuser';
+const _isLocalUrl  = isLocalUrl();
+const _isAutoLogin = (_isLocalUrl || !!xuser) && location.hash != _reloginHash;
+
+var xuser = JSON.parse(localStorage.getItem(_usrStoreKey));
+function setUser(user) {
+    localStorage.setItem(_usrStoreKey, JSON.stringify(user));
+    xuser = user;
+}
+var xheaders = {};
+function getHeaders(_headers={}) {
+    return Object.assign({}, {"X-Token": xOrGet(xuser, 'token', '')}, xheaders, _headers);
+}
+function setHeader(key, val) {
+    xheaders[key] = val;
 }
 
 const _columns = [
@@ -290,8 +293,7 @@ const _columns = [
 ];
 const _navi = new Navi(new Navi(null, '用户', 'basic'), 'unused', 'profile');//segment->content->option
 
-function showUser(user, _isAutoLogin) {
-    xuser = user;
+function showUser(user) {
     $('#xuser').empty();
     $('#xuser').append(`<i class="fas fa-user"></i> ${user.name}`);
 
@@ -304,7 +306,7 @@ function showUser(user, _isAutoLogin) {
             columns: _columns
         }).doPost({name: xuser.name, passw: ''}, ()=>{
             if(_isAutoLogin)
-                location.hash = reloginHash;
+                location.hash = _reloginHash;
             location.reload();
         });
     });
@@ -324,17 +326,17 @@ function doLogin() {
         type: opTypes.add,
         columns: _columns
     });
-    let _isAutoLogin = false;
-    let cb = op.onDataChanged = data=>{
-        showUser(data, _isAutoLogin);
-        if(data.roled) {
+    let cb = op.onDataChanged = user => {
+         setUser(user);
+        showUser(user);
+        if(user.roled) {
            showCatalog();  //show
            callExts('onLogin');
         } else {
             xtoast.warn('未分配权限,请联系管理员!!!');
         }
     };
-    if(_isAutoLogin = isLocalAutoLogin()) {
+    if(_isAutoLogin) {
         let cb0 = resp=>{
             if(resp.status == -1) {
                 op.popup();
@@ -342,7 +344,7 @@ function doLogin() {
                 cb(resp.data);
             }
         }
-        op.doPost0({name:'local'}, cb0);
+        op.doPost0(_isLocalUrl ? {name:'local'} : xuser, cb0);
     } else {
         op.popup();
     }

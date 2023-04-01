@@ -9,13 +9,14 @@ import java.util.function.Predicate;
 public class UserPrivileges implements Predicate<String> {
     
     private User user;
-    
+
     private Set<RolePrivileges> rolePrivileges = new HashSet<>();
-    
+
     private long lastActiveTime;
-    
+
+    private String host;
     private String token;
-    
+
     public UserPrivileges(User user) {
         this.user = user;
         this.lastActiveTime = System.currentTimeMillis();
@@ -24,17 +25,20 @@ public class UserPrivileges implements Predicate<String> {
     public String getToken() {
         return token;
     }
-
     public void setToken(String token) {
         this.token = token;
     }
-
     public User getUser() {
         return user;
     }
-
     public String getUserName() {
         return user.getName();
+    }
+    public String getHost() {
+        return host;
+    }
+    public void setHost(String host) {
+        this.host = host;
     }
 
     public UserPrivileges add(RolePrivileges rolePrivilege) {
@@ -60,7 +64,6 @@ public class UserPrivileges implements Predicate<String> {
     public long getLastActiveTime() {
         return lastActiveTime;
     }
-
 	public void setLastActiveTime(long lastActiveTime) {
 		this.lastActiveTime = lastActiveTime;
 	}

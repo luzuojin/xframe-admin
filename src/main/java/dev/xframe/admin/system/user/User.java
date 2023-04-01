@@ -108,7 +108,10 @@ public class User {
 	}
 
 	public boolean isTrusted() {
-		return "local".equals(this.name);
+		return isTrusted(name);
+	}
+	public static boolean isTrusted(String name) {
+		return "local".equals(name);
 	}
 
     @Override
