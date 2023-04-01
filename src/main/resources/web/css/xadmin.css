@@ -1,5 +1,5 @@
 /*sorting style*/
-.sort-table-head{
+.th-sortable {
     cursor: pointer;
 }
 .asc-icon{

@@ -307,7 +307,10 @@ class Content extends Node {
 /*-----------------------------*/
 class TableContent extends Content {
     static _ = Content.regist(cttTypes._table, this);
-    sorting = new Sorting(this);
+    sorter = new Sorter([], _data => {
+        super.setData(_data);
+        this.showTableBody0();
+    });
     constructor(parent) {
         super(parent);
     }
@@ -316,7 +319,7 @@ class TableContent extends Content {
         if(op.type == opTypes.qry || Array.isArray(data) || (data && data.data && Array.isArray(data.data))) {
             this.setData(data);
         } else if(data){
-            let _datas = this.sorting.originalData();
+            let _datas = this.sorter.origin;
             let pks = this.columns.filter(col=>col.primary).map(col=>col.key);
             let idx = pks.length==0?-1:_datas.findIndex(dat=>!pks.some(pk=>data[pk]!=dat[pk]));//! not equals
             if(idx == -1) {
@@ -327,12 +330,11 @@ class TableContent extends Content {
                 if(op.type == opTypes.del) _datas.splice(idx, 1);
             }
         }
-        this.sorting.sort();
-        this.showContentBody();
+        this.sorter.apply();
     }
     setData(data) {
         super.setData(xOrElse(data, []));
-        this.sorting.initialData();
+        this.sorter.set(this.data);
         return this;
     }
 
@@ -395,10 +397,10 @@ class TableContent extends Content {
 
     static showTableHead(_pdom, columns, hasOps=false) {
         let _tabletr = $(`<tr id='xtr_0'/>`).appendTo(_pdom.empty());
-        for(let column of columns){
-            if(xShowcase.list(column)) {
-                let _tableth = $(`<th class='align-middle'>${column.name}</th>`).appendTo(_tabletr);
-                Sorting.show(_tableth, column);
+        for(let col of columns){
+            if(xShowcase.list(col)) {
+                let _tableth = $(`<th class='align-middle'>${col.name}</th>`).appendTo(_tabletr);
+                (col.parent.sortable && col.sortable && col.parent.sorter.show(_tableth, col.key));
             }
         }
         if(hasOps)//options td head
@@ -595,12 +597,22 @@ class ChartContent extends Content {
         let table = $(`<table class="table table-bordered table-hover table-sm table-pin mb-0 text-nowrap"></table>`);
         let thead = $(`<thead></thead>`);
         let tbody = $(`<tbody></tbody>`);
-        let thr =   $(`<tr></tr>`).appendTo(thead).append(`<th>${config.data.setLabel}</th>`);
-        config.data.labels.forEach(_label => thr.append(`<th>${_label}</th>`));
-        config.data.datasets.forEach(_dataset => {
-            let tdr = $(`<tr></tr>`).appendTo(tbody).append(`<td>${_dataset.label}</td>`);
-            _dataset.data.forEach(_data => tdr.append(`<td>${_data}</td>`));
-        });
+
+        let showBody = _rows => {
+            tbody.empty();
+            _rows.forEach(_row => {
+                let tdr = $(`<tr></tr>`).appendTo(tbody);
+                _row.forEach(_col=>tdr.append(`<td>${_col}</td>`))
+            });
+        };
+        let hdata = [config.data.setLabel].concat(config.data.labels);
+        let bdata = config.data.datasets.map(dataset=>[dataset.label].concat(dataset.data));
+        let sorter= hdata.length > 0 ? new Sorter(bdata, showBody) : {show:()=>{}};
+        //head
+        let thr = $(`<tr></tr>`).appendTo(thead);
+        hdata.forEach((_col, _i) => sorter.show($(`<th>${_col}</th>`).appendTo(thr), _i));
+        //body
+        showBody(bdata);
         _pdom.append(tabox.append(table.append(thead).append(tbody)));
     }
     makeConfig(_vchart) {
@@ -718,62 +730,47 @@ class CellsContent extends Content {
 /*-----------------------------*/
 /*------------sorting-----------*/
 /*-----------------------------*/
-class Sorting {
-    constructor(content) {
-        this.content = content;
-        this.num = 0;
+class Sorter {
+    constructor(data, onDataChanged) { //set origin data
+        this.origin = data;
+        this.update = onDataChanged;
     }
-    static show(_pdom, col) {
-        if(col.sortable && col.parent.sortable && col.parent.sorting) {
-            col.parent.sorting.show0(_pdom, col);
-        }
-    }
-    show0(_pdom, col) {
-        _pdom.append(this.iconHtm(col));
-        _pdom.addClass(`sort-table-head`);
-        xclick(_pdom, () => {
+    set(data) {this.origin = data;}
+    show(_pdom, dkey) {  //dkey => sort by data[dkey]
+        let icon = $(`<span class="d-flex flex-column justify-content-center">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="12" height="12" fill="currentColor" class="bi bi-caret-up-fill asc-icon" viewBox="0 0 16 16">
+                            <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+                        </svg>
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="12" height="12" fill="currentColor" class="bi bi-caret-down-fill desc-icon" viewBox="0 0 16 16">
+                            <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                        </svg>
+                    </span>`).appendTo(_pdom);
+        _pdom.addClass('th-sortable');
+        _pdom.wrapInner(()=>`<div class="d-flex justify-content-between"></div>`);//no line break
+
+        xclick(_pdom, ()=>{
             this.cancel();
-            this.next(col);
-            this.active(col);
+            this.active(icon, dkey);
         });
     }
-    iconHtm(col){
-        return `<span id="sort-icon-${col.pid()}" style="display: flex;flex-direction: column;float: right;vertical-align: middle;">
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="12" height="12" fill="currentColor" class="bi bi-caret-up-fill asc-icon" viewBox="0 0 16 16">
-                        <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
-                    </svg>
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="12" height="12" fill="currentColor" class="bi bi-caret-down-fill desc-icon" viewBox="0 0 16 16">
-                        <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                    </svg>
-                </span>`;
+    cancel() {//cancel before
+        (this.activeIco && this.activeIco.removeClass(this.style()));
     }
-    name() {
-        return ['desc', 'nil', 'asc'][this.num + 1];
+    style() {   //activeIdx[-1, 0, 1]
+        return `sort-${['desc', 'nil', 'asc'][this.activeIdx + 1]}`;
     }
-    next(col) {
-        this.num = this.column !== col ? 1 : (this.num == 1 ? -1 : this.num + 1);
+    activeIco;
+    activeKey;
+    activeIdx = 0;
+    active(icon, dkey) {
+        this.activeIco = icon;
+        this.activeIdx = (dkey != this.activeKey) ? 1 : (this.activeIdx == 1 ? -1 : this.activeIdx + 1);
+        this.activeKey = dkey;
+        (this.activeIdx != 0 && this.activeIco.addClass(this.style()));
+        this.apply();
     }
-    initialData() {
-        this._originalData = Object.assign([], this.content.data);//set original data
-    }
-    originalData() {
-        return this._originalData;                 //original data
-    }
-    enabled() {
-        return this.column && this.num != 0;
-    }
-    cancel() {  //cancel pre column
-        if(this.enabled()) $(`#sort-icon-${this.column.pid()}`).removeClass(`sort-${this.name()}`);
-    }
-    active(col) {
-        this.column = col;
-        if(this.enabled()) $(`#sort-icon-${this.column.pid()}`).addClass(`sort-${this.name()}`);
-        this.sort();
-    }
-    sort() {
-        this.content.data = Object.assign([], this._originalData);   //reset data
-        if(this.enabled()) this.content.data.sort((a, b) => (a[this.column.key] > b[this.column.key]? 1 : -1) * this.num)
-        this.content.showTableBody0();
+    apply() {
+        this.update(Object.assign([], this.origin).sort((a, b) => (a[this.activeKey] > b[this.activeKey] ? 1 : -1) * this.activeIdx));
     }
 }
 

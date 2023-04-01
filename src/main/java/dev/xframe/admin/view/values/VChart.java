@@ -22,24 +22,24 @@ public class VChart {
         return new VChart(metadata, datasets);
     }
 
-    public static VData metadata(List<String> datas) {
+    public static VData metadata(List<Object> datas) {
         return metadata("", datas);
     }
-    public static VData metadata(String label, List<String> datas) {
+    public static VData metadata(Object label, List<Object> datas) {
         return new VData(label, datas);
     }
 
-    public static VData dataset(List<String> datas) {
+    public static VData dataset(List<Object> datas) {
         return dataset("", datas);
     }
-    public static VData dataset(String label, List<String> datas) {
+    public static VData dataset(Object label, List<Object> datas) {
         return new VData(label, datas);
     }
 
     public static class VData {
-        public final String label;
-        public final List<String> datas;
-        public VData(String label, List<String> datas) {
+        public final Object label;
+        public final List<Object> datas;
+        public VData(Object label, List<Object> datas) {
             this.label = label;
             this.datas = datas;
         }
